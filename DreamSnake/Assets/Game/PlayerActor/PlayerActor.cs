@@ -9,12 +9,16 @@ namespace Game.PlayerActor
 {
     public class PlayerActor : SimulationDrivenBehaviour
     {
-        [FormerlySerializedAs("_simulationGrid")]
-        [SerializeField]
-        private SimulationGrid _grid;
+        [SerializeField] private PlayerActorRenderer _renderer;
+
+        [SerializeField] private SimulationGrid _grid;
 
         [SerializeField] private int2 _gridPosition;
-        [FormerlySerializedAs("_gridDirection")] [SerializeField] private GridDirection _direction = GridDirection.None;
+
+        [FormerlySerializedAs("_gridDirection")]
+        [SerializeField]
+        private GridDirection _direction = GridDirection.None;
+
         [SerializeField] private int _speed = 1;
         [SerializeField] private int2 _velocity;
 
@@ -39,6 +43,7 @@ namespace Game.PlayerActor
             set
             {
                 _direction = value;
+                UpdateRendererDirection();
                 UpdateVelocity();
             }
         }
@@ -85,6 +90,12 @@ namespace Game.PlayerActor
         protected void OnValidate()
         {
             UpdateVelocity();
+            UpdateRendererDirection();
+        }
+
+        private void UpdateRendererDirection()
+        {
+            _renderer.ApplyDirection(Direction);
         }
 
         private void UpdateVelocity()

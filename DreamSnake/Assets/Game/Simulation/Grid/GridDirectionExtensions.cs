@@ -6,6 +6,11 @@ namespace Game.Simulation.Grid
 {
     public static class GridDirectionExtensions
     {
+        private static readonly Quaternion RightRotation = Quaternion.Euler(0f, 0f, 0f);
+        private static readonly Quaternion UpRotation = Quaternion.Euler(0f, 0f, 90f);
+        private static readonly Quaternion LeftRotation = Quaternion.Euler(0f, 0f, 180f);
+        private static readonly Quaternion DownRotation = Quaternion.Euler(0f, 0f, 270f);
+        
         public static Vector2 Vector2(this GridDirection target)
         {
             return target switch
@@ -28,6 +33,19 @@ namespace Game.Simulation.Grid
                 GridDirection.Up => new int2(0, 1),
                 GridDirection.Left => new int2(-1, 0),
                 GridDirection.Down => new int2(0, -1),
+                _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
+            };
+        }
+
+        public static Quaternion ToRotation(this GridDirection target)
+        {
+            return target switch
+            {
+                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(target), target, "\"None\" direction has no rotation"),
+                GridDirection.Right => RightRotation,
+                GridDirection.Up => UpRotation,
+                GridDirection.Left => LeftRotation,
+                GridDirection.Down => DownRotation,
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
             };
         }
