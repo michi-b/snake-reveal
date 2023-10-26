@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game
+namespace Game.Setup
 {
     [CreateAssetMenu(menuName = Names.GameName + "/Game Arguments")]
     public class GameArguments : ScriptableObject

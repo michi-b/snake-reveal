@@ -1,7 +1,7 @@
 ﻿using Unity.Mathematics;
 using UnityEngine;
 
-namespace Game.Extensions
+namespace Extensions
 {
     public static class Int2Extensions
     {

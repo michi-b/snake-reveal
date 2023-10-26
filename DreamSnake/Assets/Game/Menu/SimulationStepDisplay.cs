@@ -3,7 +3,7 @@ using Game.Simulation;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.GameMenu
+namespace Game.Menu
 {
     [RequireComponent(typeof(Text))]
     public class SimulationStepDisplay : SimulationDriverApplier
