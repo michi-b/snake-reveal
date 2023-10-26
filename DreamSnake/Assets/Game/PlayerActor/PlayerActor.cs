@@ -14,15 +14,55 @@ namespace Game.PlayerActor
         private SimulationGrid _grid;
 
         [SerializeField] private int2 _gridPosition;
-        [SerializeField] private GridDirection _gridDirection;
-        [SerializeField] private int _speed;
+        [FormerlySerializedAs("_gridDirection")] [SerializeField] private GridDirection _direction = GridDirection.None;
+        [SerializeField] private int _speed = 1;
+        [SerializeField] private int2 _velocity;
+
         [SerializeField] private Color _gizmoColor = Color.yellow;
         [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
 
+        private PlayerActorControls _controls;
+
+        public int Speed
+        {
+            get => _speed;
+            set
+            {
+                _speed = value;
+                UpdateVelocity();
+            }
+        }
+
+        public GridDirection Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                UpdateVelocity();
+            }
+        }
+
+        protected virtual void Awake()
+        {
+            _controls = new PlayerActorControls();
+            _controls.PlayerActor.Right.performed += _ => TurnRight();
+            _controls.PlayerActor.Up.performed += _ => TurnUp();
+            _controls.PlayerActor.Left.performed += _ => TurnLeft();
+            _controls.PlayerActor.Down.performed += _ => TurnDown();
+        }
+
         protected override void OnEnable()
         {
+            _controls.Enable();
             ApplyGridPosition();
             base.OnEnable();
+        }
+
+        protected override void OnDisable()
+        {
+            _controls.Disable();
+            base.OnDisable();
         }
 
         protected void OnDrawGizmos()
@@ -42,6 +82,36 @@ namespace Game.PlayerActor
             Gizmos.color = oldColor;
         }
 
+        protected void OnValidate()
+        {
+            UpdateVelocity();
+        }
+
+        private void UpdateVelocity()
+        {
+            _velocity = _direction.ToInt2() * _speed;
+        }
+
+        private void TurnDown()
+        {
+            Direction = GridDirection.Down;
+        }
+
+        private void TurnLeft()
+        {
+            Direction = GridDirection.Left;
+        }
+
+        private void TurnUp()
+        {
+            Direction = GridDirection.Up;
+        }
+
+        private void TurnRight()
+        {
+            Direction = GridDirection.Right;
+        }
+
         private void ApplyGridPosition()
         {
             _grid.Place(transform, _gridPosition);
@@ -50,7 +120,7 @@ namespace Game.PlayerActor
         public override void SimulationStepUpdate()
         {
             _gridPosition = _grid.Clamp(_gridPosition);
-            _gridPosition += _gridDirection.ToInt2() * _speed;
+            _gridPosition += _direction.ToInt2() * _speed;
             ApplyGridPosition();
         }
     }

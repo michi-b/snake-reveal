@@ -7,7 +7,7 @@ namespace Game.Simulation
     public class SimulationDriver : MonoBehaviour
     {
         [SerializeField] private SimulationStepService _simulationStepService;
-        [SerializeField] private readonly double _simulationStepDuration = 0.0083333333333333332; // 120 fps
+        [SerializeField] private double _simulationStepDuration = 0.0083333333333333332; // 120 fps
         [SerializeField] private int _maxSimulationStepsPerFrame = 10; // 60 fps
 
         private int _lastDisableSimulationStepCount;
