@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Simulation
 {
-    [CreateAssetMenu(menuName = Names.GameName + "/SimulationStepService")]
+    [CreateAssetMenu(menuName = Names.GameName + "/Simulation Step Service")]
     public class SimulationStepService : ScriptableObject
     {
         private readonly List<ISimulationDriven> _drivenItems = new List<ISimulationDriven>();
