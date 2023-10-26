@@ -70,3 +70,7 @@ AiReveal//[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 # Temporary auto-generated Android Assets
 AiReveal/[Aa]ssets/[Ss]treamingAssets/aa.meta
 AiReveal/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Amplify Shader Editor
+AiReveal/[Aa]ssets/AmplifyShaderEditor/
+AiReveal/[Aa]ssets/AmplifyShaderEditor.meta
