@@ -1,9 +1,12 @@
+using Game.Lines;
 using Game.Simulation;
 using Game.Simulation.Grid;
+using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Utility;
+using Debug = System.Diagnostics.Debug;
 
 namespace Game.PlayerActor
 {
@@ -12,6 +15,10 @@ namespace Game.PlayerActor
         [SerializeField] private PlayerActorRenderer _renderer;
 
         [SerializeField] private SimulationGrid _grid;
+
+        [SerializeField] private LineCache _lineCache;
+
+        [SerializeField] private LineContainer _lineContainer;
 
         [SerializeField] private int2 _gridPosition;
 
@@ -26,6 +33,8 @@ namespace Game.PlayerActor
         [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
 
         private PlayerActorControls _controls;
+
+        [CanBeNull] private Line _currentLine;
 
         public int Speed
         {
@@ -130,9 +139,44 @@ namespace Game.PlayerActor
 
         public override void SimulationStepUpdate()
         {
-            _gridPosition = _grid.Clamp(_gridPosition);
-            _gridPosition += _direction.ToInt2() * _speed;
+            if (_direction != GridDirection.None)
+            {
+                Move(_direction.ToInt2() * _speed);
+            }
+        }
+
+        private void Move(int2 move)
+        {
+            EnsureHasCurrentLine();
+
+            Debug.Assert(_currentLine != null, nameof(_currentLine) + " != null");
+
+            int2 newGridPosition = _grid.Clamp(_gridPosition + move);
+
+            if (newGridPosition.x != _currentLine.Start.x && newGridPosition.y != _currentLine.Start.y)
+            {
+                StartNewLine();
+            }
+
+            _lineContainer.Place(_currentLine, _currentLine.Start, newGridPosition);
+
+            _gridPosition = newGridPosition;
+
             ApplyGridPosition();
+        }
+
+        private void EnsureHasCurrentLine()
+        {
+            if (_currentLine == null)
+            {
+                StartNewLine();
+            }
+        }
+
+        private void StartNewLine()
+        {
+            _currentLine = _lineCache.Get();
+            _lineContainer.Place(_currentLine, _gridPosition, _gridPosition);
         }
     }
 }

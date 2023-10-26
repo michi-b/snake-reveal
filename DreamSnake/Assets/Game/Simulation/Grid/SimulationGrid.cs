@@ -56,12 +56,13 @@ namespace Game.Simulation.Grid
         public Vector2 GetScenePosition(int2 gridPosition) => _lowerLeftCornerScenePosition + SceneCellSize * gridPosition.ToVector2();
 
         public Vector3 GetWorldPosition(int2 gridPosition) => GetScenePosition(GetScenePosition(gridPosition));
+        public Vector3 GetWorldPosition(int2 gridPosition, float z) => GetScenePosition(gridPosition).ToVector3(z);
 
         private Vector3 GetScenePosition(Vector2 scenePosition) => scenePosition.ToVector3(transform.position.z);
 
         public void Place(Transform targetTransform, int2 gridPosition)
         {
-            targetTransform.position = GetScenePosition(gridPosition).ToVector3(targetTransform.position.z);
+            targetTransform.position = GetWorldPosition(gridPosition, targetTransform.position.z);
         }
 
         public int2 Clamp(int2 gridPosition)
