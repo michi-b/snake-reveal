@@ -1,84 +1,53 @@
-using System;
-using Extensions;
+using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game.Lines
 {
-    [RequireComponent(typeof(Renderer))]
+    [RequireComponent(typeof(LineRenderer))]
     public class Line : MonoBehaviour
     {
-        [SerializeField] private Vector2 _spriteSize = new(0.02f, 0.02f);
-        [SerializeField] private Vector2 _spriteSizeReciprocal = new(50f, 50f);
+        private LineRenderer _renderer;
 
-        private Renderer _renderer;
+        // start position in grid space
+        public int2 Start { get; }
 
-        public int2 Start { get; private set; }
-        public int2 End { get; private set; }
+        // end position in grid space
+        public int2 End { get; }
+
+        // next line in the chain, if connected
+        [CanBeNull] public Line Next { get; set; }
+
+        // previous line in the chain, if connected
+        [CanBeNull] public Line Previous { get; set; }
+
+        public GridDirection Direction { get; private set; }
 
         protected void Awake()
         {
-            _renderer = GetComponent<Renderer>();
+            _renderer = GetComponent<LineRenderer>();
         }
 
-        protected void OnValidate()
+        public void Place(SimulationGrid grid, int2 start, int2 end)
         {
-            _spriteSizeReciprocal = new Vector2(1f, 1f) / _spriteSize;
-        }
+            _renderer.enabled = true;
+            Debug.Assert(_renderer.positionCount == 2);
+            _renderer.SetPosition(0, grid.GetScenePosition(start));
+            _renderer.SetPosition(1, grid.GetScenePosition(end));
 
-        public void Place(Grid grid, int2 start, int2 end, float z)
-        {
-            Start = start;
-            End = end;
-
-            if (start.x == end.x && start.y == end.y)
+            bool isHorizontal = start.x == end.x;
+#if DEBUG
+            bool isVertical = start.y == end.y;
+            Debug.Assert(isHorizontal || isVertical);
+#endif
+            if (isHorizontal)
             {
-                var thisTransform = transform;
-                transform.position = grid.GetWorldPosition(start, z);
-                thisTransform.localScale = Vector3.one;
-                _renderer.enabled = false;
-                return;
-            }
-
-            var startScenePosition = grid.GetScenePosition(start);
-            var endScenePosition = grid.GetScenePosition(end);
-            var center = (startScenePosition + endScenePosition) * 0.5f;
-
-            if (start.x == end.x)
-            {
-                var height = endScenePosition.y - startScenePosition.y;
-                PlaceVertical(grid, center, height, z);
-            }
-            else if (start.y == end.y)
-            {
-                var width = endScenePosition.x - startScenePosition.x;
-                PlaceHorizontal(grid, center, width, z);
+                Direction = end.y > start.y ? GridDirection.Up : GridDirection.Down;
             }
             else
             {
-                throw new ArgumentException
-                (
-                    "Line must be either horizontal or vertical,"
-                    + " but start and end positions are not aligned in neither x nor y."
-                    + $" Start={start}; End={end}."
-                );
+                Direction = end.x > start.x ? GridDirection.Right : GridDirection.Left;
             }
-
-            _renderer.enabled = true;
-        }
-
-        private void PlaceHorizontal(Grid grid, Vector2 center, float width, float z)
-        {
-            var thisTransform = transform;
-            thisTransform.localScale = new Vector3(width * _spriteSizeReciprocal.x, 1f, 1f);
-            thisTransform.position = center.ToVector3(z);
-        }
-
-        private void PlaceVertical(Grid grid, Vector2 center, float height, float z)
-        {
-            var thisTransform = transform;
-            thisTransform.localScale = new Vector3(1f, height * _spriteSizeReciprocal.y, 1f);
-            thisTransform.position = center.ToVector3(z);
         }
     }
 }

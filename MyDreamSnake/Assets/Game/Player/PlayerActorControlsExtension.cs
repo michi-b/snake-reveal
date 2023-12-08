@@ -3,10 +3,10 @@ using UnityEngine.InputSystem;
 
 namespace Game.Player
 {
-    public partial class @PlayerActorControls: IInputActionCollection2, IDisposable
+    public partial class PlayerActorControls : IInputActionCollection2, IDisposable
     {
         private readonly PlayerActor _actor;
-        
+
         public PlayerActorControls(PlayerActor actor) : this()
         {
             _actor = actor;
@@ -26,15 +26,15 @@ namespace Game.Player
         {
             _actor.Direction = GridDirection.Up;
         }
-        
+
         private void OnLeftPerformed(InputAction.CallbackContext ctx)
         {
             _actor.Direction = GridDirection.Left;
         }
-        
+
         private void OnRightPerformed(InputAction.CallbackContext ctx)
         {
             _actor.Direction = GridDirection.Right;
         }
-   }
+    }
 }

@@ -10,7 +10,7 @@ namespace Game.Player
 
         public void ApplyDirection(GridDirection direction)
         {
-            var isIdle = direction == GridDirection.None;
+            bool isIdle = direction == GridDirection.None;
             _idle.enabled = isIdle;
             _moving.enabled = !isIdle;
             if (!isIdle)

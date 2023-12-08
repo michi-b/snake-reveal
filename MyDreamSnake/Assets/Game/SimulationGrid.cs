@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 namespace Game
 {
-    public class Grid : MonoBehaviour
+    public class SimulationGrid : MonoBehaviour
     {
         [SerializeField] private Vector2 _sceneSize = new(10.8f, 10.8f);
         [SerializeField] private int2 _size = new(1024, 1024);
@@ -24,6 +24,8 @@ namespace Game
 
         public int GizmoCellSizeMultiplier => _gizmoCellSizeMultiplier;
 
+        public int2 Size => _size;
+
         protected void OnDrawGizmos()
         {
             if (!_drawGizmo)
@@ -31,24 +33,24 @@ namespace Game
                 return;
             }
 
-            var gizmoCellCount = _size / _gizmoCellSizeMultiplier;
+            int2 gizmoCellCount = _size / _gizmoCellSizeMultiplier;
 
-            var oldColor = Gizmos.color;
+            Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
-            for (var gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.x; gizmoLineIndex++)
+            for (int gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.x; gizmoLineIndex++)
             {
-                var x = gizmoLineIndex * _gizmoCellSizeMultiplier;
-                var start = GetWorldPosition(new int2(x, 0));
-                var end = GetWorldPosition(new int2(x, _size.y));
+                int x = gizmoLineIndex * _gizmoCellSizeMultiplier;
+                Vector3 start = GetWorldPosition(new int2(x, 0));
+                Vector3 end = GetWorldPosition(new int2(x, _size.y));
                 Gizmos.DrawLine(start, end);
             }
 
-            for (var gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.y; gizmoLineIndex++)
+            for (int gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.y; gizmoLineIndex++)
             {
-                var y = gizmoLineIndex * _gizmoCellSizeMultiplier;
-                var start = GetWorldPosition(new int2(0, y));
-                var end = GetWorldPosition(new int2(_size.x, y));
+                int y = gizmoLineIndex * _gizmoCellSizeMultiplier;
+                Vector3 start = GetWorldPosition(new int2(0, y));
+                Vector3 end = GetWorldPosition(new int2(_size.x, y));
                 Gizmos.DrawLine(start, end);
             }
 

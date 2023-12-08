@@ -1,12 +1,8 @@
-using System;
-using Extensions;
 using Game.Lines;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Utility;
-using Debug = System.Diagnostics.Debug;
 
 namespace Game.Player
 {
@@ -20,9 +16,6 @@ namespace Game.Player
         private GridDirection _direction = GridDirection.None;
 
         [SerializeField] private int _speed = 1;
-
-        [SerializeField] private Color _gizmoColor = Color.yellow;
-        [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
 
         private PlayerActorControls _controls;
 
@@ -55,7 +48,7 @@ namespace Game.Player
         {
             _controls.Enable();
         }
-        
+
         protected virtual void OnDisable()
         {
             _controls.Disable();

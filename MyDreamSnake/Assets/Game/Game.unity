@@ -287,9 +287,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sceneSize: {x: 10, y: 10}
   _size:
-    x: 100
-    y: 100
-  _sceneCellSize: {x: 0.1, y: 0.1}
+    x: 1000
+    y: 1000
+  _sceneCellSize: {x: 0.01, y: 0.01}
   _lowerLeftCornerScenePosition: {x: -5, y: -5}
   _gizmoCellSizeMultiplier: 10
   _gizmoColor: {r: 0, g: 1, b: 1, a: 0.2}
@@ -338,7 +338,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45ea581b29c0db4e89cc9b4ef5caf89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _grid: {fileID: 0}
+  _grid: {fileID: 1501073790}
+  _lineCache: {fileID: 9192085632094873029}
 --- !u!4 &563212767878667077
 Transform:
   m_ObjectHideFlags: 0
@@ -366,7 +367,7 @@ GameObject:
   - component: {fileID: 2529947806634446965}
   - component: {fileID: 468180488037778164}
   m_Layer: 0
-  m_Name: LineContainer
+  m_Name: Shape
   m_TagString: Untagged
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -637,16 +638,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _renderer: {fileID: 6105569098329448530}
-  _lineCache: {fileID: 0}
-  _lineContainer: {fileID: 0}
   _gridPosition:
-    x: 0
-    y: 0
+    x: 500
+    y: 500
   _direction: 0
-  _speed: 1
-  _gizmoColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  _gizmoWireAlphaMultiplier: 0.3
-  _grid: {fileID: 1501073790}
+  _speed: 2
 --- !u!1001 &4141078612623952100
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1203,6 +1199,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _grid: {fileID: 1501073790}
   _playerActor: {fileID: 4047278782657128352}
+  _shape: {fileID: 468180488037778164}
+  _startShapeHalfSize:
+    x: 50
+    y: 50
 --- !u!114 &9192085632094873029
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
@@ -8,18 +9,28 @@ namespace Game.Lines
     {
         [SerializeField] private Line _linePrefab;
 
+        private Stack<Line> _cache;
+
         private int _currentLineIndex = -1;
 
         public Line Get()
         {
-            var newLine = Instantiate(_linePrefab);
-            newLine.gameObject.name = "Line" + (++_currentLineIndex).ToString(CultureInfo.InvariantCulture);
-            return newLine;
+            Line result = _cache.Count == 0 ? Instantiate(_linePrefab) : GetCachedLine();
+            result.gameObject.name = "Line" + (++_currentLineIndex).ToString(CultureInfo.InvariantCulture);
+            return result;
         }
 
         public void Return(Line line)
         {
-            Destroy(line.gameObject);
+            line.gameObject.SetActive(false);
+            _cache.Push(line);
+        }
+
+        private Line GetCachedLine()
+        {
+            Line result = _cache.Pop();
+            result.gameObject.SetActive(true);
+            return result;
         }
     }
 }
