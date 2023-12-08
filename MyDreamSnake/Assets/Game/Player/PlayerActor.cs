@@ -1,3 +1,5 @@
+using System;
+using Extensions;
 using Game.Lines;
 using JetBrains.Annotations;
 using Unity.Mathematics;
@@ -12,10 +14,6 @@ namespace Game.Player
     {
         [SerializeField] private PlayerActorRenderer _renderer;
 
-        [SerializeField] private LineCache _lineCache;
-
-        [SerializeField] private LineContainer _lineContainer;
-
         [SerializeField] private int2 _gridPosition;
 
         [FormerlySerializedAs("_gridDirection")] [SerializeField]
@@ -26,21 +24,9 @@ namespace Game.Player
         [SerializeField] private Color _gizmoColor = Color.yellow;
         [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
 
-        [SerializeField] private Grid _grid;
-
         private PlayerActorControls _controls;
 
         [CanBeNull] private Line _currentLine;
-
-        public int Speed
-        {
-            get => _speed;
-            set
-            {
-                _speed = value;
-                UpdateVelocity();
-            }
-        }
 
         public GridDirection Direction
         {
@@ -49,72 +35,40 @@ namespace Game.Player
             {
                 _direction = value;
                 UpdateRendererDirection();
-                UpdateVelocity();
             }
         }
 
-        protected void OnDrawGizmos()
+        public int Speed => _speed;
+
+        public int2 GridPosition
         {
-            var oldColor = Gizmos.color;
+            get => _gridPosition;
+            set => _gridPosition = value;
+        }
 
-            Gizmos.color = _gizmoColor;
-            var singleCellRadius = _grid.SceneCellSize.magnitude * MathfUtility.UnitDiagonal;
-            var position = transform.position;
-            Gizmos.DrawSphere(position, singleCellRadius);
+        protected virtual void Awake()
+        {
+            _controls = new PlayerActorControls(this);
+        }
 
-            var wireColor = _gizmoColor;
-            wireColor.a *= _gizmoWireAlphaMultiplier;
-            Gizmos.color = wireColor;
-            Gizmos.DrawWireSphere(position, singleCellRadius * _grid.GizmoCellSizeMultiplier);
-
-            Gizmos.color = oldColor;
+        protected virtual void OnEnable()
+        {
+            _controls.Enable();
+        }
+        
+        protected virtual void OnDisable()
+        {
+            _controls.Disable();
         }
 
         protected void OnValidate()
         {
-            UpdateVelocity();
             UpdateRendererDirection();
         }
 
         private void UpdateRendererDirection()
         {
             _renderer.ApplyDirection(Direction);
-        }
-
-        private void UpdateVelocity()
-        {
-        }
-
-        private void Move(int2 move)
-        {
-            EnsureHasCurrentLine();
-
-            Debug.Assert(_currentLine != null, nameof(_currentLine) + " != null");
-
-            var newGridPosition = _grid.Clamp(_gridPosition + move);
-
-            if (newGridPosition.x != _currentLine.Start.x && newGridPosition.y != _currentLine.Start.y)
-            {
-                StartNewLine();
-            }
-
-            _lineContainer.Place(_currentLine, _currentLine.Start, newGridPosition);
-
-            _gridPosition = newGridPosition;
-        }
-
-        private void EnsureHasCurrentLine()
-        {
-            if (_currentLine == null)
-            {
-                StartNewLine();
-            }
-        }
-
-        private void StartNewLine()
-        {
-            _currentLine = _lineCache.Get();
-            _lineContainer.Place(_currentLine, _gridPosition, _gridPosition);
         }
     }
 }
