@@ -4,6 +4,7 @@ using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using Utility;
 using Debug = System.Diagnostics.Debug;
