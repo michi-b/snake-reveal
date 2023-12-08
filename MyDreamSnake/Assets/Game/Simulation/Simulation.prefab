@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3804436281290995676}
   - component: {fileID: 3418249720444974549}
   m_Layer: 0
-  m_Name: SimulationGrid
+  m_Name: Simulation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,9 +49,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sceneSize: {x: 10.8, y: 10.8}
   _size:
-    x: 1024
-    y: 1024
-  _sceneCellSize: {x: 0.010546875, y: 0.010546875}
+    x: 1000
+    y: 1000
+  _sceneCellSize: {x: 0.0108, y: 0.0108}
   _lowerLeftCornerScenePosition: {x: -5.4, y: -5.4}
   _gizmoCellSizeMultiplier: 8
   _gizmoColor: {r: 0, g: 1, b: 1, a: 0.2}

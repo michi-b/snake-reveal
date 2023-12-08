@@ -1,17 +1,15 @@
 using Game.Lines;
-using Game.Simulation;
 using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using Utility;
 using Debug = System.Diagnostics.Debug;
 
 namespace Game.PlayerActor
 {
-    public class PlayerActor : SimulationDrivenBehaviour
+    public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private PlayerActorRenderer _renderer;
 
@@ -28,7 +26,6 @@ namespace Game.PlayerActor
         private GridDirection _direction = GridDirection.None;
 
         [SerializeField] private int _speed = 1;
-        [SerializeField] private int2 _velocity;
 
         [SerializeField] private Color _gizmoColor = Color.yellow;
         [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
@@ -56,28 +53,6 @@ namespace Game.PlayerActor
                 UpdateRendererDirection();
                 UpdateVelocity();
             }
-        }
-
-        protected virtual void Awake()
-        {
-            _controls = new PlayerActorControls();
-            _controls.PlayerActor.Right.performed += _ => TurnRight();
-            _controls.PlayerActor.Up.performed += _ => TurnUp();
-            _controls.PlayerActor.Left.performed += _ => TurnLeft();
-            _controls.PlayerActor.Down.performed += _ => TurnDown();
-        }
-
-        protected override void OnEnable()
-        {
-            _controls.Enable();
-            ApplyGridPosition();
-            base.OnEnable();
-        }
-
-        protected override void OnDisable()
-        {
-            _controls.Disable();
-            base.OnDisable();
         }
 
         protected void OnDrawGizmos()
@@ -110,40 +85,6 @@ namespace Game.PlayerActor
 
         private void UpdateVelocity()
         {
-            _velocity = _direction.ToInt2() * _speed;
-        }
-
-        private void TurnDown()
-        {
-            Direction = GridDirection.Down;
-        }
-
-        private void TurnLeft()
-        {
-            Direction = GridDirection.Left;
-        }
-
-        private void TurnUp()
-        {
-            Direction = GridDirection.Up;
-        }
-
-        private void TurnRight()
-        {
-            Direction = GridDirection.Right;
-        }
-
-        private void ApplyGridPosition()
-        {
-            _grid.Place(transform, _gridPosition);
-        }
-
-        public override void SimulationStepUpdate()
-        {
-            if (_direction != GridDirection.None)
-            {
-                Move(_direction.ToInt2() * _speed);
-            }
         }
 
         private void Move(int2 move)
@@ -162,8 +103,6 @@ namespace Game.PlayerActor
             _lineContainer.Place(_currentLine, _currentLine.Start, newGridPosition);
 
             _gridPosition = newGridPosition;
-
-            ApplyGridPosition();
         }
 
         private void EnsureHasCurrentLine()
