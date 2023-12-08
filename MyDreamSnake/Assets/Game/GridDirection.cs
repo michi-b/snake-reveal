@@ -1,4 +1,4 @@
-namespace Game.Simulation.Grid
+namespace Game
 {
     public enum GridDirection
     {

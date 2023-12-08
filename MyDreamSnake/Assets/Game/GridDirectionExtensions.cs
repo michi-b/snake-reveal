@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Game.Simulation.Grid
+namespace Game
 {
     public static class GridDirectionExtensions
     {
@@ -10,7 +10,7 @@ namespace Game.Simulation.Grid
         private static readonly Quaternion UpRotation = Quaternion.Euler(0f, 0f, 90f);
         private static readonly Quaternion LeftRotation = Quaternion.Euler(0f, 0f, 180f);
         private static readonly Quaternion DownRotation = Quaternion.Euler(0f, 0f, 270f);
-        
+
         public static Vector2 Vector2(this GridDirection target)
         {
             return target switch
@@ -41,7 +41,8 @@ namespace Game.Simulation.Grid
         {
             return target switch
             {
-                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(target), target, "\"None\" direction has no rotation"),
+                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(target), target,
+                    "\"None\" direction has no rotation"),
                 GridDirection.Right => RightRotation,
                 GridDirection.Up => UpRotation,
                 GridDirection.Left => LeftRotation,

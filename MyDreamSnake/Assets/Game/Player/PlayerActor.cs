@@ -1,5 +1,4 @@
 using Game.Lines;
-using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
@@ -7,13 +6,11 @@ using UnityEngine.Serialization;
 using Utility;
 using Debug = System.Diagnostics.Debug;
 
-namespace Game.PlayerActor
+namespace Game.Player
 {
     public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private PlayerActorRenderer _renderer;
-
-        [SerializeField] private SimulationGrid _grid;
 
         [SerializeField] private LineCache _lineCache;
 
@@ -21,14 +18,15 @@ namespace Game.PlayerActor
 
         [SerializeField] private int2 _gridPosition;
 
-        [FormerlySerializedAs("_gridDirection")]
-        [SerializeField]
+        [FormerlySerializedAs("_gridDirection")] [SerializeField]
         private GridDirection _direction = GridDirection.None;
 
         [SerializeField] private int _speed = 1;
 
         [SerializeField] private Color _gizmoColor = Color.yellow;
         [SerializeField] [Range(0f, 1f)] private float _gizmoWireAlphaMultiplier = 0.5f;
+
+        [SerializeField] private Grid _grid;
 
         private PlayerActorControls _controls;
 
@@ -57,14 +55,14 @@ namespace Game.PlayerActor
 
         protected void OnDrawGizmos()
         {
-            Color oldColor = Gizmos.color;
+            var oldColor = Gizmos.color;
 
             Gizmos.color = _gizmoColor;
-            float singleCellRadius = _grid.SceneCellSize.magnitude * MathfUtility.UnitDiagonal;
-            Vector3 position = transform.position;
+            var singleCellRadius = _grid.SceneCellSize.magnitude * MathfUtility.UnitDiagonal;
+            var position = transform.position;
             Gizmos.DrawSphere(position, singleCellRadius);
 
-            Color wireColor = _gizmoColor;
+            var wireColor = _gizmoColor;
             wireColor.a *= _gizmoWireAlphaMultiplier;
             Gizmos.color = wireColor;
             Gizmos.DrawWireSphere(position, singleCellRadius * _grid.GizmoCellSizeMultiplier);
@@ -93,7 +91,7 @@ namespace Game.PlayerActor
 
             Debug.Assert(_currentLine != null, nameof(_currentLine) + " != null");
 
-            int2 newGridPosition = _grid.Clamp(_gridPosition + move);
+            var newGridPosition = _grid.Clamp(_gridPosition + move);
 
             if (newGridPosition.x != _currentLine.Start.x && newGridPosition.y != _currentLine.Start.y)
             {
