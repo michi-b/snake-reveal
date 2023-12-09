@@ -9,10 +9,15 @@ namespace Game.Lines
     public class LineLoop : MonoBehaviour
     {
         [SerializeField] private Line _start;
+        [SerializeField] private Turn _turn;
 
         public Line Start => _start;
 
-        public Turn Turn { get; private set; }
+        public Turn Turn
+        {
+            get => _turn;
+            private set => _turn = value;
+        }
 
         // ReSharper disable once SuggestBaseTypeForParameter
         private void Adopt(Line line)
