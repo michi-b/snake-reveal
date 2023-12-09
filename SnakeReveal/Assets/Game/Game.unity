@@ -239,8 +239,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d271fed9677bd444a321e39df36a28f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _arguments: {fileID: 11400000, guid: c515577130ec25e4b85c9cbe5471ad9c, type: 2}
-  _playButton: {fileID: 0}
 --- !u!4 &392424322
 Transform:
   m_ObjectHideFlags: 0
@@ -287,11 +285,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sceneSize: {x: 10, y: 10}
   _size:
-    x: 1000
-    y: 1000
-  _sceneCellSize: {x: 0.01, y: 0.01}
+    x: 500
+    y: 500
+  _sceneCellSize: {x: 0.02, y: 0.02}
   _lowerLeftCornerScenePosition: {x: -5, y: -5}
-  _gizmoCellSizeMultiplier: 10
+  _gizmoCellSizeMultiplier: 1
   _gizmoColor: {r: 0, g: 1, b: 1, a: 0.2}
   _drawGizmo: 1
 --- !u!4 &1501073791
@@ -338,8 +336,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45ea581b29c0db4e89cc9b4ef5caf89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _grid: {fileID: 1501073790}
-  _lineCache: {fileID: 9192085632094873029}
 --- !u!4 &563212767878667077
 Transform:
   m_ObjectHideFlags: 0
@@ -367,7 +363,7 @@ GameObject:
   - component: {fileID: 2529947806634446965}
   - component: {fileID: 468180488037778164}
   m_Layer: 0
-  m_Name: Shape
+  m_Name: CollectedShape
   m_TagString: Untagged
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -458,7 +454,7 @@ GameObject:
   - component: {fileID: 563212767878667077}
   - component: {fileID: 4047278782657128352}
   m_Layer: 0
-  m_Name: PlayerActor
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -642,7 +638,7 @@ MonoBehaviour:
     x: 500
     y: 500
   _direction: 0
-  _speed: 2
+  _speed: 1
 --- !u!1001 &4141078612623952100
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1199,10 +1195,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _grid: {fileID: 1501073790}
   _playerActor: {fileID: 4047278782657128352}
-  _shape: {fileID: 468180488037778164}
+  _lineCache: {fileID: 9192085632094873029}
+  _collectedShape: {fileID: 468180488037778164}
   _startShapeHalfSize:
-    x: 50
-    y: 50
+    x: 10
+    y: 10
 --- !u!114 &9192085632094873029
 MonoBehaviour:
   m_ObjectHideFlags: 0

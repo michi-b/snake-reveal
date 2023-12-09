@@ -7,9 +7,11 @@ namespace Game.Lines
     //todo: implement actual caching (this is currently just instantiate and destroy)
     public class LineCache : MonoBehaviour
     {
+        private const int InitialCapacity = 1000;
+
         [SerializeField] private Line _linePrefab;
 
-        private Stack<Line> _cache;
+        private readonly Stack<Line> _cache = new(InitialCapacity);
 
         private int _currentLineIndex = -1;
 

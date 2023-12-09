@@ -1,3 +1,5 @@
+using Extensions;
+using Game.Enums;
 using Game.Lines;
 using JetBrains.Annotations;
 using Unity.Mathematics;
@@ -27,7 +29,7 @@ namespace Game.Player
             set
             {
                 _direction = value;
-                UpdateRendererDirection();
+                ApplyRendererDirection();
             }
         }
 
@@ -39,27 +41,17 @@ namespace Game.Player
             set => _gridPosition = value;
         }
 
-        protected virtual void Awake()
-        {
-            _controls = new PlayerActorControls(this);
-        }
-
-        protected virtual void OnEnable()
-        {
-            _controls.Enable();
-        }
-
-        protected virtual void OnDisable()
-        {
-            _controls.Disable();
-        }
-
         protected void OnValidate()
         {
-            UpdateRendererDirection();
+            ApplyRendererDirection();
         }
 
-        private void UpdateRendererDirection()
+        public void ApplyGridPosition(SimulationGrid grid)
+        {
+            transform.SetLocalPositionXY(grid.GetScenePosition(GridPosition));
+        }
+
+        private void ApplyRendererDirection()
         {
             _renderer.ApplyDirection(Direction);
         }

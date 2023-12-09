@@ -1,15 +1,16 @@
 ﻿using System;
+using Game.Enums;
 using UnityEngine.InputSystem;
 
 namespace Game.Player
 {
     public partial class PlayerActorControls : IInputActionCollection2, IDisposable
     {
-        private readonly PlayerActor _actor;
+        private readonly Action<GridDirection> _requestDirectionChange;
 
-        public PlayerActorControls(PlayerActor actor) : this()
+        public PlayerActorControls(Action<GridDirection> requestDirectionChange) : this()
         {
-            _actor = actor;
+            _requestDirectionChange = requestDirectionChange;
             PlayerActor.Down.performed += OnDownPerformed;
             PlayerActor.Up.performed += OnUpPerformed;
             PlayerActor.Left.performed += OnLeftPerformed;
@@ -19,22 +20,22 @@ namespace Game.Player
 
         private void OnDownPerformed(InputAction.CallbackContext ctx)
         {
-            _actor.Direction = GridDirection.Down;
+            _requestDirectionChange(GridDirection.Down);
         }
 
         private void OnUpPerformed(InputAction.CallbackContext ctx)
         {
-            _actor.Direction = GridDirection.Up;
+            _requestDirectionChange(GridDirection.Up);
         }
 
         private void OnLeftPerformed(InputAction.CallbackContext ctx)
         {
-            _actor.Direction = GridDirection.Left;
+            _requestDirectionChange(GridDirection.Left);
         }
 
         private void OnRightPerformed(InputAction.CallbackContext ctx)
         {
-            _actor.Direction = GridDirection.Right;
+            _requestDirectionChange(GridDirection.Right);
         }
     }
 }

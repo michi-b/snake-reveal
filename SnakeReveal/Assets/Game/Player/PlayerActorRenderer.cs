@@ -1,3 +1,4 @@
+using Game.Enums;
 using UnityEngine;
 
 namespace Game.Player
@@ -21,7 +22,7 @@ namespace Game.Player
 
         private void UpdateRotation(GridDirection direction)
         {
-            transform.rotation = direction.ToRotation();
+            transform.rotation = direction.GetRotation();
         }
     }
 }

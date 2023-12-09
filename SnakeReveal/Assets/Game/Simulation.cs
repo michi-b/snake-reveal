@@ -1,5 +1,5 @@
 ﻿using System;
-using Extensions;
+using Game.Enums;
 using Game.Lines;
 using Game.Player;
 using Unity.Mathematics;
@@ -13,29 +13,45 @@ namespace Game
         [SerializeField] private PlayerActor _playerActor;
         [SerializeField] private LineCache _lineCache;
 
-        // the lines of the closed shape in clockwise order
-        [SerializeField] private ClockwiseLineLoop _shape;
+        // the silhouette lines of the collected closed shape
+        [SerializeField] private LineLoop _collectedShape;
 
         [SerializeField] private int2 _startShapeHalfSize = new(5, 5);
 
-        private PlayerMovementMode _playerMovementMode = PlayerMovementMode.ShapeTravel;
+        private readonly PlayerMovementMode _playerMovementMode = PlayerMovementMode.ShapeTravel;
 
-        // the line the player is currently traveling on if in shape travel mode,
-        // otherwise last line he was traveling on before entering the drawing mode
+        private PlayerActorControls _playerControls;
+
+        // current/last line the player is/was traveling on
         private Line _shapeTravelLine;
+
+        // current/last rotation the player is/was traveling on the collected shape
+        private Turn _shapeTravelTurn;
+
+        protected virtual void Awake()
+        {
+            _playerControls = new PlayerActorControls(RequestDirectionChange);
+        }
 
         protected virtual void Start()
         {
             int2 center = _grid.Size / 2;
+
             int2 bottomLeft = center - _startShapeHalfSize;
             int2 topRight = center + _startShapeHalfSize;
             var bottomRight = new int2(topRight.x, bottomLeft.y);
             var topLeft = new int2(bottomLeft.x, topRight.y);
-            _shape.Set(_grid, _lineCache, topLeft, topRight, bottomRight, bottomLeft);
 
-            int2 topCenter = (topLeft + topRight) / 2;
-            _playerActor.GridPosition = topCenter;
-            _shapeTravelLine = _shape.Start;
+            _collectedShape.Set(_grid, _lineCache, topLeft, topRight, bottomRight, bottomLeft);
+            Debug.Assert(_collectedShape.Turn == Turn.Clockwise);
+
+            _playerActor.GridPosition = (topLeft + topRight) / 2; // place player at top center of initial shape
+            _shapeTravelLine = _collectedShape.FindLineAt(_playerActor.GridPosition);
+            _shapeTravelTurn = _collectedShape.Turn;
+
+            Debug.Assert(_shapeTravelLine != null && _shapeTravelLine.Contains(_playerActor.GridPosition));
+
+            _playerActor.Direction = _shapeTravelLine.Direction;
         }
 
         protected virtual void FixedUpdate()
@@ -45,7 +61,7 @@ namespace Game
                 switch (_playerMovementMode)
                 {
                     case PlayerMovementMode.ShapeTravel:
-                        MovePlayerShapeTraveling();
+                        EvaluateShapeTraveling();
                         break;
                     case PlayerMovementMode.Drawing:
                         MovePlayerDrawing();
@@ -53,24 +69,62 @@ namespace Game
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                
             }
         }
 
-        private void MovePlayerShapeTraveling()
+        protected virtual void OnEnable()
         {
-            throw new NotImplementedException();
+            _playerControls.Enable();
+        }
+
+        protected virtual void OnDisable()
+        {
+            _playerControls.Disable();
+        }
+
+        private void RequestDirectionChange(GridDirection direction)
+        {
+        }
+
+        private void EvaluateShapeTraveling()
+        {
+            int2 playerPosition = _playerActor.GridPosition;
+
+            Debug.Assert(_shapeTravelLine.Contains(playerPosition));
+
+            bool travelTurnIsLoopTurn = _collectedShape.Turn == _shapeTravelTurn;
+            bool isAtLineEnd = playerPosition.Equals(travelTurnIsLoopTurn ? _shapeTravelLine.End : _shapeTravelLine.Start);
+
+            // if at line end, switch to next line and adjust direction
+            if (isAtLineEnd)
+            {
+                _shapeTravelLine = travelTurnIsLoopTurn ? _shapeTravelLine.Next : _shapeTravelLine.Previous;
+                Debug.Assert(_shapeTravelLine != null, nameof(_shapeTravelLine) + " != null");
+                Debug.Assert(_shapeTravelLine.Contains(playerPosition));
+                _playerActor.Direction = travelTurnIsLoopTurn ? _shapeTravelLine.Direction : _shapeTravelLine.Direction.GetOpposite();
+            }
+
+            _playerActor.GridPosition += _playerActor.Direction.ToInt2();
+
+            if (!_shapeTravelLine.Contains(_playerActor.GridPosition))
+            {
+                throw new InvalidOperationException(
+                    $"Updated player position {_playerActor.GridPosition} is not contained in current shape travel line {_shapeTravelLine.DebuggerDisplay}");
+            }
+
+            // todo: apply grid position only once per frame instead (and extrapolated)
+            _playerActor.ApplyGridPosition(_grid);
         }
 
         private void MovePlayerDrawing()
         {
-            if (_playerActor.Direction != GridDirection.None)
-            {
-                _playerActor.GridPosition += _playerActor.Direction.ToInt2();
-                _playerActor.GridPosition = _grid.Clamp(_playerActor.GridPosition);
-
-                _playerActor.transform.SetLocalPositionXY(_grid.GetScenePosition(_playerActor.GridPosition));
-            }
+            // if (_playerActor.Direction != GridDirection.None)
+            // {
+            //     _playerActor.GridPosition += _playerActor.Direction.ToInt2();
+            //     _playerActor.GridPosition = _grid.Clamp(_playerActor.GridPosition);
+            //
+            //     _playerActor.transform.SetLocalPositionXY(_grid.GetScenePosition(_playerActor.GridPosition));
+            // }
         }
     }
 }
