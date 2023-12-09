@@ -12,7 +12,7 @@ namespace Game.Player
     {
         [SerializeField] private PlayerActorRenderer _renderer;
 
-        [SerializeField] private int2 _gridPosition;
+        [SerializeField] private int2 _position;
 
         [FormerlySerializedAs("_gridDirection")] [SerializeField]
         private GridDirection _direction = GridDirection.None;
@@ -35,10 +35,10 @@ namespace Game.Player
 
         public int Speed => _speed;
 
-        public int2 GridPosition
+        public int2 Position
         {
-            get => _gridPosition;
-            set => _gridPosition = value;
+            get => _position;
+            set => _position = value;
         }
 
         protected void OnValidate()
@@ -46,14 +46,23 @@ namespace Game.Player
             ApplyRendererDirection();
         }
 
-        public void ApplyGridPosition(SimulationGrid grid)
+        public void ApplyPosition(SimulationGrid grid)
         {
-            transform.SetLocalPositionXY(grid.GetScenePosition(GridPosition));
+            transform.SetLocalPositionXY(grid.GetScenePosition(Position));
         }
 
         private void ApplyRendererDirection()
         {
             _renderer.ApplyDirection(Direction);
+        }
+
+        public void Step(SimulationGrid grid)
+        {
+            Position += Direction.ToInt2();
+            Position = grid.Clamp(Position);
+
+            // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering
+            ApplyPosition(grid);
         }
     }
 }

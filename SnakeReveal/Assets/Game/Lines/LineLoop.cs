@@ -1,3 +1,5 @@
+using System;
+using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
@@ -6,9 +8,18 @@ namespace Game.Lines
 {
     public class LineLoop : MonoBehaviour
     {
-        public Line Start { get; private set; }
+        [SerializeField] private Line _start;
+
+        public Line Start => _start;
 
         public Turn Turn { get; private set; }
+
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private void Adopt(Line line)
+        {
+            line.transform.parent = transform;
+            line.transform.SetLocalPositionZ(0f);
+        }
 
         public void Set(SimulationGrid grid, LineCache lineCache, params int2[] positions)
         {
@@ -25,6 +36,7 @@ namespace Game.Lines
                 int2 end = positions[(index + 1) % positions.Length];
                 Line line = lineCache.Get();
                 line.Place(grid, start, end);
+                Adopt(line);
                 if (previous != null)
                 {
                     previous.Next = line;
@@ -32,7 +44,7 @@ namespace Game.Lines
                 }
                 else
                 {
-                    Start = line;
+                    _start = line;
                 }
 
                 previous = line;
@@ -63,18 +75,30 @@ namespace Game.Lines
             Turn = clockwiseWeight > 0 ? Turn.Clockwise : Turn.CounterClockwise;
         }
 
-        public Line FindLineAt(int2 position)
+        public Line FindLineAt(int2 position, Predicate<Line> filter = null)
         {
+            if (Start == null)
+            {
+                throw new InvalidOperationException("Line loop has no start");
+            }
+
             Line current = Start;
             do
             {
                 Debug.Assert(current != null);
-                if (current.Contains(position))
+
+                bool isCandidate = filter == null || filter(current);
+
+                if (isCandidate && current.Contains(position))
                 {
                     return current;
                 }
 
                 current = current.Next;
+                if (current == null)
+                {
+                    throw new InvalidOperationException("Line loop is not closed");
+                }
             } while (current != Start);
 
             return null;

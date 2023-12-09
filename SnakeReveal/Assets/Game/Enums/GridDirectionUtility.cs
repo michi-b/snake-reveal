@@ -4,7 +4,7 @@ namespace Game.Enums
 {
     public static class GridDirectionUtility
     {
-        public static GridDirection Evaluate(int2 start, int2 end)
+        public static GridDirection GetDirection(int2 start, int2 end)
         {
             if (start.x != end.x && start.y != end.y)
             {

@@ -121,5 +121,15 @@ namespace Game.Enums
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
             };
         }
+
+        public static bool IsOpposite(this GridDirection target, GridDirection other)
+        {
+            return target.GetOpposite() == other;
+        }
+
+        public static bool IsSameOrOpposite(this GridDirection target, GridDirection other)
+        {
+            return target == other || target.IsOpposite(other);
+        }
     }
 }
