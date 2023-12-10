@@ -5,15 +5,14 @@ namespace Game.Player
 {
     public class PlayerActorRenderer : MonoBehaviour
     {
-        [SerializeField] private SpriteRenderer _idle;
-        [SerializeField] private SpriteRenderer _moving;
+        [SerializeField] private SpriteRenderer _dot;
+        [SerializeField] private SpriteRenderer _arrow;
 
 
         public void ApplyDirection(GridDirection direction)
         {
             bool isIdle = direction == GridDirection.None;
-            _idle.enabled = isIdle;
-            _moving.enabled = !isIdle;
+            _arrow.enabled = !isIdle;
             if (!isIdle)
             {
                 UpdateRotation(direction);

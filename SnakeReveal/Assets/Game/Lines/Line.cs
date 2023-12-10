@@ -18,7 +18,9 @@ namespace Game.Lines
         [SerializeField] private Line _previous;
         [SerializeField] private GridDirection _direction;
 
-        private LineRenderer _renderer;
+        private LineRenderer _lineRenderer;
+        
+        private LineRenderer LineRenderer => _lineRenderer ? _lineRenderer : _lineRenderer = GetComponent<LineRenderer>();
 
         // start position in grid space
         public int2 Start => _start;
@@ -46,23 +48,20 @@ namespace Game.Lines
 
         public string DebuggerDisplay => $"{Start}->{End}";
 
-        protected void Awake()
-        {
-            _renderer = GetComponent<LineRenderer>();
-        }
-
         public void Place(SimulationGrid grid, int2 start, int2 end)
         {
+            LineRenderer lineRenderer = LineRenderer;
+            
             _start = start;
             _end = end;
             _direction = GridDirectionUtility.GetDirection(start, end);
 
-            _renderer.enabled = true;
+            LineRenderer.enabled = true;
 
-            Debug.Assert(_renderer.positionCount == 2);
+            Debug.Assert(lineRenderer.positionCount == 2);
 
-            _renderer.SetPosition(0, grid.GetScenePosition(start));
-            _renderer.SetPosition(1, grid.GetScenePosition(end));
+            lineRenderer.SetPosition(0, grid.GetScenePosition(start));
+            lineRenderer.SetPosition(1, grid.GetScenePosition(end));
         }
 
         public bool Contains(int2 topCenter)

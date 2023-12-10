@@ -15,8 +15,16 @@ namespace Game.Lines
 
         private int _currentLineIndex = -1;
 
+        public Line LinePrefab => _linePrefab;
+
         public Line Get()
         {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                return Instantiate(_linePrefab);
+            }
+#endif
             Line result = _cache.Count == 0 ? Instantiate(_linePrefab) : GetCachedLine();
             result.gameObject.name = "Line" + (++_currentLineIndex).ToString(CultureInfo.InvariantCulture);
             return result;
