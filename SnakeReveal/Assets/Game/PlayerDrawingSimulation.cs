@@ -123,7 +123,7 @@ namespace Game
             }
             else
             {
-                DiscontinueShapeTraveling();
+                Breakout(_actor.Position);
             }
         }
 
@@ -147,11 +147,6 @@ namespace Game
             }
 
             _actor.Step();
-        }
-
-        private void DiscontinueShapeTraveling()
-        {
-            Breakout(_actor.Position);
         }
 
         private void Breakout(int2 position)
