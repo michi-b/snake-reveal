@@ -25,7 +25,9 @@ namespace Game.Lines
 
         private LineRenderer LineRenderer => _lineRenderer ? _lineRenderer : _lineRenderer = GetComponent<LineRenderer>();
 
+
         // start position in grid space
+
         public int2 Start
         {
             get => _start;
@@ -41,7 +43,9 @@ namespace Game.Lines
             }
         }
 
+
         // end position in grid space
+
         public int2 End
         {
             get => _end;
@@ -57,7 +61,9 @@ namespace Game.Lines
             }
         }
 
+
         // next line in the chain, if connected
+
         [CanBeNull]
         public Line Next
         {
@@ -65,7 +71,9 @@ namespace Game.Lines
             set => _next = value;
         }
 
+
         // previous line in the chain, if connected
+
         [CanBeNull]
         public Line Previous
         {
@@ -76,11 +84,6 @@ namespace Game.Lines
         public GridDirection Direction => _direction;
 
         public string DebuggerDisplay => $"{Start}->{End}";
-
-        public void Initialize(SimulationGrid grid)
-        {
-            _grid = grid;
-        }
 
         public void Place(int2 start, int2 end)
         {
@@ -97,14 +100,29 @@ namespace Game.Lines
             Debug.Assert(lineRenderer.positionCount == 2);
         }
 
-        public bool Contains(int2 topCenter)
+        public void Initialize(SimulationGrid grid)
+        {
+            _grid = grid;
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            _start = new int2();
+            _end = new int2();
+            _next = null;
+            _previous = null;
+            _direction = GridDirection.None;
+        }
+
+        public bool Contains(int2 position)
         {
             return Direction.GetOrientation() switch
             {
-                AxisOrientation.Horizontal => Start.y == topCenter.y // same height
-                                              && Math.Sign(Start.x - topCenter.x) != Math.Sign(End.x - topCenter.x), // in horizontal range
-                AxisOrientation.Vertical => Start.x == topCenter.x // same horizontal position
-                                            && Math.Sign(Start.y - topCenter.y) != Math.Sign(End.y - topCenter.y), // in height range
+                AxisOrientation.Horizontal => Start.y == position.y // same height
+                                              && Math.Sign(Start.x - position.x) != Math.Sign(End.x - position.x), // in horizontal range
+                AxisOrientation.Vertical => Start.x == position.x // same horizontal position
+                                            && Math.Sign(Start.y - position.y) != Math.Sign(End.y - position.y), // in height range
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

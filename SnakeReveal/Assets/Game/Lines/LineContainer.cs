@@ -11,11 +11,14 @@ namespace Game.Lines
 
         public SimulationGrid Grid => _grid;
 
-        public LineCache LineCache => _lineCache;
+        protected void Return(Line line)
+        {
+            _lineCache.Return(line);
+        }
 
         protected Line Create(int2 start, int2 end)
         {
-            Line line = LineCache.Get();
+            Line line = _lineCache.Get();
             line.Place(start, end);
             Adopt(line);
             return line;

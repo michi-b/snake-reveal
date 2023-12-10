@@ -22,7 +22,6 @@ namespace Game
 
 
         private PlayerMovementMode _movementMode;
-        private GridDirection _shapeTravelBreakoutDirection;
 
         private int2 _shapeTravelBreakoutPosition;
         [NotNull] private Line _shapeTravelLine;
@@ -152,23 +151,34 @@ namespace Game
 
         private void DiscontinueShapeTraveling()
         {
-#if DEBUG
-            {
-                Turn turn = _shapeTravelLine.GetDirection(_isTravelingInShapeDirection).GetTurn(_actor.Direction);
-                Debug.Assert(GetIsValidTurnWhileShapeTraveling(turn));
-            }
-#endif
-            _shapeTravelBreakoutPosition = _actor.Position;
-            _movementMode = PlayerMovementMode.Drawing;
-            Debug.Assert(_shapeTravelLine.Contains(_shapeTravelBreakoutPosition));
+            Breakout(_actor.Position);
+        }
+
+        private void Breakout(int2 position)
+        {
+            Debug.Assert(_shapeTravelLine.Contains(position));
+            _shapeTravelBreakoutPosition = position;
+            _actor.Direction = _shapeTravelLine.Direction.GetTurned(_shape.Turn.GetOpposite());
+
+            _actor.Position = position;
             _actor.Step();
             Debug.Assert(!_shapeTravelLine.Contains(_actor.Position));
+
+            _drawingLineChain.Clear();
             _drawingLineChain.Set(_shapeTravelBreakoutPosition, _actor.Position);
+
+            _movementMode = PlayerMovementMode.Drawing;
         }
 
         private void MovePlayerDrawing()
         {
             _actor.Step();
+            if (_drawingLineChain.FindLineAt(_actor.Position) != null)
+            {
+                Breakout(_shapeTravelBreakoutPosition);
+                return;
+            }
+
             _drawingLineChain.Extend(_actor.Position);
         }
     }

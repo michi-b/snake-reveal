@@ -42,6 +42,7 @@ namespace Game.Lines
         private Line GetCachedLine()
         {
             Line result = _cache.Pop();
+            result.Initialize();
             result.gameObject.SetActive(true);
             return result;
         }

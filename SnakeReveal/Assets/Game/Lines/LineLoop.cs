@@ -80,9 +80,7 @@ namespace Game.Lines
             {
                 Debug.Assert(current != null);
 
-                bool isCandidate = filter == null || filter(current);
-
-                if (isCandidate && current.Contains(position))
+                if ((filter == null || filter(current)) && current.Contains(position))
                 {
                     return current;
                 }

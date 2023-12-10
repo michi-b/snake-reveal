@@ -131,5 +131,32 @@ namespace Game.Enums
         {
             return target == other || target.IsOpposite(other);
         }
+
+        public static GridDirection GetTurned(this GridDirection target, Turn turn)
+        {
+            return turn switch
+            {
+                Turn.None => target,
+                Turn.Clockwise => target switch
+                {
+                    GridDirection.None => GridDirection.None,
+                    GridDirection.Right => GridDirection.Down,
+                    GridDirection.Up => GridDirection.Right,
+                    GridDirection.Left => GridDirection.Up,
+                    GridDirection.Down => GridDirection.Left,
+                    _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
+                },
+                Turn.CounterClockwise => target switch
+                {
+                    GridDirection.None => GridDirection.None,
+                    GridDirection.Right => GridDirection.Up,
+                    GridDirection.Up => GridDirection.Left,
+                    GridDirection.Left => GridDirection.Down,
+                    GridDirection.Down => GridDirection.Right,
+                    _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
+                },
+                _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
+            };
+        }
     }
 }
