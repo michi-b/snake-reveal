@@ -6,16 +6,16 @@ namespace Game
 {
     public class Simulation : MonoBehaviour
     {
-        [SerializeField] private SimulationGrid _grid;
         [SerializeField] private PlayerActor _playerActor;
-        [SerializeField] private LineCache _lineCache;
         [SerializeField] private LineLoop _shape;
+        [SerializeField] private LineChain _lineChain;
+
 
         private PlayerDrawingSimulation _playerDrawingSimulation;
 
         protected virtual void Awake()
         {
-            _playerDrawingSimulation = new PlayerDrawingSimulation(_grid, _playerActor, _shape);
+            _playerDrawingSimulation = new PlayerDrawingSimulation(_playerActor, _shape, _lineChain);
         }
 
         protected virtual void FixedUpdate()

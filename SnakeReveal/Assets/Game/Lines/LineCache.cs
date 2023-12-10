@@ -11,6 +11,8 @@ namespace Game.Lines
 
         [SerializeField] private Line _linePrefab;
 
+        [SerializeField] private SimulationGrid _grid;
+
         private readonly Stack<Line> _cache = new(InitialCapacity);
 
         private int _currentLineIndex = -1;
@@ -19,15 +21,16 @@ namespace Game.Lines
 
         public Line Get()
         {
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                return Instantiate(_linePrefab);
-            }
-#endif
-            Line result = _cache.Count == 0 ? Instantiate(_linePrefab) : GetCachedLine();
+            Line result = _cache.Count == 0 ? Instantiate() : GetCachedLine();
             result.gameObject.name = "Line" + (++_currentLineIndex).ToString(CultureInfo.InvariantCulture);
             return result;
+        }
+
+        private Line Instantiate()
+        {
+            Line instance = Instantiate(_linePrefab);
+            instance.Initialize(_grid);
+            return instance;
         }
 
         public void Return(Line line)

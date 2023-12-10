@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Extensions;
 using Game.Enums;
 using JetBrains.Annotations;
 using Unity.Mathematics;
@@ -12,6 +13,8 @@ namespace Game.Lines
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Line : MonoBehaviour
     {
+        [SerializeField] private SimulationGrid _grid;
+
         [SerializeField] private int2 _start;
         [SerializeField] private int2 _end;
         [SerializeField] private Line _next;
@@ -19,14 +22,40 @@ namespace Game.Lines
         [SerializeField] private GridDirection _direction;
 
         private LineRenderer _lineRenderer;
-        
+
         private LineRenderer LineRenderer => _lineRenderer ? _lineRenderer : _lineRenderer = GetComponent<LineRenderer>();
 
         // start position in grid space
-        public int2 Start => _start;
+        public int2 Start
+        {
+            get => _start;
+            private set
+            {
+                if (value.Equals(_start))
+                {
+                    return;
+                }
+
+                _start = value;
+                LineRenderer.SetPosition(0, _grid.GetScenePosition(_start));
+            }
+        }
 
         // end position in grid space
-        public int2 End => _end;
+        public int2 End
+        {
+            get => _end;
+            private set
+            {
+                if (value.Equals(_end))
+                {
+                    return;
+                }
+
+                _end = value;
+                LineRenderer.SetPosition(1, _grid.GetScenePosition(_end));
+            }
+        }
 
         // next line in the chain, if connected
         [CanBeNull]
@@ -48,20 +77,24 @@ namespace Game.Lines
 
         public string DebuggerDisplay => $"{Start}->{End}";
 
-        public void Place(SimulationGrid grid, int2 start, int2 end)
+        public void Initialize(SimulationGrid grid)
+        {
+            _grid = grid;
+        }
+
+        public void Place(int2 start, int2 end)
         {
             LineRenderer lineRenderer = LineRenderer;
-            
-            _start = start;
-            _end = end;
-            _direction = GridDirectionUtility.GetDirection(start, end);
+
+            Start = start;
+            End = end;
+            _direction = start.GetDirection(end);
+
+            Debug.Assert(_direction != GridDirection.None);
 
             LineRenderer.enabled = true;
 
             Debug.Assert(lineRenderer.positionCount == 2);
-
-            lineRenderer.SetPosition(0, grid.GetScenePosition(start));
-            lineRenderer.SetPosition(1, grid.GetScenePosition(end));
         }
 
         public bool Contains(int2 topCenter)
@@ -89,6 +122,22 @@ namespace Game.Lines
         public int2 GetEnd(bool followLineDirection)
         {
             return followLineDirection ? End : Start;
+        }
+
+        public bool TryExtend(int2 newEnd)
+        {
+            if (Contains(newEnd))
+            {
+                return true;
+            }
+
+            if (_end.GetDirection(newEnd) != Direction)
+            {
+                return false;
+            }
+
+            End = newEnd;
+            return true;
         }
     }
 }

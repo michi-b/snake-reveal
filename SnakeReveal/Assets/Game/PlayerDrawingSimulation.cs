@@ -12,21 +12,26 @@ namespace Game
     {
         private readonly PlayerActor _actor;
         private readonly PlayerActorControls _controls;
-        private readonly SimulationGrid _grid;
+
+        private readonly LineChain _drawingLineChain;
 
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
         private readonly bool _isTravelingInShapeDirection;
 
         private readonly LineLoop _shape;
+
+
         private PlayerMovementMode _movementMode;
+        private GridDirection _shapeTravelBreakoutDirection;
+
+        private int2 _shapeTravelBreakoutPosition;
         [NotNull] private Line _shapeTravelLine;
 
-
-        public PlayerDrawingSimulation(SimulationGrid grid, PlayerActor actor, LineLoop shape)
+        public PlayerDrawingSimulation(PlayerActor actor, LineLoop shape, LineChain drawingLineChain)
         {
-            _grid = grid;
             _actor = actor;
             _shape = shape;
+            _drawingLineChain = drawingLineChain;
             _controls = new PlayerActorControls(RequestDirectionChange);
             _shapeTravelLine = _shape.FindLineAt(actor.Position, line => line.Direction.IsSameOrOpposite(actor.Direction));
             if (_shapeTravelLine == null)
@@ -68,6 +73,9 @@ namespace Game
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
+            // todo: apply grid position only once per frame instead (and extrapolated)
+            _actor.ApplyPosition();
         }
 
         private void RequestDirectionChange(GridDirection direction)
@@ -118,10 +126,6 @@ namespace Game
             {
                 DiscontinueShapeTraveling();
             }
-
-
-            // todo: apply grid position only once per frame instead (and extrapolated)
-            _actor.ApplyPosition(_grid);
         }
 
         private void ContinueShapeTraveling()
@@ -143,7 +147,7 @@ namespace Game
                 _actor.Direction = currentLineDirection;
             }
 
-            _actor.Step(_grid);
+            _actor.Step();
         }
 
         private void DiscontinueShapeTraveling()
@@ -154,23 +158,18 @@ namespace Game
                 Debug.Assert(GetIsValidTurnWhileShapeTraveling(turn));
             }
 #endif
-            int2 breakoutPosition = _actor.Position;
-            Debug.Assert(!_shapeTravelLine.Contains(breakoutPosition));
-
-            _actor.Step(_grid);
-
+            _shapeTravelBreakoutPosition = _actor.Position;
+            _movementMode = PlayerMovementMode.Drawing;
+            Debug.Assert(_shapeTravelLine.Contains(_shapeTravelBreakoutPosition));
+            _actor.Step();
             Debug.Assert(!_shapeTravelLine.Contains(_actor.Position));
+            _drawingLineChain.Set(_shapeTravelBreakoutPosition, _actor.Position);
         }
 
         private void MovePlayerDrawing()
         {
-            // if (_playerActor.Direction != GridDirection.None)
-            // {
-            //     _playerActor.GridPosition += _playerActor.Direction.ToInt2();
-            //     _playerActor.GridPosition = _grid.Clamp(_playerActor.GridPosition);
-            //
-            //     _playerActor.transform.SetLocalPositionXY(_grid.GetScenePosition(_playerActor.GridPosition));
-            // }
+            _actor.Step();
+            _drawingLineChain.Extend(_actor.Position);
         }
     }
 }

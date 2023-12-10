@@ -10,6 +10,8 @@ namespace Game.Player
 {
     public class PlayerActor : MonoBehaviour
     {
+        [SerializeField] private SimulationGrid _grid;
+
         [SerializeField] private PlayerActorRenderer _renderer;
 
         [SerializeField] private int2 _position;
@@ -46,9 +48,9 @@ namespace Game.Player
             ApplyRendererDirection();
         }
 
-        public void ApplyPosition(SimulationGrid grid)
+        public void ApplyPosition()
         {
-            transform.SetLocalPositionXY(grid.GetScenePosition(Position));
+            transform.SetLocalPositionXY(_grid.GetScenePosition(Position));
         }
 
         private void ApplyRendererDirection()
@@ -56,13 +58,13 @@ namespace Game.Player
             _renderer.ApplyDirection(Direction);
         }
 
-        public void Step(SimulationGrid grid)
+        public void Step()
         {
             Position += Direction.ToInt2();
-            Position = grid.Clamp(Position);
+            Position = _grid.Clamp(Position);
 
             // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering
-            ApplyPosition(grid);
+            ApplyPosition();
         }
     }
 }

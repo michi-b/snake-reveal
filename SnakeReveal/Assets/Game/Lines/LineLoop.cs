@@ -1,12 +1,11 @@
 using System;
-using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game.Lines
 {
-    public class LineLoop : MonoBehaviour
+    public class LineLoop : LineContainer
     {
         [SerializeField] private Line _start;
         [SerializeField] private Turn _turn;
@@ -19,14 +18,7 @@ namespace Game.Lines
             private set => _turn = value;
         }
 
-        // ReSharper disable once SuggestBaseTypeForParameter
-        private void Adopt(Line line)
-        {
-            line.transform.parent = transform;
-            line.transform.SetLocalPositionZ(0f);
-        }
-
-        public void Set(SimulationGrid grid, LineCache lineCache, params int2[] positions)
+        public void Set(params int2[] positions)
         {
 #if DEBUG
             Debug.Assert(Start == null);
@@ -37,11 +29,7 @@ namespace Game.Lines
 
             for (int index = 0; index < positions.Length; index++)
             {
-                int2 start = positions[index];
-                int2 end = positions[(index + 1) % positions.Length];
-                Line line = lineCache.Get();
-                line.Place(grid, start, end);
-                Adopt(line);
+                Line line = Create(positions[index], positions[(index + 1) % positions.Length]);
                 if (previous != null)
                 {
                     previous.Next = line;

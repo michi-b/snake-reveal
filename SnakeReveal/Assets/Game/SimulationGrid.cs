@@ -19,7 +19,6 @@ namespace Game
 
         [SerializeField] private bool _drawGizmo = true;
 
-
         public Vector2 SceneCellSize => _sceneCellSize;
 
         public int GizmoCellSizeMultiplier => _gizmoCellSizeMultiplier;

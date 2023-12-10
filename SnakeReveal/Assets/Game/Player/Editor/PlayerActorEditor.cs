@@ -6,7 +6,6 @@ namespace Game.Player.Editor
     public class PlayerActorEditor : UnityEditor.Editor
     {
         private bool _applyGridPosition;
-        private SimulationGrid _grid;
 
         private void OnEnable()
         {
@@ -19,32 +18,21 @@ namespace Game.Player.Editor
             base.OnInspectorGUI();
             bool changed = EditorGUI.EndChangeCheck();
 
-            if (_grid == null)
-            {
-                _grid = FindAnyObjectByType<SimulationGrid>();
-            }
-
-            if (_grid == null)
-            {
-                EditorGUILayout.HelpBox("Missing grid", MessageType.Error);
-                return;
-            }
-
             EditorGUILayout.Space();
 
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                _applyGridPosition = EditorGUILayout.Toggle("Apply Grid Position", _applyGridPosition);
+                _applyGridPosition = EditorGUILayout.Toggle("Sync Grid Position", _applyGridPosition);
                 if (scope.changed)
                 {
-                    EditorPrefs.SetBool("Game.Player.Editor.PlayerActorEditor.ApplyGridPosition", _applyGridPosition);
+                    EditorPrefs.SetBool("Game.Player.Editor.PlayerActorEditor.SyncGridPosition", _applyGridPosition);
                 }
             }
 
             if (_applyGridPosition && changed)
             {
                 var playerActor = (PlayerActor)target;
-                playerActor.ApplyPosition(_grid);
+                playerActor.ApplyPosition();
             }
         }
     }
