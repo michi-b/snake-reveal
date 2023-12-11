@@ -68,41 +68,41 @@ namespace Game.Enums
         {
             return target switch
             {
-                GridDirection.None => Turn.None,
+                GridDirection.None => Enums.Turn.None,
                 GridDirection.Right => to switch
                 {
-                    GridDirection.None => Turn.None,
-                    GridDirection.Right => Turn.None,
-                    GridDirection.Up => Turn.CounterClockwise,
-                    GridDirection.Left => Turn.None,
-                    GridDirection.Down => Turn.Clockwise,
+                    GridDirection.None => Enums.Turn.None,
+                    GridDirection.Right => Enums.Turn.None,
+                    GridDirection.Up => Enums.Turn.CounterClockwise,
+                    GridDirection.Left => Enums.Turn.None,
+                    GridDirection.Down => Enums.Turn.Clockwise,
                     _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
                 },
                 GridDirection.Up => to switch
                 {
-                    GridDirection.None => Turn.None,
-                    GridDirection.Right => Turn.Clockwise,
-                    GridDirection.Up => Turn.None,
-                    GridDirection.Left => Turn.CounterClockwise,
-                    GridDirection.Down => Turn.None,
+                    GridDirection.None => Enums.Turn.None,
+                    GridDirection.Right => Enums.Turn.Clockwise,
+                    GridDirection.Up => Enums.Turn.None,
+                    GridDirection.Left => Enums.Turn.CounterClockwise,
+                    GridDirection.Down => Enums.Turn.None,
                     _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
                 },
                 GridDirection.Left => to switch
                 {
-                    GridDirection.None => Turn.None,
-                    GridDirection.Right => Turn.None,
-                    GridDirection.Up => Turn.Clockwise,
-                    GridDirection.Left => Turn.None,
-                    GridDirection.Down => Turn.CounterClockwise,
+                    GridDirection.None => Enums.Turn.None,
+                    GridDirection.Right => Enums.Turn.None,
+                    GridDirection.Up => Enums.Turn.Clockwise,
+                    GridDirection.Left => Enums.Turn.None,
+                    GridDirection.Down => Enums.Turn.CounterClockwise,
                     _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
                 },
                 GridDirection.Down => to switch
                 {
-                    GridDirection.None => Turn.None,
-                    GridDirection.Right => Turn.CounterClockwise,
-                    GridDirection.Up => Turn.None,
-                    GridDirection.Left => Turn.Clockwise,
-                    GridDirection.Down => Turn.None,
+                    GridDirection.None => Enums.Turn.None,
+                    GridDirection.Right => Enums.Turn.CounterClockwise,
+                    GridDirection.Up => Enums.Turn.None,
+                    GridDirection.Left => Enums.Turn.Clockwise,
+                    GridDirection.Down => Enums.Turn.None,
                     _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
                 },
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
@@ -132,12 +132,12 @@ namespace Game.Enums
             return target == other || target.IsOpposite(other);
         }
 
-        public static GridDirection GetTurned(this GridDirection target, Turn turn)
+        public static GridDirection Turn(this GridDirection target, Turn turn)
         {
             return turn switch
             {
-                Turn.None => target,
-                Turn.Clockwise => target switch
+                Enums.Turn.None => target,
+                Enums.Turn.Clockwise => target switch
                 {
                     GridDirection.None => GridDirection.None,
                     GridDirection.Right => GridDirection.Down,
@@ -146,7 +146,7 @@ namespace Game.Enums
                     GridDirection.Down => GridDirection.Left,
                     _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
                 },
-                Turn.CounterClockwise => target switch
+                Enums.Turn.CounterClockwise => target switch
                 {
                     GridDirection.None => GridDirection.None,
                     GridDirection.Right => GridDirection.Up,

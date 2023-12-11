@@ -28,6 +28,11 @@ namespace Game.Lines
             }
         }
 
+        public bool Contains(int2 position, Predicate<Line> filter = null)
+        {
+            return FindLineAt(position, filter) != null;
+        }
+
         public Line FindLineAt(int2 position, Predicate<Line> filter = null)
         {
             Line current = _start;

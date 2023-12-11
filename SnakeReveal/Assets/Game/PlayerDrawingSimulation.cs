@@ -153,7 +153,7 @@ namespace Game
         {
             Debug.Assert(_shapeTravelLine.Contains(position));
             _shapeTravelBreakoutPosition = position;
-            _actor.Direction = _shapeTravelLine.Direction.GetTurned(_shape.Turn.GetOpposite());
+            _actor.Direction = _shapeTravelLine.Direction.Turn(_shape.Turn.GetOpposite());
 
             _actor.Position = position;
             _actor.Step();
@@ -168,13 +168,25 @@ namespace Game
         private void MovePlayerDrawing()
         {
             _actor.Step();
-            if (_drawingLineChain.FindLineAt(_actor.Position) != null)
+
+            if (_drawingLineChain.Contains(_actor.Position, line => line.Direction.GetOrientation() != _actor.Direction.GetOrientation()))
             {
+                // reset drawing
                 Breakout(_shapeTravelBreakoutPosition);
                 return;
             }
 
             _drawingLineChain.Extend(_actor.Position);
+
+            GridDirection collisionLinesDirection = _isTravelingInShapeDirection
+                ? _actor.Direction.Turn(_shape.Turn.GetOpposite())
+                : _actor.Direction.Turn(_shape.Turn);
+
+            if (_shape.OutlineContains(_actor.Position, line => line.Direction == collisionLinesDirection))
+            {
+                // reset drawing
+                Breakout(_shapeTravelBreakoutPosition);
+            }
         }
     }
 }

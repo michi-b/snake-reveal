@@ -68,6 +68,11 @@ namespace Game.Lines
             Turn = clockwiseWeight > 0 ? Turn.Clockwise : Turn.CounterClockwise;
         }
 
+        public bool OutlineContains(int2 position, Predicate<Line> filter = null)
+        {
+            return FindLineAt(position, filter) != null;
+        }
+
         public Line FindLineAt(int2 position, Predicate<Line> filter = null)
         {
             if (Start == null)
