@@ -132,6 +132,20 @@ namespace Game.Lines
             return followLineDirection ? Direction : Direction.GetOpposite();
         }
 
+        public GridDirection GetDirection(int2 position)
+        {
+            return End.GetDirection(position);
+        }
+
+        public Turn GetTurn()
+        {
+#if DEBUG
+            Debug.Assert(Next != null);
+            Debug.Assert(Next.Start.Equals(End));
+#endif
+            return Direction.GetTurn(Next.Direction);
+        }
+
         public Line GetNext(bool followLineDirection)
         {
             return followLineDirection ? Next : Previous;

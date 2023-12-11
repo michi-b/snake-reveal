@@ -182,11 +182,17 @@ namespace Game
                 ? _actor.Direction.Turn(_shape.Turn.GetOpposite())
                 : _actor.Direction.Turn(_shape.Turn);
 
-            if (_shape.OutlineContains(_actor.Position, line => line.Direction == collisionLinesDirection))
+            Line shapeCollisionLine = _shape.FindLineAt(_actor.Position, line => line.Direction == collisionLinesDirection);
+            if (shapeCollisionLine)
             {
-                // reset drawing
-                Breakout(_shapeTravelBreakoutPosition);
+                DiscontinueDrawing(shapeCollisionLine);
             }
+        }
+
+        private void DiscontinueDrawing(Line shapeCollisionLine)
+        {
+            _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
+            Breakout(_shapeTravelBreakoutPosition);
         }
     }
 }

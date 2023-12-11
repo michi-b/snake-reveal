@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Game.Enums
 {
@@ -12,6 +13,21 @@ namespace Game.Enums
                 Turn.CounterClockwise => -1,
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
             };
+        }
+
+        public static int GetWeight(this Turn target, Turn turn)
+        {
+#if DEBUG
+            if (target == turn)
+            {
+                return 1;
+            }
+
+            Debug.Assert(target == turn.GetOpposite());
+            return -1;
+#else
+            return turn == target ? 1 : -1;
+#endif
         }
 
         public static Turn GetOpposite(this Turn turn)

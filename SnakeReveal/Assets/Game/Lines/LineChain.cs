@@ -1,4 +1,5 @@
 using System;
+using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -78,6 +79,19 @@ namespace Game.Lines
             _end.Next = line;
             line.Previous = _end;
             _end = line;
+        }
+
+        public int GetTurnWeight(Turn turn)
+        {
+            int result = 0;
+            Line current = _start;
+            while (current.Next != null)
+            {
+                result += current.GetTurn().GetWeight(turn);
+                current = current.Next;
+            }
+
+            return result;
         }
     }
 }
