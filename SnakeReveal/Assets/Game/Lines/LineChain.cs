@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game.Lines
 {
-    public class LineChain : LineContainer
+    public class LineChain : LineContainer, IEnumerable<Line>
     {
         [SerializeField] private Line _start;
         [SerializeField] private Line _end;
@@ -16,12 +18,27 @@ namespace Game.Lines
 
         public bool IsCleared => _start == null && _end == null;
 
+        public IEnumerator<Line> GetEnumerator()
+        {
+            Line current = _start;
+            while (current != null)
+            {
+                yield return current;
+                current = current.Next;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         public void Set(params int2[] positions)
         {
             Debug.Assert(IsCleared);
             Debug.Assert(positions.Length >= 2);
 
-            _start = _end = Create(positions[0], positions[1]);
+            _start = _end = GetLine(positions[0], positions[1]);
 
             for (int i = 1; i < positions.Length - 1; i++)
             {
@@ -75,7 +92,7 @@ namespace Game.Lines
 
         private void Append(int2 position)
         {
-            Line line = Create(_end.End, position);
+            Line line = GetLine(_end.End, position);
             _end.Next = line;
             line.Previous = _end;
             _end = line;
@@ -92,6 +109,55 @@ namespace Game.Lines
             }
 
             return result;
+        }
+
+        public void Reverse()
+        {
+            Line current = _start;
+            while (current != null)
+            {
+                Line next = current.Next;
+                current.Reverse();
+                current = next;
+            }
+
+            (_start, _end) = (_end, _start);
+        }
+
+        public void Abandon()
+        {
+            _start = _end = null;
+        }
+
+        public bool GetIsConnected()
+        {
+            if (_start == _end)
+            {
+                return _start.Previous == null
+                       && _end.Previous == null;
+            }
+
+            if (Start == null
+                || End == null
+                || Start.Previous != null
+                || End.Next != null)
+            {
+                return false;
+            }
+
+            Line current = _start.Next;
+
+            while (current != _end)
+            {
+                if (current == null || current.Previous == null || current.Next == null)
+                {
+                    return false;
+                }
+
+                current = current.Next;
+            }
+
+            return _end.Previous != null;
         }
     }
 }

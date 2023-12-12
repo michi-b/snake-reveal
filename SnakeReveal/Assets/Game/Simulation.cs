@@ -1,6 +1,7 @@
 ﻿using Game.Lines;
 using Game.Player;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game
 {
@@ -9,18 +10,25 @@ namespace Game
         [SerializeField] private PlayerActor _playerActor;
         [SerializeField] private LineLoop _shape;
         [SerializeField] private LineChain _lineChain;
-
+        [SerializeField] private Text _tickCounter;
+        [SerializeField] private Text _timeCounter;
 
         private PlayerDrawingSimulation _playerDrawingSimulation;
 
+        // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
+        public int Ticks { get; private set; } 
+
         protected virtual void Awake()
         {
-            _playerDrawingSimulation = new PlayerDrawingSimulation(_playerActor, _shape, _lineChain);
+            _playerDrawingSimulation = new PlayerDrawingSimulation(this, _playerActor, _shape, _lineChain);
         }
 
         protected virtual void FixedUpdate()
         {
-            _playerDrawingSimulation.Update();
+            Ticks++;
+            _tickCounter.text = Ticks.ToString();
+            _timeCounter.text = (Ticks * 0.0083).ToString("F2");
+            _playerDrawingSimulation.Tick();
         }
 
         protected virtual void OnEnable()

@@ -33,7 +33,7 @@ namespace Game.Lines
 
             for (int index = 0; index < positions.Length; index++)
             {
-                Line line = Create(positions[index], positions[(index + 1) % positions.Length]);
+                Line line = GetLine(positions[index], positions[(index + 1) % positions.Length]);
                 if (previous != null)
                 {
                     previous.Next = line;
@@ -79,10 +79,29 @@ namespace Game.Lines
             return FindLineAt(position, filter) != null;
         }
 
+        public bool OutlineContains(Line line)
+        {
+            Line current = Start;
+            do
+            {
+#if DEBUG
+                Debug.Assert(current.Next != null);
+#endif
+                if (current == line)
+                {
+                    return true;
+                }
+
+                current = current.Next;
+            } while (current != Start);
+
+            return false;
+        }
+
         public Line FindLineAt(int2 position, Predicate<Line> filter = null)
         {
 #if DEBUG
-            AssertIsLooping();
+            Debug.Assert(GetIsLooping());
 #endif
 
             if (Start == null)
@@ -112,42 +131,120 @@ namespace Game.Lines
             return null;
         }
 
-        public void Incorporate(LineChain chain, Line startLine, Line endLine)
+        /// <returns>whether the connection was made in shape travel direction</returns>
+        public bool Incorporate(LineChain chain, Line startLine, Line endLine)
         {
-            int2 startPosition = chain.Start.Start;
-            int2 endPosition = chain.End.End;
+            int2 chainStartPosition = chain.Start.Start;
+            int2 chainEndPosition = chain.End.End;
             bool startLineIsEndLine = startLine == endLine;
             if (startLineIsEndLine)
             {
-                GridDirection direction = startPosition.GetDirection(endPosition);
+                GridDirection direction = chainStartPosition.GetDirection(chainEndPosition);
 #if DEBUG
-                Debug.Assert(startLine.Contains(startPosition) && startLine.Contains(endPosition));
+                Debug.Assert(startLine.Contains(chainStartPosition) && startLine.Contains(chainEndPosition));
                 Debug.Assert(direction.GetOrientation() == startLine.Direction.GetOrientation());
 #endif
             }
 
 #if DEBUG
             // assert that chain endpoints actually lie on lines
-            Debug.Assert(startLine.Contains(startPosition));
-            Debug.Assert(endLine.Contains(endPosition));
+            Debug.Assert(startLine.Contains(chainStartPosition));
+            Debug.Assert(endLine.Contains(chainEndPosition));
 #endif
-            bool followsShapeTurn = GetFollowsTurn(chain, startLine, startPosition, endLine, endPosition);
+            bool followsLoopTurn = GetFollowsTurn(chain, startLine, chainStartPosition, endLine, chainEndPosition);
 #if DEBUG
             const string clockwise = "CLOCKWISE";
             const string counterClockwise = "COUNTER-CLOCKWISE";
             string isClockwiseInfo = $@"(which means it is {Turn switch
-            { Turn.Clockwise => followsShapeTurn ? clockwise : counterClockwise,
-                Turn.CounterClockwise => followsShapeTurn ? counterClockwise : clockwise,
+            { Turn.Clockwise => followsLoopTurn ? clockwise : counterClockwise,
+                Turn.CounterClockwise => followsLoopTurn ? counterClockwise : clockwise,
                 _ => "none"
             }})";
-            Debug.Log(followsShapeTurn ? $"Connection is IN shape turn ({isClockwiseInfo})" : $"Connection is COUNTER shape turn ({isClockwiseInfo})");
+            Debug.Log(followsLoopTurn ? $"Connection is IN shape turn ({isClockwiseInfo})" : $"Connection is COUNTER shape turn ({isClockwiseInfo})");
 #endif
+
+            foreach (Line chainLine in chain)
+            {
+                Adopt(chainLine);
+            }
+
+            // save original chain end line (non-reversed) before eventually reversing it
+            // this will be the new star of the loop
+            Line originalChainEndLine = chain.End;
+            
+            if (!followsLoopTurn)
+            {
+                chain.Reverse();
+#if DEBUG
+                Debug.Assert(chain.GetIsConnected());
+#endif
+                (chainStartPosition, chainEndPosition) = (chainEndPosition, chainStartPosition);
+                (startLine, endLine) = (endLine, startLine);
+            }
+
+            Line chainStartLine = chain.Start;
+            Line chainEndLine = chain.End;
+            chain.Abandon();
+
+            if (startLineIsEndLine)
+            {
+#if DEBUG
+                Debug.Log("Start line is end line");
+                Debug.Assert(startLine.Previous != null, "startLine.Previous != null");
+                Debug.Assert(startLine.Next != null, "startLine.Next != null");
+#endif
+                Line newStartLine = GetLine(startLine.Start, chainStartPosition);
+                newStartLine.Previous = startLine.Previous;
+                startLine.Previous.Next = newStartLine;
+                newStartLine.Next = chainStartLine;
+                chainStartLine.Previous = newStartLine;
+
+                startLine.Start = chainEndPosition;
+                startLine.Previous = chainEndLine;
+                chainEndLine.Next = startLine;
+            }
+            else
+            {
+                // remove lines between start and end
+                Line current = startLine.Next;
+                while (current != endLine)
+                {
+#if DEBUG
+                    Debug.Assert(current != null);
+#endif
+                    Line next = current.Next;
+                    
+                    Return(current);
+                    current = next;
+                }
+
+                startLine.End = chainStartPosition;
+                startLine.Next = chainStartLine;
+                chainStartLine.Previous = startLine;
+
+                endLine.Start = chainEndPosition;
+                endLine.Previous = chainEndLine;
+                chainEndLine.Next = endLine;
+            }
+
+            // start may have been removed, but chain end line is now in the loop for sure
+            // therefore make chain end the new start
+            _start = originalChainEndLine;            
+            
+#if DEBUG
+            if (!GetIsLooping())
+            {
+                Debug.DebugBreak();
+            }
+#endif
+
+            return followsLoopTurn;
         }
 
         private bool GetFollowsTurn(LineChain chain, Line startLine, int2 startPosition, Line endLine, int2 endPosition)
         {
 #if DEBUG
-            AssertIsLooping();
+            Debug.Assert(GetIsLooping());
 #endif
             int shapeTurnWeight = GetTurnWeight(startLine, endLine, startPosition, endPosition);
             int chainTurnWeight = chain.GetTurnWeight(Turn);
@@ -179,8 +276,7 @@ namespace Game.Lines
             return result;
         }
 
-        [Conditional("DEBUG")]
-        private void AssertIsLooping(int threshold = DefaultIsLoopingCheckThreshold)
+        private bool GetIsLooping(int threshold = DefaultIsLoopingCheckThreshold)
         {
             int counter = 0;
 #if DEBUG
@@ -188,10 +284,23 @@ namespace Game.Lines
             do
             {
                 counter++;
-                Debug.Assert(counter < threshold);
-                Debug.Assert(current.Next != null);
+#if DEBUG
+                
+                if(counter > threshold)
+                {
+                    Debug.LogError($"Line loop is not looping after {threshold} iterations");
+                    return false;
+                }
+                if(current.Next == null)
+                {
+                    Debug.LogError("Line loop is not closed");
+                    return false;
+                }
+#endif
                 current = current.Next;
             } while (current != Start);
+
+            return true;
 #endif
         }
     }

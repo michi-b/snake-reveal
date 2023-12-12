@@ -31,7 +31,7 @@ namespace Game.Lines
         public int2 Start
         {
             get => _start;
-            private set
+            set
             {
                 if (value.Equals(_start))
                 {
@@ -49,7 +49,7 @@ namespace Game.Lines
         public int2 End
         {
             get => _end;
-            private set
+            set
             {
                 if (value.Equals(_end))
                 {
@@ -170,6 +170,13 @@ namespace Game.Lines
 
             End = newEnd;
             return true;
+        }
+
+        public void Reverse()
+        {
+            (Start, End) = (End, Start);
+            (Previous, Next) = (Next, Previous);
+            _direction = _direction.GetOpposite();
         }
     }
 }

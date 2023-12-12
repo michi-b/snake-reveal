@@ -16,18 +16,22 @@ namespace Game
         private readonly LineChain _drawingLineChain;
 
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
-        private readonly bool _isTravelingInShapeDirection;
+        private bool _isTravelingInShapeDirection;
 
         private readonly LineLoop _shape;
+        private readonly Simulation _simulation;
 
+        private int _lastDirectionChangeRequestTick = -1;
 
         private PlayerMovementMode _movementMode;
 
         private int2 _shapeTravelBreakoutPosition;
         [NotNull] private Line _shapeTravelLine;
 
-        public PlayerDrawingSimulation(PlayerActor actor, LineLoop shape, LineChain drawingLineChain)
+
+        public PlayerDrawingSimulation(Simulation simulation, PlayerActor actor, LineLoop shape, LineChain drawingLineChain)
         {
+            _simulation = simulation;
             _actor = actor;
             _shape = shape;
             _drawingLineChain = drawingLineChain;
@@ -58,7 +62,7 @@ namespace Game
 
         private Turn TravelTurn => _isTravelingInShapeDirection ? _shape.Turn : _shape.Turn.GetOpposite();
 
-        public void Update()
+        public void Tick()
         {
             for (int moveIndex = 0; moveIndex < _actor.Speed; moveIndex++)
             {
@@ -81,6 +85,21 @@ namespace Game
 
         private void RequestDirectionChange(GridDirection direction)
         {
+            // prevent multiple direction change requests per tick
+            // which is currently the solution to avoid the player u-turning into its own current drawing line
+            int currentTick = _simulation.Ticks;
+            try
+            {
+                if (currentTick == _lastDirectionChangeRequestTick)
+                {
+                    return;
+                }
+            }
+            finally
+            {
+                _lastDirectionChangeRequestTick = currentTick;
+            }
+
             Turn turn = _actor.Direction.GetTurn(direction);
             if (turn == Turn.None)
             {
@@ -192,8 +211,14 @@ namespace Game
 
         private void DiscontinueDrawing(Line shapeCollisionLine)
         {
-            _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
-            Breakout(_shapeTravelBreakoutPosition);
+            Line newShapeTravelLine = _drawingLineChain.End;
+            _isTravelingInShapeDirection = _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
+            #if DEBUG
+            Debug.Assert(_shape.OutlineContains(newShapeTravelLine));
+            #endif
+            _shapeTravelLine = newShapeTravelLine;
+            _actor.Direction = _shapeTravelLine.GetDirection(_isTravelingInShapeDirection);
+            _movementMode = PlayerMovementMode.ShapeTravel;
         }
     }
 }

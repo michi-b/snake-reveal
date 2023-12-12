@@ -16,7 +16,7 @@ namespace Game.Lines
             _lineCache.Return(line);
         }
 
-        protected Line Create(int2 start, int2 end)
+        protected Line GetLine(int2 start, int2 end)
         {
             Line line = _lineCache.Get();
             line.Place(start, end);
@@ -25,7 +25,7 @@ namespace Game.Lines
         }
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        private void Adopt(Line line)
+        protected void Adopt(Line line)
         {
             line.transform.parent = transform;
             line.transform.SetLocalPositionZ(0f);
