@@ -95,10 +95,12 @@ namespace Game
                 _actor.Direction = direction;
             }
         }
+        
+        private Turn TravelTurn => _isTravelingInShapeDirection ? _shape.Turn : _shape.Turn.GetOpposite();
 
         private bool GetIsValidTurnWhileShapeTraveling(Turn turn)
         {
-            return _shape.Turn switch
+            return TravelTurn switch
             {
                 Turn.None => throw GetHasNoShapeTravelTurnException(),
                 Turn.Clockwise => turn == Turn.CounterClockwise,
@@ -178,9 +180,8 @@ namespace Game
 
             _drawingLineChain.Extend(_actor.Position);
 
-            GridDirection collisionLinesDirection = _isTravelingInShapeDirection
-                ? _actor.Direction.Turn(_shape.Turn.GetOpposite())
-                : _actor.Direction.Turn(_shape.Turn);
+            // lines the player can collide with must be directed like the player direction, but turned left/right opposite of the shape turn
+            GridDirection collisionLinesDirection = _actor.Direction.Turn(_shape.Turn.GetOpposite());
 
             Line shapeCollisionLine = _shape.FindLineAt(_actor.Position, line => line.Direction == collisionLinesDirection);
             if (shapeCollisionLine)
