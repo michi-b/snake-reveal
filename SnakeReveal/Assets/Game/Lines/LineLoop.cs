@@ -133,7 +133,14 @@ namespace Game.Lines
 #endif
             bool followsShapeTurn = GetFollowsTurn(chain, startLine, startPosition, endLine, endPosition);
 #if DEBUG
-            Debug.Log(followsShapeTurn ? "Connection follows shape turn" : "Connection does not follow shape turn");
+            const string clockwise = "CLOCKWISE";
+            const string counterClockwise = "COUNTER-CLOCKWISE";
+            string isClockwiseInfo = $@"(which means it is {Turn switch
+            { Turn.Clockwise => followsShapeTurn ? clockwise : counterClockwise,
+                Turn.CounterClockwise => followsShapeTurn ? counterClockwise : clockwise,
+                _ => "none"
+            }})";
+            Debug.Log(followsShapeTurn ? $"Connection is IN shape turn ({isClockwiseInfo})" : $"Connection is COUNTER shape turn ({isClockwiseInfo})");
 #endif
         }
 

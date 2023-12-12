@@ -56,6 +56,8 @@ namespace Game
             }
         }
 
+        private Turn TravelTurn => _isTravelingInShapeDirection ? _shape.Turn : _shape.Turn.GetOpposite();
+
         public void Update()
         {
             for (int moveIndex = 0; moveIndex < _actor.Speed; moveIndex++)
@@ -95,8 +97,6 @@ namespace Game
                 _actor.Direction = direction;
             }
         }
-        
-        private Turn TravelTurn => _isTravelingInShapeDirection ? _shape.Turn : _shape.Turn.GetOpposite();
 
         private bool GetIsValidTurnWhileShapeTraveling(Turn turn)
         {
