@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Game.Lines.Editor
 {
     [CustomEditor(typeof(DeprecatedLineLoop))]
-    public class LineLoopEditor : UnityEditor.Editor
+    public class DeprecatedLineLoopEditor : UnityEditor.Editor
     {
         private bool _isInitialized;
         private int2 _halfQuadSize = new(30, 30);

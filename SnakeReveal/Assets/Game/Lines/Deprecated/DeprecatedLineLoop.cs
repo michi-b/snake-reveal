@@ -70,7 +70,7 @@ namespace Game.Lines.Deprecated
             Debug.Assert(math.abs(clockwiseWeight) == 4);
 #endif
 
-            Turn = clockwiseWeight > 0 ? Turn.Clockwise : Turn.CounterClockwise;
+            Turn = clockwiseWeight > 0 ? Turn.Right : Turn.Left;
         }
 
         public bool OutlineContains(int2 position, Predicate<DeprecatedLine> filter = null)
@@ -155,8 +155,8 @@ namespace Game.Lines.Deprecated
             const string clockwise = "CLOCKWISE";
             const string counterClockwise = "COUNTER-CLOCKWISE";
             string isClockwiseInfo = $@"(which means it is {Turn switch
-            { Turn.Clockwise => followsLoopTurn ? clockwise : counterClockwise,
-                Turn.CounterClockwise => followsLoopTurn ? counterClockwise : clockwise,
+            { Turn.Right => followsLoopTurn ? clockwise : counterClockwise,
+                Turn.Left => followsLoopTurn ? counterClockwise : clockwise,
                 _ => "none"
             }})";
             Debug.Log(followsLoopTurn ? $"Connection is IN shape turn ({isClockwiseInfo})" : $"Connection is COUNTER shape turn ({isClockwiseInfo})");

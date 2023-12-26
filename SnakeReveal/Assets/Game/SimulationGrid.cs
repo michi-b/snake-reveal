@@ -15,6 +15,8 @@ namespace Game
         private Vector2 _lowerLeftCornerScenePosition;
 
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
+        [SerializeField] private float _gizmoMinSize = 0.001f;
+
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
 
         [SerializeField] private bool _drawGizmo = true;
@@ -37,20 +39,20 @@ namespace Game
             Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
-            for (int gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.x; gizmoLineIndex++)
-            {
-                int x = gizmoLineIndex * _gizmoCellSizeMultiplier;
-                Vector3 start = GetWorldPosition(new int2(x, 0));
-                Vector3 end = GetWorldPosition(new int2(x, _size.y));
-                Gizmos.DrawLine(start, end);
-            }
+            var cellGizmoSize = (SceneCellSize - new Vector2(_gizmoMinSize, _gizmoMinSize)).ToVector3(_gizmoMinSize);
 
-            for (int gizmoLineIndex = 0; gizmoLineIndex <= gizmoCellCount.y; gizmoLineIndex++)
+            for (int x = 0; x < gizmoCellCount.x; x++)
             {
-                int y = gizmoLineIndex * _gizmoCellSizeMultiplier;
-                Vector3 start = GetWorldPosition(new int2(0, y));
-                Vector3 end = GetWorldPosition(new int2(_size.x, y));
-                Gizmos.DrawLine(start, end);
+                Vector3 bottom = GetWorldPosition(new int2(x, 0));
+                Vector3 top = GetWorldPosition(new int2(x, gizmoCellCount.y - 1));
+                Gizmos.DrawLine(bottom, top);
+            }
+            
+            for (int y = 0; y < gizmoCellCount.y; y++)
+            {
+                Vector3 left = GetWorldPosition(new int2(0, y));
+                Vector3 right = GetWorldPosition(new int2(gizmoCellCount.x - 1, y));
+                Gizmos.DrawLine(left, right);
             }
 
             Gizmos.color = oldColor;
@@ -58,8 +60,8 @@ namespace Game
 
         protected void OnValidate()
         {
-            _lowerLeftCornerScenePosition = -_sceneSize * 0.5f;
             _sceneCellSize = _sceneSize / _size.ToVector2();
+            _lowerLeftCornerScenePosition = -_sceneSize * 0.5f + _sceneCellSize * 0.5f;
         }
 
         public Vector2 GetScenePosition(int2 gridPosition)

@@ -6,9 +6,14 @@ namespace Extensions
 {
     public static class Int2Extensions
     {
-        public static Vector2 ToVector2(this int2 int2)
+        public static Vector2 ToVector2(this int2 target)
         {
-            return new Vector2(int2.x, int2.y);
+            return new Vector2(target.x, target.y);
+        }
+        
+        public static Vector2Int ToVector2Int(this int2 target)
+        {
+            return new Vector2Int(target.x, target.y);
         }
 
         public static GridDirection GetDirection(this int2 start, int2 end)

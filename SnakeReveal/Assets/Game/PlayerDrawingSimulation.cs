@@ -123,8 +123,8 @@ namespace Game
             return TravelTurn switch
             {
                 Turn.None => throw GetHasNoShapeTravelTurnException(),
-                Turn.Clockwise => turn == Turn.CounterClockwise,
-                Turn.CounterClockwise => turn == Turn.Clockwise,
+                Turn.Right => turn == Turn.Left,
+                Turn.Left => turn == Turn.Right,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

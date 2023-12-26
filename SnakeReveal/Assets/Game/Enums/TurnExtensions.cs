@@ -9,8 +9,8 @@ namespace Game.Enums
         {
             return turn switch
             {
-                Turn.Clockwise => 1,
-                Turn.CounterClockwise => -1,
+                Turn.Right => 1,
+                Turn.Left => -1,
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
             };
         }
@@ -35,8 +35,8 @@ namespace Game.Enums
             return turn switch
             {
                 Turn.None => Turn.None,
-                Turn.Clockwise => Turn.CounterClockwise,
-                Turn.CounterClockwise => Turn.Clockwise,
+                Turn.Right => Turn.Left,
+                Turn.Left => Turn.Right,
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
             };
         }
