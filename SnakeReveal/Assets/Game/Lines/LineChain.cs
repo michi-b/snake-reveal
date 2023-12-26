@@ -1,24 +1,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using Extensions;
+using Game.Enums;
 using UnityEngine;
 
 namespace Game.Lines
 {
-    /// <summary>
-    ///     collection of line points and abstract base class of line loop and line chain
-    /// </summary>
-    public abstract class LineContainer : MonoBehaviour
+    public class LineChain : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
 
-        /// <summary>
-        ///     line cache that provides the container with instances at runtime
-        /// </summary>
-        [SerializeField] private LineRendererCache _cache;
+        [SerializeField] private bool _loop;
 
         [SerializeField] [HideInInspector] private List<LineNode> _nodes = new();
-
-        public LineRendererCache Cache => _cache;
 
         public SimulationGrid Grid => _grid;
 
@@ -38,9 +32,9 @@ namespace Game.Lines
                 return "Index out of range";
             }
 
-            return index == Count - 1
+            return $"{index}: " + (index == Count - 1
                 ? _nodes[index].ToString()
-                : $"{_nodes[index]} -> {this[index + 1]}";
+                : $"{_nodes[index]} -> {this[index + 1]}");
         }
 
         public void Append()
@@ -51,6 +45,30 @@ namespace Game.Lines
         public void RemoveLast()
         {
             _nodes.RemoveAt(_nodes.Count - 1);
+        }
+
+        public void ReevaluateDirection(int i)
+        {
+            LineNode current = _nodes[i];
+            current.Direction = TryGetNodeAfter(i, out LineNode next)
+                ? current.Position.GetDirection(next.Position)
+                : GridDirection.None;
+            _nodes[i] = current;
+        }
+
+        private bool TryGetNodeAfter(int index, out LineNode node)
+        {
+            int count = Count;
+            int nextIndex = _loop ? (index + 1) % count : index + 1;
+
+            if (nextIndex < 0 || nextIndex > count - 1)
+            {
+                node = new LineNode();
+                return false;
+            }
+
+            node = _nodes[nextIndex];
+            return true;
         }
     }
 }
