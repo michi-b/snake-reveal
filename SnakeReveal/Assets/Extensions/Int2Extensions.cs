@@ -10,7 +10,7 @@ namespace Extensions
         {
             return new Vector2(target.x, target.y);
         }
-        
+
         public static Vector2Int ToVector2Int(this int2 target)
         {
             return new Vector2Int(target.x, target.y);
@@ -18,7 +18,8 @@ namespace Extensions
 
         public static GridDirection GetDirection(this int2 start, int2 end)
         {
-            if (start.x != end.x && start.y != end.y)
+            if ((start.x == end.x && start.y == end.y)
+                || (start.x != end.x && start.y != end.y))
             {
                 return GridDirection.None;
             }

@@ -1,4 +1,5 @@
-﻿using Editor;
+﻿using System;
+using Editor;
 using Extensions;
 using Game.Enums;
 using UnityEditor;
@@ -19,7 +20,15 @@ namespace Game.Lines.Editor
 
             var chain = (LineChain)target;
 
-            DisplayNodes(chain);
+            GUI.enabled = !Application.isPlaying;
+
+            if (GUI.enabled)
+            {
+                Undo.RecordObject(chain, nameof(LineChainEditor));
+            }
+
+            DrawCornerCount(chain);
+            DrawCorners(chain);
 
             if (GUILayout.Button("Reevaluate All Directions"))
             {
@@ -28,9 +37,88 @@ namespace Game.Lines.Editor
                     chain.ReevaluateDirection(i);
                 }
             }
+
+            GUI.enabled = true;
         }
 
-        private static void DrawNodeSizeControls(LineChain container)
+        private static void DrawCornerCount(LineChain chain)
+        {
+            using var changeCheck = new EditorGUI.ChangeCheckScope();
+
+            int count = EditorGUILayout.IntField("Corners", chain.Count);
+
+            if (!changeCheck.changed)
+            {
+                return;
+            }
+
+            int delta = count - chain.Count;
+            if (delta > 0)
+            {
+                for (int i = 0; i < delta; i++)
+                {
+                    chain.Append();
+                }
+            }
+            else
+            {
+                delta = Math.Abs(delta);
+                for (int i = 0; i < delta; i++)
+                {
+                    chain.RemoveLast();
+                }
+            }
+        }
+
+        private void DrawCorners(LineChain chain)
+        {
+            using var scope = new EditorGUI.IndentLevelScope(1);
+
+            SimulationGrid grid = chain.Grid;
+
+            bool guiWasEnabled = GUI.enabled;
+
+            for (int i = 0; i < chain.Count; i++)
+            {
+                LineChain.Corner corner = chain[i];
+                Rect line = EditorGUILayout.GetControlRect();
+                float halfWidth = Mathf.Floor(line.width * 0.5f);
+                Rect directionRect = line.TakeFromRight(halfWidth);
+                Rect positionRect = line.TakeFromLeft(halfWidth);
+
+                var position = corner.Position.ToVector2Int();
+                bool positionChanged = false;
+                using (var changeCheck = new EditorGUI.ChangeCheckScope())
+                {
+                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
+                    if (grid != null)
+                    {
+                        corner.Position = grid.Clamp(corner.Position);
+                    }
+
+                    if (changeCheck.changed)
+                    {
+                        positionChanged = true;
+                    }
+                }
+
+                GUI.enabled = false;
+                corner.Direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner.Direction);
+                GUI.enabled = guiWasEnabled;
+
+                if (!positionChanged)
+                {
+                    continue;
+                }
+
+                chain[i] = corner;
+                ApplyPositionChange(chain, i);
+            }
+
+            DrawAddRemoveCornerButtons(chain);
+        }
+
+        private static void DrawAddRemoveCornerButtons(LineChain chain)
         {
             Rect line = EditorGUILayout.GetControlRect(false);
             line.TakeFromLeft(EditorGUI.indentLevel * EditorGuiUtility.IndentSize);
@@ -41,52 +129,33 @@ namespace Game.Lines.Editor
             {
                 if (GUI.Button(leftButtonRect, "-"))
                 {
-                    container.RemoveLast();
+                    chain.RemoveLast();
+                    chain.ReevaluateDirection(chain.Count - 1);
                 }
 
                 // ReSharper disable once InvertIf
                 if (GUI.Button(rightButtonRect, "+"))
                 {
-                    container.Append();
-                    int previousIndex = container.Count - 2;
-                    container[^1] = new LineNode
+                    int formerLastIndex = chain.Count - 1;
+                    chain.Append();
+                    chain[^1] = new LineChain.Corner
                     {
-                        Position = container[previousIndex].Position,
+                        Position = chain[formerLastIndex].Position,
                         Direction = GridDirection.None
                     };
+                    chain.ReevaluateDirection(formerLastIndex);
                 }
             }
         }
 
-        private static void DisplayNodes(LineChain chain)
+        private static void ApplyPositionChange(LineChain chain, int i)
         {
-            using var scope = new EditorGUI.IndentLevelScope(1);
-
-            SimulationGrid grid = chain.Grid;
-
-            for (int i = 0; i < chain.Count; i++)
+            chain.ReevaluateDirection(i);
+            int previousIndex = i - 1;
+            if (previousIndex >= 0 || chain.Loop)
             {
-                LineNode node = chain[i];
-                Rect line = EditorGUILayout.GetControlRect();
-                float halfWidth = Mathf.Floor(line.width * 0.5f);
-                Rect directionRect = line.TakeFromRight(halfWidth);
-                Rect positionRect = line.TakeFromLeft(halfWidth);
-
-                var position = node.Position.ToVector2Int();
-                node.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
-                if (grid != null)
-                {
-                    node.Position = grid.Clamp(node.Position);
-                }
-
-                string description = chain.GetLineDescription(i);
-
-                node.Direction = (GridDirection)EditorGUI.EnumPopup(directionRect, node.Direction);
-
-                chain[i] = node;
+                chain.ReevaluateDirection((previousIndex + chain.Count) % chain.Count);
             }
-
-            DrawNodeSizeControls(chain);
         }
     }
 }
