@@ -7,18 +7,18 @@ using Unity.Mathematics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Game.Lines
+namespace Game.Lines.Deprecated
 {
     [RequireComponent(typeof(LineRenderer))]
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Line : MonoBehaviour
+    public class DeprecatedLine : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
 
         [SerializeField] private int2 _start;
         [SerializeField] private int2 _end;
-        [SerializeField] private Line _next;
-        [SerializeField] private Line _previous;
+        [SerializeField] private DeprecatedLine _next;
+        [SerializeField] private DeprecatedLine _previous;
         [SerializeField] private GridDirection _direction;
 
         private LineRenderer _lineRenderer;
@@ -65,7 +65,7 @@ namespace Game.Lines
         // next line in the chain, if connected
 
         [CanBeNull]
-        public Line Next
+        public DeprecatedLine Next
         {
             get => _next;
             set => _next = value;
@@ -75,7 +75,7 @@ namespace Game.Lines
         // previous line in the chain, if connected
 
         [CanBeNull]
-        public Line Previous
+        public DeprecatedLine Previous
         {
             get => _previous;
             set => _previous = value;
@@ -146,7 +146,7 @@ namespace Game.Lines
             return Direction.GetTurn(Next.Direction);
         }
 
-        public Line GetNext(bool followLineDirection)
+        public DeprecatedLine GetNext(bool followLineDirection)
         {
             return followLineDirection ? Next : Previous;
         }

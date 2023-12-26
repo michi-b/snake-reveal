@@ -1,12 +1,13 @@
 using System.Linq;
 using Extensions;
+using Game.Lines.Deprecated;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
 namespace Game.Lines.Editor
 {
-    [CustomEditor(typeof(LineLoop))]
+    [CustomEditor(typeof(DeprecatedLineLoop))]
     public class LineLoopEditor : UnityEditor.Editor
     {
         private bool _isInitialized;
@@ -27,7 +28,7 @@ namespace Game.Lines.Editor
             }
             
             base.OnInspectorGUI();
-            var lineLoop = (LineLoop)target;
+            var lineLoop = (DeprecatedLineLoop)target;
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Initialization");
 
@@ -60,19 +61,19 @@ namespace Game.Lines.Editor
             }
         }
 
-        private static void ClearLineLoop(LineLoop lineLoop)
+        private static void ClearLineLoop(DeprecatedLineLoop lineLoop)
         {
-            Line start = lineLoop.Start;
+            DeprecatedLine start = lineLoop.Start;
             
             if (start == null)
             {
                 return;
             }
 
-            Line last = start.Previous;
+            DeprecatedLine last = start.Previous;
             while (last != null)
             {
-                Line next = last.Previous;
+                DeprecatedLine next = last.Previous;
                 DestroyImmediate(last.gameObject);
                 last = next;
             }

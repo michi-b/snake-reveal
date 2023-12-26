@@ -5,22 +5,22 @@ using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Game.Lines
+namespace Game.Lines.Deprecated
 {
-    public class LineChain : LineContainer, IEnumerable<Line>
+    public class DeprecatedLineChain : DeprecatedLineContainer, IEnumerable<DeprecatedLine>
     {
-        [SerializeField] private Line _start;
-        [SerializeField] private Line _end;
+        [SerializeField] private DeprecatedLine _start;
+        [SerializeField] private DeprecatedLine _end;
 
-        public Line End => _end;
+        public DeprecatedLine End => _end;
 
-        public Line Start => _start;
+        public DeprecatedLine Start => _start;
 
         public bool IsCleared => _start == null && _end == null;
 
-        public IEnumerator<Line> GetEnumerator()
+        public IEnumerator<DeprecatedLine> GetEnumerator()
         {
-            Line current = _start;
+            DeprecatedLine current = _start;
             while (current != null)
             {
                 yield return current;
@@ -46,14 +46,14 @@ namespace Game.Lines
             }
         }
 
-        public bool Contains(int2 position, Predicate<Line> filter = null)
+        public bool Contains(int2 position, Predicate<DeprecatedLine> filter = null)
         {
             return FindLineAt(position, filter) != null;
         }
 
-        public Line FindLineAt(int2 position, Predicate<Line> filter = null)
+        public DeprecatedLine FindLineAt(int2 position, Predicate<DeprecatedLine> filter = null)
         {
-            Line current = _start;
+            DeprecatedLine current = _start;
             while (current != null)
             {
                 if ((filter == null || filter(current)) && current.Contains(position))
@@ -79,10 +79,10 @@ namespace Game.Lines
 
         public void Clear()
         {
-            Line current = _start;
+            DeprecatedLine current = _start;
             while (current != null)
             {
-                Line next = current.Next;
+                DeprecatedLine next = current.Next;
                 Return(current);
                 current = next;
             }
@@ -92,7 +92,7 @@ namespace Game.Lines
 
         private void Append(int2 position)
         {
-            Line line = GetLine(_end.End, position);
+            DeprecatedLine line = GetLine(_end.End, position);
             _end.Next = line;
             line.Previous = _end;
             _end = line;
@@ -101,7 +101,7 @@ namespace Game.Lines
         public int GetTurnWeight(Turn turn)
         {
             int result = 0;
-            Line current = _start;
+            DeprecatedLine current = _start;
             while (current.Next != null)
             {
                 result += current.GetTurn().GetWeight(turn);
@@ -113,10 +113,10 @@ namespace Game.Lines
 
         public void Reverse()
         {
-            Line current = _start;
+            DeprecatedLine current = _start;
             while (current != null)
             {
-                Line next = current.Next;
+                DeprecatedLine next = current.Next;
                 current.Reverse();
                 current = next;
             }
@@ -145,7 +145,7 @@ namespace Game.Lines
                 return false;
             }
 
-            Line current = _start.Next;
+            DeprecatedLine current = _start.Next;
 
             while (current != _end)
             {

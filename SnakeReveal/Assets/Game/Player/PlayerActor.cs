@@ -1,6 +1,7 @@
 using Extensions;
 using Game.Enums;
 using Game.Lines;
+using Game.Lines.Deprecated;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
@@ -23,7 +24,7 @@ namespace Game.Player
 
         private PlayerActorControls _controls;
 
-        [CanBeNull] private Line _currentLine;
+        [CanBeNull] private DeprecatedLine _currentLine;
 
         public GridDirection Direction
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using Game.Enums;
 using Game.Lines;
+using Game.Lines.Deprecated;
 using Game.Player;
 using JetBrains.Annotations;
 using Unity.Mathematics;
@@ -13,12 +14,12 @@ namespace Game
         private readonly PlayerActor _actor;
         private readonly PlayerActorControls _controls;
 
-        private readonly LineChain _drawingLineChain;
+        private readonly DeprecatedLineChain _drawingLineChain;
 
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
         private bool _isTravelingInShapeDirection;
 
-        private readonly LineLoop _shape;
+        private readonly DeprecatedLineLoop _shape;
         private readonly Simulation _simulation;
 
         private int _lastDirectionChangeRequestTick = -1;
@@ -26,10 +27,10 @@ namespace Game
         private PlayerMovementMode _movementMode;
 
         private int2 _shapeTravelBreakoutPosition;
-        [NotNull] private Line _shapeTravelLine;
+        [NotNull] private DeprecatedLine _shapeTravelLine;
 
 
-        public PlayerDrawingSimulation(Simulation simulation, PlayerActor actor, LineLoop shape, LineChain drawingLineChain)
+        public PlayerDrawingSimulation(Simulation simulation, PlayerActor actor, DeprecatedLineLoop shape, DeprecatedLineChain drawingLineChain)
         {
             _simulation = simulation;
             _actor = actor;
@@ -155,7 +156,7 @@ namespace Game
             // if at line end, switch to next line and adjust direction
             if (isAtLineEnd)
             {
-                Line newLine = _shapeTravelLine.GetNext(_isTravelingInShapeDirection);
+                DeprecatedLine newLine = _shapeTravelLine.GetNext(_isTravelingInShapeDirection);
                 if (newLine == null)
                 {
                     throw new InvalidOperationException("Line loop is not closed");
@@ -202,16 +203,16 @@ namespace Game
             // lines the player can collide with must be directed like the player direction, but turned left/right opposite of the shape turn
             GridDirection collisionLinesDirection = _actor.Direction.Turn(_shape.Turn.GetOpposite());
 
-            Line shapeCollisionLine = _shape.FindLineAt(_actor.Position, line => line.Direction == collisionLinesDirection);
+            DeprecatedLine shapeCollisionLine = _shape.FindLineAt(_actor.Position, line => line.Direction == collisionLinesDirection);
             if (shapeCollisionLine)
             {
                 DiscontinueDrawing(shapeCollisionLine);
             }
         }
 
-        private void DiscontinueDrawing(Line shapeCollisionLine)
+        private void DiscontinueDrawing(DeprecatedLine shapeCollisionLine)
         {
-            Line newShapeTravelLine = _drawingLineChain.End;
+            DeprecatedLine newShapeTravelLine = _drawingLineChain.End;
             _isTravelingInShapeDirection = _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
             #if DEBUG
             Debug.Assert(_shape.OutlineContains(newShapeTravelLine));

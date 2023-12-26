@@ -1,20 +1,19 @@
 using System;
-using System.Diagnostics;
 using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Game.Lines
+namespace Game.Lines.Deprecated
 {
-    public class LineLoop : LineContainer
+    public class DeprecatedLineLoop : DeprecatedLineContainer
     {
         private const int DefaultIsLoopingCheckThreshold = 100;
-        [SerializeField] private Line _start;
+        [SerializeField] private DeprecatedLine _start;
         [SerializeField] private Turn _turn;
 
-        public Line Start => _start;
+        public DeprecatedLine Start => _start;
 
         public Turn Turn
         {
@@ -29,11 +28,11 @@ namespace Game.Lines
             Debug.Assert(positions.Length >= 4);
 #endif
 
-            Line previous = null;
+            DeprecatedLine previous = null;
 
             for (int index = 0; index < positions.Length; index++)
             {
-                Line line = GetLine(positions[index], positions[(index + 1) % positions.Length]);
+                DeprecatedLine line = GetLine(positions[index], positions[(index + 1) % positions.Length]);
                 if (previous != null)
                 {
                     previous.Next = line;
@@ -57,10 +56,10 @@ namespace Game.Lines
         private void EvaluateTurn()
         {
             int clockwiseWeight = 0;
-            Line current = Start;
+            DeprecatedLine current = Start;
             do
             {
-                Line next = current.Next;
+                DeprecatedLine next = current.Next;
                 // ReSharper disable once PossibleNullReferenceException because the line loop is always initialized to be fully connected
                 Turn turn = current.Direction.GetTurn(next.Direction);
                 clockwiseWeight += turn.GetClockwiseWeight();
@@ -74,14 +73,14 @@ namespace Game.Lines
             Turn = clockwiseWeight > 0 ? Turn.Clockwise : Turn.CounterClockwise;
         }
 
-        public bool OutlineContains(int2 position, Predicate<Line> filter = null)
+        public bool OutlineContains(int2 position, Predicate<DeprecatedLine> filter = null)
         {
             return FindLineAt(position, filter) != null;
         }
 
-        public bool OutlineContains(Line line)
+        public bool OutlineContains(DeprecatedLine line)
         {
-            Line current = Start;
+            DeprecatedLine current = Start;
             do
             {
 #if DEBUG
@@ -98,7 +97,7 @@ namespace Game.Lines
             return false;
         }
 
-        public Line FindLineAt(int2 position, Predicate<Line> filter = null)
+        public DeprecatedLine FindLineAt(int2 position, Predicate<DeprecatedLine> filter = null)
         {
 #if DEBUG
             Debug.Assert(GetIsLooping());
@@ -109,7 +108,7 @@ namespace Game.Lines
                 throw new InvalidOperationException("Line loop has no start");
             }
 
-            Line current = Start;
+            DeprecatedLine current = Start;
             do
             {
 #if DEBUG
@@ -132,7 +131,7 @@ namespace Game.Lines
         }
 
         /// <returns>whether the connection was made in shape travel direction</returns>
-        public bool Incorporate(LineChain chain, Line startLine, Line endLine)
+        public bool Incorporate(DeprecatedLineChain chain, DeprecatedLine startLine, DeprecatedLine endLine)
         {
             int2 chainStartPosition = chain.Start.Start;
             int2 chainEndPosition = chain.End.End;
@@ -163,14 +162,14 @@ namespace Game.Lines
             Debug.Log(followsLoopTurn ? $"Connection is IN shape turn ({isClockwiseInfo})" : $"Connection is COUNTER shape turn ({isClockwiseInfo})");
 #endif
 
-            foreach (Line chainLine in chain)
+            foreach (DeprecatedLine chainLine in chain)
             {
                 Adopt(chainLine);
             }
 
             // save original chain end line (non-reversed) before eventually reversing it
             // this will be the new star of the loop
-            Line originalChainEndLine = chain.End;
+            DeprecatedLine originalChainEndLine = chain.End;
             
             if (!followsLoopTurn)
             {
@@ -182,8 +181,8 @@ namespace Game.Lines
                 (startLine, endLine) = (endLine, startLine);
             }
 
-            Line chainStartLine = chain.Start;
-            Line chainEndLine = chain.End;
+            DeprecatedLine chainStartLine = chain.Start;
+            DeprecatedLine chainEndLine = chain.End;
             chain.Abandon();
 
             if (startLineIsEndLine)
@@ -193,7 +192,7 @@ namespace Game.Lines
                 Debug.Assert(startLine.Previous != null, "startLine.Previous != null");
                 Debug.Assert(startLine.Next != null, "startLine.Next != null");
 #endif
-                Line newStartLine = GetLine(startLine.Start, chainStartPosition);
+                DeprecatedLine newStartLine = GetLine(startLine.Start, chainStartPosition);
                 newStartLine.Previous = startLine.Previous;
                 startLine.Previous.Next = newStartLine;
                 newStartLine.Next = chainStartLine;
@@ -206,13 +205,13 @@ namespace Game.Lines
             else
             {
                 // remove lines between start and end
-                Line current = startLine.Next;
+                DeprecatedLine current = startLine.Next;
                 while (current != endLine)
                 {
 #if DEBUG
                     Debug.Assert(current != null);
 #endif
-                    Line next = current.Next;
+                    DeprecatedLine next = current.Next;
                     
                     Return(current);
                     current = next;
@@ -241,7 +240,7 @@ namespace Game.Lines
             return followsLoopTurn;
         }
 
-        private bool GetFollowsTurn(LineChain chain, Line startLine, int2 startPosition, Line endLine, int2 endPosition)
+        private bool GetFollowsTurn(DeprecatedLineChain chain, DeprecatedLine startLine, int2 startPosition, DeprecatedLine endLine, int2 endPosition)
         {
 #if DEBUG
             Debug.Assert(GetIsLooping());
@@ -255,7 +254,7 @@ namespace Game.Lines
             return relativeTurnWeight < 0;
         }
 
-        private int GetTurnWeight(Line startLine, Line endLine, int2 startPosition, int2 endPosition)
+        private int GetTurnWeight(DeprecatedLine startLine, DeprecatedLine endLine, int2 startPosition, int2 endPosition)
         {
             if (startLine == endLine)
             {
@@ -263,7 +262,7 @@ namespace Game.Lines
             }
 
             int result = 0;
-            Line current = startLine;
+            DeprecatedLine current = startLine;
             while (current != endLine)
             {
 #if DEBUG
@@ -280,7 +279,7 @@ namespace Game.Lines
         {
             int counter = 0;
 #if DEBUG
-            Line current = Start;
+            DeprecatedLine current = Start;
             do
             {
                 counter++;

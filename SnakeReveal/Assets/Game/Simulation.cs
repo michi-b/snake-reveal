@@ -1,4 +1,5 @@
 ﻿using Game.Lines;
+using Game.Lines.Deprecated;
 using Game.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +9,8 @@ namespace Game
     public class Simulation : MonoBehaviour
     {
         [SerializeField] private PlayerActor _playerActor;
-        [SerializeField] private LineLoop _shape;
-        [SerializeField] private LineChain _lineChain;
+        [SerializeField] private DeprecatedLineLoop _shape;
+        [SerializeField] private DeprecatedLineChain _lineChain;
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
 
