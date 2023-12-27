@@ -15,13 +15,10 @@ namespace Game
         private Vector2 _lowerLeftCornerScenePosition;
 
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
-        [SerializeField] private float _gizmoMinSize = 0.001f;
 
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
 
         [SerializeField] private bool _drawGizmo = true;
-
-        public int GizmoCellSizeMultiplier => _gizmoCellSizeMultiplier;
 
         public int2 Size => _size;
 

@@ -19,7 +19,9 @@ namespace Game.Lines
 
         [SerializeField] [HideInInspector] private Turn _turn = Turn.None;
 
-        private readonly List<Vector3> _renderPointsBuffer = new(LineChainRenderer.InitialLineCapacity);
+        private readonly List<Vector2> _renderPointsBuffer = new(LineChainRenderer.InitialLineCapacity);
+        
+        public const string CornersPropertyName = nameof(_corners);
 
         public SimulationGrid Grid => _grid;
 
@@ -140,7 +142,7 @@ namespace Game.Lines
 
         private void AddRendererPoint(Corner corner)
         {
-            var position = Grid.GetScenePosition(corner.Position).ToVector3(0f);
+            Vector2 position = Grid.GetScenePosition(corner.Position);
             _renderPointsBuffer.Add(position);
         }
 

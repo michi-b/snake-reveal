@@ -5,7 +5,6 @@ using Game.Enums;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 
 namespace Game.Lines.Editor
 {
@@ -15,9 +14,21 @@ namespace Game.Lines.Editor
         private static GUIStyle _rightAlignedLabelStyle;
 
         private static readonly GUIContent TurnLabel = new(nameof(LineChain.Turn));
+        private SerializedProperty _cornersProperty;
+
+        protected void OnEnable()
+        {
+            _cornersProperty = serializedObject.FindProperty(LineChain.CornersPropertyName);
+            _isIntegrationExpanded = EditorPrefs.GetBool(IsIntegrationExpandedKey, false);
+        }
+
+        private const string IsIntegrationExpandedKey = "LineChainEditor.IsIntegrationExpanded";
+        private bool _isIntegrationExpanded;
 
         public override void OnInspectorGUI()
         {
+            using var changeCheck = new EditorGUI.ChangeCheckScope();
+            
             _rightAlignedLabelStyle ??= new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
 
             base.OnInspectorGUI();
@@ -30,17 +41,13 @@ namespace Game.Lines.Editor
             {
                 Undo.RecordObject(chain, nameof(LineChainEditor));
             }
-            
-            if (GUILayout.Button("Update Renderers"))
-            {
-                chain.UpdateRenderersInEditMode();
-            }
 
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.EnumPopup(TurnLabel, chain.Turn);
             }
-            if(GUILayout.Button("Evaluate Turn"))
+
+            if (GUILayout.Button("Evaluate Turn"))
             {
                 chain.EvaluateTurn();
             }
@@ -57,6 +64,13 @@ namespace Game.Lines.Editor
             }
 
             GUI.enabled = true;
+            
+            if (changeCheck.changed)
+            {
+                chain.UpdateRenderersInEditMode();
+            }
+
+            DrawIntegration(chain);
         }
 
         private static void DrawCornerCount(LineChain chain)
@@ -186,6 +200,25 @@ namespace Game.Lines.Editor
             {
                 chain.EvaluateDirection((previousIndex + chain.Count) % chain.Count);
             }
+        }
+        
+        private void DrawIntegration(LineChain chain)
+        {
+            EditorGUI.BeginChangeCheck();
+            _isIntegrationExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_isIntegrationExpanded, "Integration");
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorPrefs.SetBool(IsIntegrationExpandedKey, _isIntegrationExpanded);
+            }
+            if (_isIntegrationExpanded)
+            {
+                DrawIntegrationExpansion(chain);
+            }
+            EditorGUI.EndFoldoutHeaderGroup();
+        }
+
+        private void DrawIntegrationExpansion(LineChain chain)
+        {
         }
     }
 }

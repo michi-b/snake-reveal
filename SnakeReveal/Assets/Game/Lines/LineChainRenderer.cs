@@ -13,28 +13,24 @@ namespace Game.Lines
 
         [SerializeField] private List<LineRenderer> _lines = new(InitialLineCapacity);
 
-        public void Set(IList<Vector3> points)
+        public void Set(IList<Vector2> points)
         {
             Clear();
             for (int i = 0; i < points.Count - 1; i++)
             {
                 LineRenderer line = _cache.Get();
-                Adopt(line);
-                line.SetPosition(0, points[i]);
-                line.SetPosition(1, points[i + 1]);
+                Adopt(line, points[i], points[i + 1]);
             }
         }
 
-        public void SetInEditMode(IList<Vector3> points)
+        public void SetInEditMode(IList<Vector2> points)
         {
             Undo.RecordObject(this, nameof(SetInEditMode));
             ClearInEditMode();
             for (int i = 0; i < points.Count - 1; i++)
             {
                 LineRenderer line = Instantiate(_cache.Prefab);
-                Adopt(line);
-                line.SetPosition(0, points[i]);
-                line.SetPosition(1, points[i + 1]);
+                Adopt(line, points[i], points[i + 1]);
             }
         }
 
@@ -58,10 +54,12 @@ namespace Game.Lines
             _lines.Clear();
         }
 
-        private void Adopt(LineRenderer line)
+        private void Adopt(LineRenderer line, Vector2 start, Vector2 end)
         {
             line.transform.parent = transform;
-            line.transform.SetLocalPositionZ(0f);
+            line.transform.localPosition = start.ToVector3(0f);
+            line.SetPosition(0, Vector3.zero);
+            line.SetPosition(1, (end - start).ToVector3(0f));
             _lines.Add(line);
         }
     }
