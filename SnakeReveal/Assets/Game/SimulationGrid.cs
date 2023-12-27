@@ -14,7 +14,7 @@ namespace Game
         [FormerlySerializedAs("_lowerLeftScenePosition")] [SerializeField]
         private Vector2 _lowerLeftCornerScenePosition;
 
-        [SerializeField] private int _gizmoCellSizeMultiplier = 32;
+        [SerializeField, Range(1, 10)] private int _gizmoCellSizeMultiplier = 1;
 
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
 
@@ -34,17 +34,17 @@ namespace Game
             Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
-            for (int x = 0; x < gizmoCellCount.x; x++)
+            for (int x = 0; x <= gizmoCellCount.x; x++)
             {
-                Vector3 bottom = GetWorldPosition(new int2(x, 0));
-                Vector3 top = GetWorldPosition(new int2(x, gizmoCellCount.y - 1));
+                Vector3 bottom = GetWorldPosition(new int2(x, 0) * _gizmoCellSizeMultiplier);
+                Vector3 top = GetWorldPosition(new int2(x, gizmoCellCount.y) * _gizmoCellSizeMultiplier);
                 Gizmos.DrawLine(bottom, top);
             }
             
-            for (int y = 0; y < gizmoCellCount.y; y++)
+            for (int y = 0; y <= gizmoCellCount.y; y++)
             {
-                Vector3 left = GetWorldPosition(new int2(0, y));
-                Vector3 right = GetWorldPosition(new int2(gizmoCellCount.x - 1, y));
+                Vector3 left = GetWorldPosition(new int2(0, y) * _gizmoCellSizeMultiplier);
+                Vector3 right = GetWorldPosition(new int2(gizmoCellCount.x, y) * _gizmoCellSizeMultiplier);
                 Gizmos.DrawLine(left, right);
             }
 

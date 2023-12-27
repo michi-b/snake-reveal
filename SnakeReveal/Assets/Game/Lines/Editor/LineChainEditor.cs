@@ -5,6 +5,7 @@ using Game.Enums;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Game.Lines.Editor
 {
@@ -20,6 +21,11 @@ namespace Game.Lines.Editor
         {
             _cornersProperty = serializedObject.FindProperty(LineChain.CornersPropertyName);
             _isIntegrationExpanded = EditorPrefs.GetBool(IsIntegrationExpandedKey, false);
+            _integrationTargetId = EditorPrefs.GetInt(IntegrationTargetIdKey, 0);
+            if (_integrationTargetId > 0)
+            {
+                _integrationTarget = EditorUtility.InstanceIDToObject(_integrationTargetId) as LineChain;
+            }
         }
 
         private const string IsIntegrationExpandedKey = "LineChainEditor.IsIntegrationExpanded";
@@ -35,38 +41,14 @@ namespace Game.Lines.Editor
 
             var chain = (LineChain)target;
 
-            GUI.enabled = !Application.isPlaying;
-
-            if (GUI.enabled)
-            {
-                Undo.RecordObject(chain, nameof(LineChainEditor));
-            }
-
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.EnumPopup(TurnLabel, chain.Turn);
             }
-
-            if (GUILayout.Button("Evaluate Turn"))
+            
+            if (changeCheck.changed && !Application.isPlaying)
             {
                 chain.EvaluateTurn();
-            }
-
-            DrawCornerCount(chain);
-            DrawCorners(chain);
-
-            if (GUILayout.Button("Reevaluate All Directions"))
-            {
-                for (int i = 0; i < chain.Count; i++)
-                {
-                    chain.EvaluateDirection(i);
-                }
-            }
-
-            GUI.enabled = true;
-            
-            if (changeCheck.changed)
-            {
                 chain.UpdateRenderersInEditMode();
             }
 
@@ -98,57 +80,9 @@ namespace Game.Lines.Editor
                 delta = Math.Abs(delta);
                 for (int i = 0; i < delta; i++)
                 {
-                    RemoveLastCorner(chain);
+                    chain.RemoveLast();
                 }
             }
-        }
-
-        private static void DrawCorners(LineChain chain)
-        {
-            using var scope = new EditorGUI.IndentLevelScope(1);
-
-            SimulationGrid grid = chain.Grid;
-
-            bool guiWasEnabled = GUI.enabled;
-
-            for (int i = 0; i < chain.Count; i++)
-            {
-                LineChain.Corner corner = chain[i];
-                Rect line = EditorGUILayout.GetControlRect();
-                float halfWidth = Mathf.Floor(line.width * 0.5f);
-                Rect directionRect = line.TakeFromRight(halfWidth);
-                Rect positionRect = line.TakeFromLeft(halfWidth);
-
-                var position = corner.Position.ToVector2Int();
-                bool positionChanged = false;
-                using (var changeCheck = new EditorGUI.ChangeCheckScope())
-                {
-                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
-                    if (grid != null)
-                    {
-                        corner.Position = grid.Clamp(corner.Position);
-                    }
-
-                    if (changeCheck.changed)
-                    {
-                        positionChanged = true;
-                    }
-                }
-
-                GUI.enabled = false;
-                corner.Direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner.Direction);
-                GUI.enabled = guiWasEnabled;
-
-                if (!positionChanged)
-                {
-                    continue;
-                }
-
-                chain[i] = corner;
-                ApplyPositionChange(chain, i);
-            }
-
-            DrawAddRemoveCornerButtons(chain);
         }
 
         private static void DrawAddRemoveCornerButtons(LineChain chain)
@@ -162,7 +96,7 @@ namespace Game.Lines.Editor
             {
                 if (GUI.Button(leftButtonRect, "-"))
                 {
-                    RemoveLastCorner(chain);
+                    chain.RemoveLast();
                 }
 
                 // ReSharper disable once InvertIf
@@ -173,35 +107,15 @@ namespace Game.Lines.Editor
             }
         }
 
-        private static void RemoveLastCorner(LineChain chain)
-        {
-            chain.RemoveLast();
-            int lastIndex = chain.Count - 1;
-            if (lastIndex > 0)
-            {
-                chain.EvaluateDirection(lastIndex);
-            }
-        }
-
         private static void AppendCorner(LineChain chain)
         {
             bool isFirst = chain.Count == 0;
             int2 position = isFirst
                 ? chain.Grid != null ? chain.Grid.Size / 2 : new int2(0, 0)
-                : chain[^1].Position;
+                : chain[^1];
             chain.Append(position);
         }
 
-        private static void ApplyPositionChange(LineChain chain, int i)
-        {
-            chain.EvaluateDirection(i);
-            int previousIndex = i - 1;
-            if (previousIndex >= 0 || chain.Loop)
-            {
-                chain.EvaluateDirection((previousIndex + chain.Count) % chain.Count);
-            }
-        }
-        
         private void DrawIntegration(LineChain chain)
         {
             EditorGUI.BeginChangeCheck();
@@ -214,11 +128,35 @@ namespace Game.Lines.Editor
             {
                 DrawIntegrationExpansion(chain);
             }
+            
             EditorGUI.EndFoldoutHeaderGroup();
         }
 
         private void DrawIntegrationExpansion(LineChain chain)
         {
+            EditorGUI.BeginChangeCheck();
+            _integrationTarget = EditorGUILayout.ObjectField("Target", _integrationTarget, typeof(LineChain), true) as LineChain;   
+            if(EditorGUI.EndChangeCheck())
+            {
+                _integrationTargetId = _integrationTarget ? _integrationTarget.GetInstanceID() : 0;
+                EditorPrefs.SetInt(IntegrationTargetIdKey, _integrationTargetId);
+            }
+
+            using (new EditorGUI.DisabledScope(_integrationTarget == null
+                                               || _integrationTarget == chain
+                                               || !chain.Loop
+                                               || _integrationTarget.Loop))
+            {
+                if (GUILayout.Button("Integrate"))
+                {
+                    LineChainIntegration.Integrate(chain, _integrationTarget);
+                }
+            }
         }
+        
+        private const string IntegrationTargetIdKey = "LineChainEditor.IntegrationTargetId";
+        private int _integrationTargetId;
+        
+        private LineChain _integrationTarget;
     }
 }
