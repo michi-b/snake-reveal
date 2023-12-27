@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
@@ -12,52 +11,41 @@ namespace Game.Lines
     {
         [SerializeField] private SimulationGrid _grid;
 
+        [SerializeField] private LineChainRenderer[] _renderers = Array.Empty<LineChainRenderer>();
+
         [SerializeField] private bool _loop;
 
-        [SerializeField] [HideInInspector] private List<Corner> _nodes = new();
+        [SerializeField] [HideInInspector] private List<Corner> _corners = new();
 
         public SimulationGrid Grid => _grid;
 
-        public int Count => _nodes.Count;
+        public int Count => _corners.Count;
 
         public bool Loop => _loop;
 
-        [DebuggerDisplay("Debug: {Items[{index}]}")]
         public Corner this[int index]
         {
-            get => _nodes[index];
-            set => _nodes[index] = value;
-        }
-
-        public string GetLineDescription(int index)
-        {
-            if (index < 0 || index >= Count)
-            {
-                return "Index out of range";
-            }
-
-            return $"{index}: " + (index == Count - 1
-                ? _nodes[index].Position.ToString()
-                : $"{_nodes[index].Position} -> {this[index + 1].Position}");
+            get => _corners[index];
+            set => _corners[index] = value;
         }
 
         public void Append()
         {
-            _nodes.Add(new Corner());
+            _corners.Add(new Corner());
         }
 
         public void RemoveLast()
         {
-            _nodes.RemoveAt(_nodes.Count - 1);
+            _corners.RemoveAt(_corners.Count - 1);
         }
 
         public void ReevaluateDirection(int i)
         {
-            Corner current = _nodes[i];
-            current.Direction = TryGetCornerAfter(i, out Corner next)
-                ? current.Position.GetDirection(next.Position)
+            Corner current = _corners[i];
+            current._direction = TryGetCornerAfter(i, out Corner next)
+                ? current._position.GetDirection(next._position)
                 : GridDirection.None;
-            _nodes[i] = current;
+            _corners[i] = current;
         }
 
         private bool TryGetCornerAfter(int index, out Corner corner)
@@ -71,18 +59,56 @@ namespace Game.Lines
                 return false;
             }
 
-            corner = _nodes[nextIndex];
+            corner = _corners[nextIndex];
             return true;
         }
-        
+
         /// <summary>
-        /// minimal struct to cache information in line points of a line container
+        ///     minimal struct to cache information in line points of a line container
         /// </summary>
         [Serializable]
         public struct Corner
         {
-            public int2 Position;
-            public GridDirection Direction;
+            public int2 _position;
+            public GridDirection _direction;
+
+            public Corner(int2 position, GridDirection direction)
+            {
+                _position = position;
+                _direction = direction;
+            }
         }
+
+        public void UpdateRenderersInEditMode()
+        {
+            UpdateRendererPoints();
+            foreach (LineChainRenderer lineChainRenderer in _renderers)
+            {
+                lineChainRenderer.SetInEditMode(_renderPointsBuffer);
+            }
+        }
+
+        private void UpdateRendererPoints()
+        {
+            _renderPointsBuffer.Clear();
+            foreach (Corner corner in _corners)
+            {
+                AddRendererPoint(corner);
+            }
+            
+            //add first point again to connect end to start if the chain is set to loop
+            if(_loop && _corners.Count > 0)
+            {
+                AddRendererPoint(_corners[0]);
+            }
+        }
+
+        private void AddRendererPoint(Corner corner)
+        {
+            Vector3 position = Grid.GetScenePosition(corner._position).ToVector3(0f);
+            _renderPointsBuffer.Add(position);
+        }
+
+        private List<Vector3> _renderPointsBuffer = new List<Vector3>(LineChainRenderer.InitialLineCapacity);
     }
 }

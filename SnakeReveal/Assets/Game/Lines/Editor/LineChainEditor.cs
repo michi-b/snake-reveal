@@ -2,6 +2,7 @@
 using Editor;
 using Extensions;
 using Game.Enums;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,8 +21,14 @@ namespace Game.Lines.Editor
 
             var chain = (LineChain)target;
 
+                
             GUI.enabled = !Application.isPlaying;
-
+            
+            if(GUILayout.Button("Update Renderers"))
+            {
+                chain.UpdateRenderersInEditMode();
+            }
+            
             if (GUI.enabled)
             {
                 Undo.RecordObject(chain, nameof(LineChainEditor));
@@ -70,7 +77,7 @@ namespace Game.Lines.Editor
             }
         }
 
-        private void DrawCorners(LineChain chain)
+        private static void DrawCorners(LineChain chain)
         {
             using var scope = new EditorGUI.IndentLevelScope(1);
 
@@ -86,14 +93,14 @@ namespace Game.Lines.Editor
                 Rect directionRect = line.TakeFromRight(halfWidth);
                 Rect positionRect = line.TakeFromLeft(halfWidth);
 
-                var position = corner.Position.ToVector2Int();
+                var position = corner._position.ToVector2Int();
                 bool positionChanged = false;
                 using (var changeCheck = new EditorGUI.ChangeCheckScope())
                 {
-                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
+                    corner._position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
                     if (grid != null)
                     {
-                        corner.Position = grid.Clamp(corner.Position);
+                        corner._position = grid.Clamp(corner._position);
                     }
 
                     if (changeCheck.changed)
@@ -103,7 +110,7 @@ namespace Game.Lines.Editor
                 }
 
                 GUI.enabled = false;
-                corner.Direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner.Direction);
+                corner._direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner._direction);
                 GUI.enabled = guiWasEnabled;
 
                 if (!positionChanged)
@@ -130,20 +137,27 @@ namespace Game.Lines.Editor
                 if (GUI.Button(leftButtonRect, "-"))
                 {
                     chain.RemoveLast();
-                    chain.ReevaluateDirection(chain.Count - 1);
+                    int lastIndex = chain.Count - 1;
+                    if (lastIndex > 0)
+                    {
+                        chain.ReevaluateDirection(lastIndex);
+                    }
                 }
 
                 // ReSharper disable once InvertIf
                 if (GUI.Button(rightButtonRect, "+"))
                 {
-                    int formerLastIndex = chain.Count - 1;
+                    bool isFirst = chain.Count == 0;
                     chain.Append();
-                    chain[^1] = new LineChain.Corner
+                    int formerLastIndex = chain.Count - 2;
+                    int2 position = isFirst 
+                        ? chain.Grid != null ? chain.Grid.Size / 2 : new int2(0, 0) 
+                        : chain[formerLastIndex]._position;
+                    chain[^1] = new LineChain.Corner(position, GridDirection.None);
+                    if (!isFirst)
                     {
-                        Position = chain[formerLastIndex].Position,
-                        Direction = GridDirection.None
-                    };
-                    chain.ReevaluateDirection(formerLastIndex);
+                        chain.ReevaluateDirection(formerLastIndex);
+                    }
                 }
             }
         }

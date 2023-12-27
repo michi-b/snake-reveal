@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Extensions;
-using Game.Enums;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game.Lines
@@ -11,7 +7,7 @@ namespace Game.Lines
     /// <summary>
     ///     manages cache of lines of ONE type, i.e. one specific line prefab
     /// </summary>
-    public class LineRendererCache : MonoBehaviour
+    public class LineCache : MonoBehaviour
     {
         private const int InitialCapacity = 1000;
 
@@ -21,8 +17,6 @@ namespace Game.Lines
 
         private readonly Stack<LineRenderer> _cache = new(InitialCapacity);
 
-        private int _currentLineIndex = -1;
-
         /// <summary>
         ///     access to private prefab for edit mode instantiation,
         ///     should not be required at runtime
@@ -31,8 +25,18 @@ namespace Game.Lines
 
         public LineRenderer Get()
         {
-            LineRenderer result = _cache.Count == 0 ? Instantiate() : GetCachedLine();
-            result.gameObject.name = "Line" + (++_currentLineIndex).ToString(CultureInfo.InvariantCulture);
+            LineRenderer result;
+            
+            if (_cache.Count == 0)
+            {
+                result = Instantiate();
+            }
+            else
+            {
+                result = GetCachedLine();
+                result.gameObject.SetActive(true);
+            }
+
             return result;
         }
 
