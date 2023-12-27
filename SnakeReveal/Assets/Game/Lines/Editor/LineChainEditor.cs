@@ -5,6 +5,7 @@ using Game.Enums;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace Game.Lines.Editor
 {
@@ -12,6 +13,8 @@ namespace Game.Lines.Editor
     public class LineChainEditor : UnityEditor.Editor
     {
         private static GUIStyle _rightAlignedLabelStyle;
+
+        private static readonly GUIContent TurnLabel = new(nameof(LineChain.Turn));
 
         public override void OnInspectorGUI()
         {
@@ -21,17 +24,25 @@ namespace Game.Lines.Editor
 
             var chain = (LineChain)target;
 
-                
             GUI.enabled = !Application.isPlaying;
-            
-            if(GUILayout.Button("Update Renderers"))
-            {
-                chain.UpdateRenderersInEditMode();
-            }
-            
+
             if (GUI.enabled)
             {
                 Undo.RecordObject(chain, nameof(LineChainEditor));
+            }
+            
+            if (GUILayout.Button("Update Renderers"))
+            {
+                chain.UpdateRenderersInEditMode();
+            }
+
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.EnumPopup(TurnLabel, chain.Turn);
+            }
+            if(GUILayout.Button("Evaluate Turn"))
+            {
+                chain.EvaluateTurn();
             }
 
             DrawCornerCount(chain);
@@ -41,7 +52,7 @@ namespace Game.Lines.Editor
             {
                 for (int i = 0; i < chain.Count; i++)
                 {
-                    chain.ReevaluateDirection(i);
+                    chain.EvaluateDirection(i);
                 }
             }
 
@@ -53,6 +64,7 @@ namespace Game.Lines.Editor
             using var changeCheck = new EditorGUI.ChangeCheckScope();
 
             int count = EditorGUILayout.IntField("Corners", chain.Count);
+            count = Mathf.Max(0, count);
 
             if (!changeCheck.changed)
             {
@@ -64,7 +76,7 @@ namespace Game.Lines.Editor
             {
                 for (int i = 0; i < delta; i++)
                 {
-                    chain.Append();
+                    AppendCorner(chain);
                 }
             }
             else
@@ -72,7 +84,7 @@ namespace Game.Lines.Editor
                 delta = Math.Abs(delta);
                 for (int i = 0; i < delta; i++)
                 {
-                    chain.RemoveLast();
+                    RemoveLastCorner(chain);
                 }
             }
         }
@@ -93,14 +105,14 @@ namespace Game.Lines.Editor
                 Rect directionRect = line.TakeFromRight(halfWidth);
                 Rect positionRect = line.TakeFromLeft(halfWidth);
 
-                var position = corner._position.ToVector2Int();
+                var position = corner.Position.ToVector2Int();
                 bool positionChanged = false;
                 using (var changeCheck = new EditorGUI.ChangeCheckScope())
                 {
-                    corner._position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
+                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
                     if (grid != null)
                     {
-                        corner._position = grid.Clamp(corner._position);
+                        corner.Position = grid.Clamp(corner.Position);
                     }
 
                     if (changeCheck.changed)
@@ -110,7 +122,7 @@ namespace Game.Lines.Editor
                 }
 
                 GUI.enabled = false;
-                corner._direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner._direction);
+                corner.Direction = (GridDirection)EditorGUI.EnumPopup(directionRect, corner.Direction);
                 GUI.enabled = guiWasEnabled;
 
                 if (!positionChanged)
@@ -136,39 +148,43 @@ namespace Game.Lines.Editor
             {
                 if (GUI.Button(leftButtonRect, "-"))
                 {
-                    chain.RemoveLast();
-                    int lastIndex = chain.Count - 1;
-                    if (lastIndex > 0)
-                    {
-                        chain.ReevaluateDirection(lastIndex);
-                    }
+                    RemoveLastCorner(chain);
                 }
 
                 // ReSharper disable once InvertIf
                 if (GUI.Button(rightButtonRect, "+"))
                 {
-                    bool isFirst = chain.Count == 0;
-                    chain.Append();
-                    int formerLastIndex = chain.Count - 2;
-                    int2 position = isFirst 
-                        ? chain.Grid != null ? chain.Grid.Size / 2 : new int2(0, 0) 
-                        : chain[formerLastIndex]._position;
-                    chain[^1] = new LineChain.Corner(position, GridDirection.None);
-                    if (!isFirst)
-                    {
-                        chain.ReevaluateDirection(formerLastIndex);
-                    }
+                    AppendCorner(chain);
                 }
             }
         }
 
+        private static void RemoveLastCorner(LineChain chain)
+        {
+            chain.RemoveLast();
+            int lastIndex = chain.Count - 1;
+            if (lastIndex > 0)
+            {
+                chain.EvaluateDirection(lastIndex);
+            }
+        }
+
+        private static void AppendCorner(LineChain chain)
+        {
+            bool isFirst = chain.Count == 0;
+            int2 position = isFirst
+                ? chain.Grid != null ? chain.Grid.Size / 2 : new int2(0, 0)
+                : chain[^1].Position;
+            chain.Append(position);
+        }
+
         private static void ApplyPositionChange(LineChain chain, int i)
         {
-            chain.ReevaluateDirection(i);
+            chain.EvaluateDirection(i);
             int previousIndex = i - 1;
             if (previousIndex >= 0 || chain.Loop)
             {
-                chain.ReevaluateDirection((previousIndex + chain.Count) % chain.Count);
+                chain.EvaluateDirection((previousIndex + chain.Count) % chain.Count);
             }
         }
     }

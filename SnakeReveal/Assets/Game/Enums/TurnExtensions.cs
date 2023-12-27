@@ -11,7 +11,7 @@ namespace Game.Enums
             {
                 Turn.Right => 1,
                 Turn.Left => -1,
-                _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
+                _ => 0
             };
         }
 
