@@ -5,7 +5,17 @@ namespace Game.Lines
 {
     public abstract class LineChainRenderer : MonoBehaviour
     {
-        public const int InitialLineCapacity = 1000;
-        public abstract void EditModeRebuild(IList<Vector2> points, bool loop);
+        [SerializeField] private SimulationGrid _grid;
+
+        protected SimulationGrid Grid => _grid;
+
+        /// <summary>
+        ///     Ditch current rendering objects and rebuild them from scratch.
+        /// </summary>
+        /// <param name="lines">
+        ///     All lines that need to be rendered,
+        ///     including the loop closing line if it is looping.
+        /// </param>
+        public abstract void EditModeRebuild(IReadOnlyList<Line> lines);
     }
 }

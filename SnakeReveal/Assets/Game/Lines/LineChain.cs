@@ -8,23 +8,15 @@ namespace Game.Lines
 {
     public partial class LineChain : MonoBehaviour
     {
-        public const string LinesPropertyName = nameof(_lines);
-        public const string LoopPropertyName = nameof(_loop);
-        public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
-
         [SerializeField] private SimulationGrid _grid;
 
-        [FormerlySerializedAs("_renderers")] [SerializeField]
-        private LineChainRenderer[] _lineRenderers = Array.Empty<LineChainRenderer>();
+        [SerializeField] private LineChainRenderer[] _lineRenderers = Array.Empty<LineChainRenderer>();
 
-        [FormerlySerializedAs("_corners")] [SerializeField] [HideInInspector]
-        private List<Line> _lines = new();
+        [SerializeField] [HideInInspector] private List<Line> _lines = new();
 
         [SerializeField] [HideInInspector] private int _clockwiseTurnWeight;
 
         [SerializeField] [HideInInspector] private bool _loop;
-
-        private readonly List<Vector2> _renderPointsBuffer = new(LineChainRenderer.InitialLineCapacity);
 
         public SimulationGrid Grid => _grid;
 

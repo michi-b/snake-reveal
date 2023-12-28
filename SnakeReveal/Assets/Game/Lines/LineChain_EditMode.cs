@@ -1,9 +1,14 @@
-﻿using Game.Enums;
+﻿using System.Collections.Generic;
+using Game.Enums;
 
 namespace Game.Lines
 {
     public partial class LineChain
     {
+        public const string LinesPropertyName = nameof(_lines);
+        public const string LoopPropertyName = nameof(_loop);
+        public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
+        
         public void EditModeReevaluateClockwiseTurnWeight()
         {
             var lastDirection = GridDirection.None;
@@ -46,25 +51,9 @@ namespace Game.Lines
 
         public void EditModeRebuildLineRenderers()
         {
-            _renderPointsBuffer.Clear();
-
-            if (Count > 0)
-            {
-                foreach (Line corner in _lines)
-                {
-                    _renderPointsBuffer.Add(Grid.GetScenePosition(corner.Start));
-                }
-
-                //special handling of open chain end position
-                if (!_loop)
-                {
-                    _renderPointsBuffer.Add(Grid.GetScenePosition(_lines[^1].End));
-                }
-            }
-
             foreach (LineChainRenderer lineChainRenderer in _lineRenderers)
             {
-                lineChainRenderer.EditModeRebuild(_renderPointsBuffer, Loop);
+                lineChainRenderer.EditModeRebuild(_lines);
             }
         }
 

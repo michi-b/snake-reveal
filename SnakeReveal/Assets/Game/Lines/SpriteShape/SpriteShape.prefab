@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e967172a4f33ff5499a43ee81c0047da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _width: 0.04
+  _grid: {fileID: 0}
 --- !u!114 &6522373562166118513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,33 +67,33 @@ MonoBehaviour:
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
-      height: 0.04
+      height: 1
       spriteIndex: 0
-      corner: 1
+      corner: 0
       m_CornerMode: 1
     - position: {x: 0.19999981, y: 0.20000076, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
-      height: 0.04
+      height: 1
       spriteIndex: 0
-      corner: 1
+      corner: 0
       m_CornerMode: 1
     - position: {x: 0.19999981, y: -0.19999981, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
-      height: 0.04
+      height: 1
       spriteIndex: 0
-      corner: 1
+      corner: 0
       m_CornerMode: 1
     - position: {x: -0.20000029, y: -0.19999981, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
-      height: 0.04
+      height: 1
       spriteIndex: 0
-      corner: 1
+      corner: 0
       m_CornerMode: 1
   m_SpriteShape: {fileID: 11400000, guid: 57a6849f25b62bf41afeefa9dd82f383, type: 2}
   m_FillPixelPerUnit: 100
