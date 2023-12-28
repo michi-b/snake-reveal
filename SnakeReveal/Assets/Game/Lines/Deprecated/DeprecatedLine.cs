@@ -5,6 +5,7 @@ using Game.Enums;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
+using Utility;
 using Debug = UnityEngine.Debug;
 
 namespace Game.Lines.Deprecated
@@ -15,8 +16,8 @@ namespace Game.Lines.Deprecated
     {
         [SerializeField] private SimulationGrid _grid;
 
-        [SerializeField] private int2 _start;
-        [SerializeField] private int2 _end;
+        [SerializeField] private Vector2Int _start;
+        [SerializeField] private Vector2Int _end;
         [SerializeField] private DeprecatedLine _next;
         [SerializeField] private DeprecatedLine _previous;
         [SerializeField] private GridDirection _direction;
@@ -28,7 +29,7 @@ namespace Game.Lines.Deprecated
 
         // start position in grid space
 
-        public int2 Start
+        public Vector2Int Start
         {
             get => _start;
             set
@@ -46,7 +47,7 @@ namespace Game.Lines.Deprecated
 
         // end position in grid space
 
-        public int2 End
+        public Vector2Int End
         {
             get => _end;
             set
@@ -85,7 +86,7 @@ namespace Game.Lines.Deprecated
 
         public string DebuggerDisplay => $"{Start}->{End}";
 
-        public void Place(int2 start, int2 end)
+        public void Place(Vector2Int start, Vector2Int end)
         {
             LineRenderer lineRenderer = LineRenderer;
 
@@ -108,14 +109,14 @@ namespace Game.Lines.Deprecated
 
         public void Initialize()
         {
-            _start = new int2();
-            _end = new int2();
+            _start = new Vector2Int();
+            _end = new Vector2Int();
             _next = null;
             _previous = null;
             _direction = GridDirection.None;
         }
 
-        public bool Contains(int2 position)
+        public bool Contains(Vector2Int position)
         {
             return Direction.GetOrientation() switch
             {
@@ -132,7 +133,7 @@ namespace Game.Lines.Deprecated
             return followLineDirection ? Direction : Direction.GetOpposite();
         }
 
-        public GridDirection GetDirection(int2 position)
+        public GridDirection GetDirection(Vector2Int position)
         {
             return End.GetDirection(position);
         }
@@ -151,12 +152,12 @@ namespace Game.Lines.Deprecated
             return followLineDirection ? Next : Previous;
         }
 
-        public int2 GetEnd(bool followLineDirection)
+        public Vector2Int GetEnd(bool followLineDirection)
         {
             return followLineDirection ? End : Start;
         }
 
-        public bool TryExtend(int2 newEnd)
+        public bool TryExtend(Vector2Int newEnd)
         {
             if (Contains(newEnd))
             {

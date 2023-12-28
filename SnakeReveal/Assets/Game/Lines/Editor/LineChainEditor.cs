@@ -119,11 +119,10 @@ namespace Game.Lines.Editor
                 Rect directionRect = line.TakeFromRight(halfWidth);
                 Rect positionRect = line.TakeFromLeft(halfWidth);
 
-                var position = corner.Position.ToVector2Int();
                 bool positionChanged = false;
                 using (var changeCheck = new EditorGUI.ChangeCheckScope())
                 {
-                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, position).ToInt2();
+                    corner.Position = EditorGUI.Vector2IntField(positionRect, GUIContent.none, corner.Position);
                     if (grid != null)
                     {
                         corner.Position = grid.Clamp(corner.Position);
@@ -186,8 +185,8 @@ namespace Game.Lines.Editor
         private static void AppendCorner(LineChain chain)
         {
             bool isFirst = chain.Count == 0;
-            int2 position = isFirst
-                ? chain.Grid != null ? chain.Grid.Size / 2 : new int2(0, 0)
+            Vector2Int position = isFirst
+                ? chain.Grid != null ? chain.Grid.Size / 2 : new Vector2Int(0, 0)
                 : chain[^1].Position;
             chain.Append(position);
         }

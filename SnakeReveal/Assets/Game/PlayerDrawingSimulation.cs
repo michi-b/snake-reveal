@@ -26,7 +26,7 @@ namespace Game
 
         private PlayerMovementMode _movementMode;
 
-        private int2 _shapeTravelBreakoutPosition;
+        private Vector2Int _shapeTravelBreakoutPosition;
         [NotNull] private DeprecatedLine _shapeTravelLine;
 
 
@@ -171,7 +171,7 @@ namespace Game
             _actor.Step();
         }
 
-        private void Breakout(int2 position)
+        private void Breakout(Vector2Int position)
         {
             Debug.Assert(_shapeTravelLine.Contains(position));
             _shapeTravelBreakoutPosition = position;

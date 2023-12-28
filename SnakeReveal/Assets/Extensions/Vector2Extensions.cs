@@ -9,10 +9,5 @@ namespace Extensions
         {
             return new Vector3(vector2.x, vector2.y, z);
         }
-
-        public static int2 ToInt2(this Vector2 vector2)
-        {
-            return new int2((int)vector2.x, (int)vector2.y);
-        }
     }
 }

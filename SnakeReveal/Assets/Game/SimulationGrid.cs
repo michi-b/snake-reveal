@@ -8,7 +8,7 @@ namespace Game
     public class SimulationGrid : MonoBehaviour
     {
         [SerializeField] private Vector2 _sceneSize = new(10.8f, 10.8f);
-        [SerializeField] private int2 _size = new(1024, 1024);
+        [SerializeField] private Vector2Int _size = new(1024, 1024);
         [SerializeField] private Vector2 _sceneCellSize;
 
         [FormerlySerializedAs("_lowerLeftScenePosition")] [SerializeField]
@@ -20,7 +20,7 @@ namespace Game
 
         [SerializeField] private bool _drawGizmo = true;
 
-        public int2 Size => _size;
+        public Vector2Int Size => _size;
 
         protected void OnDrawGizmos()
         {
@@ -29,22 +29,22 @@ namespace Game
                 return;
             }
 
-            int2 gizmoCellCount = _size / _gizmoCellSizeMultiplier;
+            Vector2Int gizmoCellCount = _size / _gizmoCellSizeMultiplier;
 
             Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
             for (int x = 0; x < gizmoCellCount.x; x++)
             {
-                Vector3 bottom = GetWorldPosition(new int2(x, 0));
-                Vector3 top = GetWorldPosition(new int2(x, gizmoCellCount.y - 1));
+                Vector3 bottom = GetWorldPosition(new Vector2Int(x, 0));
+                Vector3 top = GetWorldPosition(new Vector2Int(x, gizmoCellCount.y - 1));
                 Gizmos.DrawLine(bottom, top);
             }
             
             for (int y = 0; y < gizmoCellCount.y; y++)
             {
-                Vector3 left = GetWorldPosition(new int2(0, y));
-                Vector3 right = GetWorldPosition(new int2(gizmoCellCount.x - 1, y));
+                Vector3 left = GetWorldPosition(new Vector2Int(0, y));
+                Vector3 right = GetWorldPosition(new Vector2Int(gizmoCellCount.x - 1, y));
                 Gizmos.DrawLine(left, right);
             }
 
@@ -53,16 +53,16 @@ namespace Game
 
         protected void OnValidate()
         {
-            _sceneCellSize = _sceneSize / _size.ToVector2();
+            _sceneCellSize = _sceneSize / _size;
             _lowerLeftCornerScenePosition = -_sceneSize * 0.5f;
         }
 
-        public Vector2 GetScenePosition(int2 gridPosition)
+        public Vector2 GetScenePosition(Vector2Int gridPosition)
         {
-            return _lowerLeftCornerScenePosition + _sceneCellSize * gridPosition.ToVector2();
+            return _lowerLeftCornerScenePosition + _sceneCellSize * gridPosition;
         }
 
-        private Vector3 GetWorldPosition(int2 gridPosition)
+        private Vector3 GetWorldPosition(Vector2Int gridPosition)
         {
             return GetWorldPosition(GetScenePosition(gridPosition));
         }
@@ -72,9 +72,9 @@ namespace Game
             return scenePosition.ToVector3(transform.position.z);
         }
 
-        public int2 Clamp(int2 gridPosition)
+        public Vector2Int Clamp(Vector2Int gridPosition)
         {
-            return new int2(
+            return new Vector2Int(
                 math.clamp(gridPosition.x, 0, _size.x),
                 math.clamp(gridPosition.y, 0, _size.y)
             );

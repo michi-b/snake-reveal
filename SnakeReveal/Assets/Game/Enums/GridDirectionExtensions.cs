@@ -11,15 +11,15 @@ namespace Game.Enums
         private static readonly Quaternion LeftRotation = Quaternion.Euler(0f, 0f, 180f);
         private static readonly Quaternion DownRotation = Quaternion.Euler(0f, 0f, 270f);
 
-        public static int2 ToInt2(this GridDirection target)
+        public static Vector2Int ToInt2(this GridDirection target)
         {
             return target switch
             {
-                GridDirection.None => new int2(0, 0),
-                GridDirection.Right => new int2(1, 0),
-                GridDirection.Up => new int2(0, 1),
-                GridDirection.Left => new int2(-1, 0),
-                GridDirection.Down => new int2(0, -1),
+                GridDirection.None => new Vector2Int(0, 0),
+                GridDirection.Right => new Vector2Int(1, 0),
+                GridDirection.Up => new Vector2Int(0, 1),
+                GridDirection.Left => new Vector2Int(-1, 0),
+                GridDirection.Down => new Vector2Int(0, -1),
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
             };
         }

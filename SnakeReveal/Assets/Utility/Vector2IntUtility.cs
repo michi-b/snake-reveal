@@ -1,22 +1,11 @@
 ﻿using Game.Enums;
-using Unity.Mathematics;
 using UnityEngine;
 
-namespace Extensions
+namespace Utility
 {
-    public static class Int2Extensions
+    public static class Vector2IntUtility
     {
-        public static Vector2 ToVector2(this int2 target)
-        {
-            return new Vector2(target.x, target.y);
-        }
-
-        public static Vector2Int ToVector2Int(this int2 target)
-        {
-            return new Vector2Int(target.x, target.y);
-        }
-
-        public static GridDirection GetDirection(this int2 start, int2 end)
+        public static GridDirection GetDirection(this Vector2Int start, Vector2Int end)
         {
             if ((start.x == end.x && start.y == end.y)
                 || (start.x != end.x && start.y != end.y))
@@ -24,7 +13,7 @@ namespace Extensions
                 return GridDirection.None;
             }
 
-            int2 delta = end - start;
+            Vector2Int delta = end - start;
 
             return delta.x switch
             {

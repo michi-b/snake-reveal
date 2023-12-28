@@ -15,7 +15,7 @@ namespace Game.Player
 
         [SerializeField] private PlayerActorRenderer _renderer;
 
-        [SerializeField] private int2 _position;
+        [SerializeField] private Vector2Int _position;
 
         [FormerlySerializedAs("_gridDirection")] [SerializeField]
         private GridDirection _direction = GridDirection.None;
@@ -38,7 +38,7 @@ namespace Game.Player
 
         public int Speed => _speed;
 
-        public int2 Position
+        public Vector2Int Position
         {
             get => _position;
             set => _position = value;

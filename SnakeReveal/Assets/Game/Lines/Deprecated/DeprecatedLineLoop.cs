@@ -3,6 +3,7 @@ using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
+using Utility;
 using Debug = UnityEngine.Debug;
 
 namespace Game.Lines.Deprecated
@@ -21,7 +22,7 @@ namespace Game.Lines.Deprecated
             private set => _turn = value;
         }
 
-        public void Set(params int2[] positions)
+        public void Set(params Vector2Int[] positions)
         {
 #if DEBUG
             Debug.Assert(Start == null);
@@ -73,7 +74,7 @@ namespace Game.Lines.Deprecated
             Turn = clockwiseWeight > 0 ? Turn.Right : Turn.Left;
         }
 
-        public bool OutlineContains(int2 position, Predicate<DeprecatedLine> filter = null)
+        public bool OutlineContains(Vector2Int position, Predicate<DeprecatedLine> filter = null)
         {
             return FindLineAt(position, filter) != null;
         }
@@ -97,7 +98,7 @@ namespace Game.Lines.Deprecated
             return false;
         }
 
-        public DeprecatedLine FindLineAt(int2 position, Predicate<DeprecatedLine> filter = null)
+        public DeprecatedLine FindLineAt(Vector2Int position, Predicate<DeprecatedLine> filter = null)
         {
 #if DEBUG
             Debug.Assert(GetIsLooping());
@@ -133,8 +134,8 @@ namespace Game.Lines.Deprecated
         /// <returns>whether the connection was made in shape travel direction</returns>
         public bool Incorporate(DeprecatedLineChain chain, DeprecatedLine startLine, DeprecatedLine endLine)
         {
-            int2 chainStartPosition = chain.Start.Start;
-            int2 chainEndPosition = chain.End.End;
+            Vector2Int chainStartPosition = chain.Start.Start;
+            Vector2Int chainEndPosition = chain.End.End;
             bool startLineIsEndLine = startLine == endLine;
             if (startLineIsEndLine)
             {
@@ -240,7 +241,7 @@ namespace Game.Lines.Deprecated
             return followsLoopTurn;
         }
 
-        private bool GetFollowsTurn(DeprecatedLineChain chain, DeprecatedLine startLine, int2 startPosition, DeprecatedLine endLine, int2 endPosition)
+        private bool GetFollowsTurn(DeprecatedLineChain chain, DeprecatedLine startLine, Vector2Int startPosition, DeprecatedLine endLine, Vector2Int endPosition)
         {
 #if DEBUG
             Debug.Assert(GetIsLooping());
@@ -254,7 +255,7 @@ namespace Game.Lines.Deprecated
             return relativeTurnWeight < 0;
         }
 
-        private int GetTurnWeight(DeprecatedLine startLine, DeprecatedLine endLine, int2 startPosition, int2 endPosition)
+        private int GetTurnWeight(DeprecatedLine startLine, DeprecatedLine endLine, Vector2Int startPosition, Vector2Int endPosition)
         {
             if (startLine == endLine)
             {

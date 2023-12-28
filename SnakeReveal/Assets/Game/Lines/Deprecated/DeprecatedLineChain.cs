@@ -33,7 +33,7 @@ namespace Game.Lines.Deprecated
             return GetEnumerator();
         }
 
-        public void Set(params int2[] positions)
+        public void Set(params Vector2Int[] positions)
         {
             Debug.Assert(IsCleared);
             Debug.Assert(positions.Length >= 2);
@@ -46,12 +46,12 @@ namespace Game.Lines.Deprecated
             }
         }
 
-        public bool Contains(int2 position, Predicate<DeprecatedLine> filter = null)
+        public bool Contains(Vector2Int position, Predicate<DeprecatedLine> filter = null)
         {
             return FindLineAt(position, filter) != null;
         }
 
-        public DeprecatedLine FindLineAt(int2 position, Predicate<DeprecatedLine> filter = null)
+        public DeprecatedLine FindLineAt(Vector2Int position, Predicate<DeprecatedLine> filter = null)
         {
             DeprecatedLine current = _start;
             while (current != null)
@@ -67,7 +67,7 @@ namespace Game.Lines.Deprecated
             return null;
         }
 
-        public void Extend(int2 position)
+        public void Extend(Vector2Int position)
         {
             Debug.Assert(_end != null);
 
@@ -90,7 +90,7 @@ namespace Game.Lines.Deprecated
             _start = _end = null;
         }
 
-        private void Append(int2 position)
+        private void Append(Vector2Int position)
         {
             DeprecatedLine line = GetLine(_end.End, position);
             _end.Next = line;

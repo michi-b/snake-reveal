@@ -13,7 +13,7 @@ namespace Game.Lines.Deprecated.Editor
         private const string HalfQuadSizeKey = FullName + ".HalfQuadSize";
         private const string HalfQuadSizeXKey = HalfQuadSizeKey + ".x";
         private const string HalfQuadSizeYKey = HalfQuadSizeKey + ".y";
-        private int2 _halfQuadSize = new(30, 30);
+        private Vector2Int _halfQuadSize = new(30, 30);
         private bool _isInitialized;
 
         public override void OnInspectorGUI()
@@ -32,7 +32,7 @@ namespace Game.Lines.Deprecated.Editor
 
             using (var changeCheckScope = new EditorGUI.ChangeCheckScope())
             {
-                _halfQuadSize = EditorGUILayout.Vector2Field("Half Quad Size", _halfQuadSize.ToVector2()).ToInt2();
+                _halfQuadSize = EditorGUILayout.Vector2IntField("Half Quad Size", Vector2Int.FloorToInt(_halfQuadSize));
                 if (changeCheckScope.changed)
                 {
                     EditorPrefs.SetInt(HalfQuadSizeXKey, _halfQuadSize.x);
@@ -45,7 +45,7 @@ namespace Game.Lines.Deprecated.Editor
             {
                 Undo.RegisterFullObjectHierarchyUndo(target, initializeQuadClockwise);
                 ClearLineLoop(lineLoop);
-                int2[] quadPositions = GetCenteredQuadPositionsClockwise(lineLoop.Grid);
+                Vector2Int[] quadPositions = GetCenteredQuadPositionsClockwise(lineLoop.Grid);
                 lineLoop.Set(quadPositions);
             }
 
@@ -54,7 +54,7 @@ namespace Game.Lines.Deprecated.Editor
             {
                 Undo.RegisterFullObjectHierarchyUndo(target, initializeQuadCounterClockwise);
                 ClearLineLoop(lineLoop);
-                int2[] quadPositions = GetCenteredQuadPositionsClockwise(lineLoop.Grid).Reverse().ToArray();
+                Vector2Int[] quadPositions = GetCenteredQuadPositionsClockwise(lineLoop.Grid).Reverse().ToArray();
                 lineLoop.Set(quadPositions);
             }
         }
@@ -77,15 +77,15 @@ namespace Game.Lines.Deprecated.Editor
             }
         }
 
-        private int2[] GetCenteredQuadPositionsClockwise(SimulationGrid grid)
+        private Vector2Int[] GetCenteredQuadPositionsClockwise(SimulationGrid grid)
         {
-            int2 center = grid.Size / 2;
-            int2 topLeft = center + _halfQuadSize * new int2(-1, 1);
-            int2 topRight = center + _halfQuadSize * new int2(1, 1);
-            int2 bottomRight = center + _halfQuadSize * new int2(1, -1);
-            int2 bottomLeft = center + _halfQuadSize * new int2(-1, -1);
+            Vector2Int center = grid.Size / 2;
+            Vector2Int topLeft = center + _halfQuadSize * new Vector2Int(-1, 1);
+            Vector2Int topRight = center + _halfQuadSize * new Vector2Int(1, 1);
+            Vector2Int bottomRight = center + _halfQuadSize * new Vector2Int(1, -1);
+            Vector2Int bottomLeft = center + _halfQuadSize * new Vector2Int(-1, -1);
 
-            int2[] quadPositions = { topLeft, topRight, bottomRight, bottomLeft };
+            Vector2Int[] quadPositions = { topLeft, topRight, bottomRight, bottomLeft };
             return quadPositions;
         }
     }

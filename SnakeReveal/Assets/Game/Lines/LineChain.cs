@@ -4,6 +4,7 @@ using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
+using Utility;
 
 namespace Game.Lines
 {
@@ -98,7 +99,7 @@ namespace Game.Lines
 #endif
         }
 
-        public void Append(int2 position)
+        public void Append(Vector2Int position)
         {
             _corners.Add(new Corner(position, GridDirection.None));
 
@@ -152,10 +153,10 @@ namespace Game.Lines
         [Serializable]
         public struct Corner
         {
-            [SerializeField] private int2 _position;
+            [SerializeField] private Vector2Int _position;
             [SerializeField] private GridDirection _direction;
 
-            public Corner(int2 position, GridDirection direction)
+            public Corner(Vector2Int position, GridDirection direction)
             {
                 _position = position;
                 _direction = direction;
@@ -167,7 +168,7 @@ namespace Game.Lines
                 set => _direction = value;
             }
 
-            public int2 Position
+            public Vector2Int Position
             {
                 get => _position;
                 set => _position = value;

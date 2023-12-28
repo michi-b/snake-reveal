@@ -16,7 +16,7 @@ namespace Game.Lines.Deprecated
             _lineCache.Return(line);
         }
 
-        protected DeprecatedLine GetLine(int2 start, int2 end)
+        protected DeprecatedLine GetLine(Vector2Int start, Vector2Int end)
         {
             DeprecatedLine line = _lineCache.Get();
             line.Place(start, end);
