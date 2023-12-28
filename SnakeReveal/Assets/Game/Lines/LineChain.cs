@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extensions;
 using Game.Enums;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -10,10 +11,11 @@ namespace Game.Lines
     {
         public const string LinesPropertyName = nameof(_lines);
         public const string LoopPropertyName = nameof(_loop);
-        
+
         [SerializeField] private SimulationGrid _grid;
 
-        [SerializeField] private LineChainRenderer[] _renderers = Array.Empty<LineChainRenderer>();
+        [FormerlySerializedAs("_renderers")] [SerializeField]
+        private LineChainRenderer[] _lineRenderers = Array.Empty<LineChainRenderer>();
 
         [FormerlySerializedAs("_corners")] [SerializeField] [HideInInspector]
         private List<Line> _lines = new();
@@ -38,16 +40,9 @@ namespace Game.Lines
             set => _lines[index] = value;
         }
 
-        private bool TryGetNextIndex(int index, out int nextIndex)
+        public Vector3 GetWorldPosition(Vector2Int position)
         {
-            if (Loop)
-            {
-                nextIndex = (index + 1) % Count;
-                return true;
-            }
-
-            nextIndex = index + 1;
-            return nextIndex <= Count - 1;
+            return Grid.GetScenePosition(position).ToVector3(transform.position.z);
         }
 
         public void EvaluateTurn()
@@ -92,12 +87,14 @@ namespace Game.Lines
             if (_lines.Count == 0)
             {
                 _lines.Add(new Line(position, position, !_loop));
+                return;
             }
 
             if (Loop)
             {
                 _lines.Add(new Line(position, _lines[0].Start));
                 _lines[^2] = _lines[^2].WithEnd(position);
+                return;
             }
 
             _lines[^1] = _lines[^1].AsOpenChainEnd(false);
@@ -106,14 +103,15 @@ namespace Game.Lines
 
         public void RemoveLast()
         {
+            Vector2Int lastStart = _lines[^1].Start;
             _lines.RemoveAt(_lines.Count - 1);
             if (_lines.Count > 0)
             {
-                _lines[^1] = _lines[^1].WithEnd((Loop ? _lines[0] : _lines[^1]).Start);
+                _lines[^1] = _lines[^1].WithEnd(Loop ? _lines[0].Start : lastStart);
             }
         }
 
-        public void UpdateRenderersInEditMode()
+        public void EditModeUpdateLineRenderers()
         {
             _renderPointsBuffer.Clear();
 
@@ -124,14 +122,16 @@ namespace Game.Lines
                     _renderPointsBuffer.Add(Grid.GetScenePosition(corner.Start));
                 }
 
-                //special handling of loop / open chain end position
-                Vector2Int finalPosition = Loop ? _lines[0].Start : _lines[^1].End;
-                _renderPointsBuffer.Add(Grid.GetScenePosition(finalPosition));
+                //special handling of open chain end position
+                if (!_loop)
+                {
+                    _renderPointsBuffer.Add(Grid.GetScenePosition(_lines[^1].End));
+                }
             }
 
-            foreach (LineChainRenderer lineChainRenderer in _renderers)
+            foreach (LineChainRenderer lineChainRenderer in _lineRenderers)
             {
-                lineChainRenderer.SetInEditMode(_renderPointsBuffer);
+                lineChainRenderer.EditModeRebuild(_renderPointsBuffer, Loop);
             }
         }
 

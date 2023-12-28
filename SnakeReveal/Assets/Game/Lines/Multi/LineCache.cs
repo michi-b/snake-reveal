@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Extensions;
 using UnityEngine;
 
-namespace Game.Lines
+namespace Game.Lines.Multi
 {
     /// <summary>
     ///     manages cache of lines of ONE type, i.e. one specific line prefab

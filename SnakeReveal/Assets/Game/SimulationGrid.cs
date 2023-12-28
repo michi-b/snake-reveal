@@ -34,17 +34,17 @@ namespace Game
             Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
-            for (int x = 0; x < gizmoCellCount.x; x++)
+            for (int x = 0; x <= gizmoCellCount.x; x++)
             {
                 Vector3 bottom = GetWorldPosition(new Vector2Int(x, 0));
-                Vector3 top = GetWorldPosition(new Vector2Int(x, gizmoCellCount.y - 1));
+                Vector3 top = GetWorldPosition(new Vector2Int(x, gizmoCellCount.y));
                 Gizmos.DrawLine(bottom, top);
             }
             
-            for (int y = 0; y < gizmoCellCount.y; y++)
+            for (int y = 0; y <= gizmoCellCount.y; y++)
             {
                 Vector3 left = GetWorldPosition(new Vector2Int(0, y));
-                Vector3 right = GetWorldPosition(new Vector2Int(gizmoCellCount.x - 1, y));
+                Vector3 right = GetWorldPosition(new Vector2Int(gizmoCellCount.x, y));
                 Gizmos.DrawLine(left, right);
             }
 
@@ -78,6 +78,13 @@ namespace Game
                 math.clamp(gridPosition.x, 0, _size.x),
                 math.clamp(gridPosition.y, 0, _size.y)
             );
+        }
+
+        public Vector2Int RoundToGrid(Vector2 scenePosition)
+        {
+            Vector2 gridPosition = scenePosition - _lowerLeftCornerScenePosition;
+            gridPosition /= _sceneCellSize;
+            return Vector2Int.RoundToInt(gridPosition);
         }
     }
 }

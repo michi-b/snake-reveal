@@ -1,6 +1,6 @@
 ﻿using System;
-using Editor;
-using Extensions;
+using System.Drawing.Drawing2D;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,24 +17,24 @@ namespace Game.Lines.Editor
 
         private Vector2Int _move;
 
-
         protected void OnEnable()
         {
             _linesProperty = serializedObject.FindProperty(LineChain.LinesPropertyName);
             _loopProperty = serializedObject.FindProperty(LineChain.LoopPropertyName);
             _isIntegrationExpanded = EditorPrefs.GetBool(IsIntegrationExpandedKey, false);
+            Undo.undoRedoEvent += OnUndoRedo;
         }
 
-        protected void OnSceneGUI()
+
+        protected void OnDisable()
+        {
+            Undo.undoRedoEvent -= OnUndoRedo;
+        }
+
+        private void OnUndoRedo(in UndoRedoInfo undoRedoInfo)
         {
             var chain = (LineChain)target;
-            
-            for (int i = 0; i < chain.Count; i++)
-            {
-                
-                Handles.TransformHandle();
-            }
-            
+            ApplyChainChanges(chain);
         }
 
         public override void OnInspectorGUI()
@@ -70,42 +70,67 @@ namespace Game.Lines.Editor
             DrawIntegration(chain);
         }
 
-        private static void ApplyChainChanges(LineChain chain)
+        protected void OnSceneGUI()
         {
-            Undo.RecordObject(chain, nameof(ApplyChainChanges));
-            chain.ReevaluateLinesFromStartPositions();
-            chain.UpdateRenderersInEditMode();
-        }
-
-        private static void DrawAddRemoveCornerButtons(LineChain chain)
-        {
-            Rect line = EditorGUILayout.GetControlRect(false);
-            line.TakeFromLeft(EditorGUI.indentLevel * EditorGuiUtility.IndentSize);
-            Rect leftButtonRect = line.TakeFromLeft(Mathf.Floor(line.width * 0.5f));
-            Rect rightButtonRect = line;
-
-            using (new GUILayout.HorizontalScope())
+            var chain = (LineChain)target;
+            if (chain.Grid == null)
             {
-                if (GUI.Button(leftButtonRect, "-"))
-                {
-                    chain.RemoveLast();
-                }
+                return;
+            }
 
-                // ReSharper disable once InvertIf
-                if (GUI.Button(rightButtonRect, "+"))
+            for (int i = 0; i < chain.Count; i++)
+            {
+                Vector2Int oldStartPosition = chain[i].Start;
+                if (!MoveWithHandle(oldStartPosition, out Vector2Int newStartPosition))
                 {
-                    AppendCorner(chain);
+                    continue;
                 }
+                Undo.RecordObject(chain, "Move Corner");
+                chain[i] = chain[i].WithStart(newStartPosition);
+                ApplyChainChanges(chain);
+            }
+
+            if (!chain.Loop)
+            {
+                Vector2Int oldEndPosition = chain[^1].End;
+                if (MoveWithHandle(oldEndPosition, out Vector2Int newEndPosition))
+                {
+                    Undo.RecordObject(chain, "Move Corner");
+                    chain[^1] = chain[^1].WithEnd(newEndPosition);
+                    ApplyChainChanges(chain);
+                }
+            }
+
+            bool MoveWithHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
+            {
+                Vector3 newPosition = Handles.PositionHandle(chain.GetWorldPosition(originalGridPosition), Quaternion.identity);
+                newGridPosition = chain.Grid.RoundToGrid(newPosition);
+                return newGridPosition != originalGridPosition;
             }
         }
 
-        private static void AppendCorner(LineChain chain)
+        private static void ApplyChainChanges(LineChain chain)
         {
-            bool isFirst = chain.Count == 0;
-            Vector2Int position = isFirst
-                ? chain.Grid != null ? chain.Grid.Size / 2 : new Vector2Int(0, 0)
-                : chain[^1].Start;
-            chain.Append(position);
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
+            if (chain.Loop && chain[^1].IsOpenChainEnd)
+            {
+                chain[^1] = chain[^1].AsOpenChainEnd(false);
+                chain.Append(chain[^1].End);
+            }
+            else if (!chain.Loop && !chain[^1].IsOpenChainEnd)
+            {
+                chain[^1] = chain[^1].AsOpenChainEnd(true);
+                chain.RemoveLast();
+            }
+            
+            if (chain.Grid == null)
+            {
+                return;
+            }
+
+            Undo.RecordObject(chain, nameof(ApplyChainChanges));
+            chain.ReevaluateLinesFromStartPositions();
+            chain.EditModeUpdateLineRenderers();
         }
 
         private void DrawIntegration(LineChain chain)
