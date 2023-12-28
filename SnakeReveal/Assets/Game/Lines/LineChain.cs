@@ -1,77 +1,65 @@
 using System;
 using System.Collections.Generic;
-using Extensions;
 using Game.Enums;
-using Unity.Mathematics;
 using UnityEngine;
-using Utility;
+using UnityEngine.Serialization;
 
 namespace Game.Lines
 {
     public class LineChain : MonoBehaviour
     {
+        public const string LinesPropertyName = nameof(_lines);
+        public const string LoopPropertyName = nameof(_loop);
+        
         [SerializeField] private SimulationGrid _grid;
-
-        [SerializeField] private bool _loop;
 
         [SerializeField] private LineChainRenderer[] _renderers = Array.Empty<LineChainRenderer>();
 
-        [SerializeField] [HideInInspector] private List<Corner> _corners = new();
+        [FormerlySerializedAs("_corners")] [SerializeField] [HideInInspector]
+        private List<Line> _lines = new();
 
         [SerializeField] [HideInInspector] private Turn _turn = Turn.None;
 
+        [SerializeField] [HideInInspector] private bool _loop;
+
         private readonly List<Vector2> _renderPointsBuffer = new(LineChainRenderer.InitialLineCapacity);
-        
-        public const string CornersPropertyName = nameof(_corners);
 
         public SimulationGrid Grid => _grid;
 
-        public int Count => _corners.Count;
+        public int Count => _lines.Count;
 
         public bool Loop => _loop;
 
         public Turn Turn => _turn;
 
-        public Corner this[int index]
+        public Line this[int index]
         {
-            get => _corners[index];
-            set => _corners[index] = value;
+            get => _lines[index];
+            set => _lines[index] = value;
         }
 
-        private bool TryGetCornerAfter(int index, out Corner corner)
+        private bool TryGetNextIndex(int index, out int nextIndex)
         {
-            int count = Count;
-            int nextIndex = _loop ? (index + 1) % count : index + 1;
-
-            if (nextIndex < 0 || nextIndex > count - 1)
+            if (Loop)
             {
-                corner = new Corner();
-                return false;
+                nextIndex = (index + 1) % Count;
+                return true;
             }
 
-            corner = _corners[nextIndex];
-            return true;
-        }
-
-        public void EvaluateDirection(int i)
-        {
-            Corner current = _corners[i];
-            current.Direction = TryGetCornerAfter(i, out Corner next)
-                ? current.Position.GetDirection(next.Position)
-                : GridDirection.None;
-            _corners[i] = current;
+            nextIndex = index + 1;
+            return nextIndex <= Count - 1;
         }
 
         public void EvaluateTurn()
         {
-            GridDirection lastDirection = _loop ? _corners[^1].Direction : GridDirection.None;
+            GridDirection lastDirection = _loop ? _lines[^1].Direction : GridDirection.None;
 
             // sum of clockwise turns - sum of counter clockwise turns
             int clockwiseWeight = 0;
 
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             // not using linq to avoid allocation
-            foreach (Corner corner in _corners)
+            foreach (Line corner in _lines)
             {
                 if (corner.Direction == GridDirection.None)
                 {
@@ -101,77 +89,72 @@ namespace Game.Lines
 
         public void Append(Vector2Int position)
         {
-            _corners.Add(new Corner(position, GridDirection.None));
-
-            //evaluate direction of new corner and the corner before it
-            if (Count > 1)
+            if (_lines.Count == 0)
             {
-                EvaluateDirection(Count - 2);
+                _lines.Add(new Line(position, position, !_loop));
             }
 
-            EvaluateDirection(Count - 1);
+            if (Loop)
+            {
+                _lines.Add(new Line(position, _lines[0].Start));
+                _lines[^2] = _lines[^2].WithEnd(position);
+            }
+
+            _lines[^1] = _lines[^1].AsOpenChainEnd(false);
+            _lines.Add(new Line(_lines[^1].End, position, true));
         }
 
         public void RemoveLast()
         {
-            _corners.RemoveAt(_corners.Count - 1);
+            _lines.RemoveAt(_lines.Count - 1);
+            if (_lines.Count > 0)
+            {
+                _lines[^1] = _lines[^1].WithEnd((Loop ? _lines[0] : _lines[^1]).Start);
+            }
         }
 
         public void UpdateRenderersInEditMode()
         {
-            UpdateRendererPoints();
+            _renderPointsBuffer.Clear();
+
+            if (Count > 0)
+            {
+                foreach (Line corner in _lines)
+                {
+                    _renderPointsBuffer.Add(Grid.GetScenePosition(corner.Start));
+                }
+
+                //special handling of loop / open chain end position
+                Vector2Int finalPosition = Loop ? _lines[0].Start : _lines[^1].End;
+                _renderPointsBuffer.Add(Grid.GetScenePosition(finalPosition));
+            }
+
             foreach (LineChainRenderer lineChainRenderer in _renderers)
             {
                 lineChainRenderer.SetInEditMode(_renderPointsBuffer);
             }
         }
 
-        private void UpdateRendererPoints()
+        public void ReevaluateLinesFromStartPositions()
         {
-            _renderPointsBuffer.Clear();
-            foreach (Corner corner in _corners)
+            if (Count == 0)
             {
-                AddRendererPoint(corner);
+                return;
             }
 
-            //add first point again to connect end to start if the chain is set to loop
-            if (_loop && _corners.Count > 0)
+            for (int i = 0; i < Count - 1; i++)
             {
-                AddRendererPoint(_corners[0]);
-            }
-        }
-
-        private void AddRendererPoint(Corner corner)
-        {
-            Vector2 position = Grid.GetScenePosition(corner.Position);
-            _renderPointsBuffer.Add(position);
-        }
-
-        /// <summary>
-        ///     minimal struct to cache information in line points of a line container
-        /// </summary>
-        [Serializable]
-        public struct Corner
-        {
-            [SerializeField] private Vector2Int _position;
-            [SerializeField] private GridDirection _direction;
-
-            public Corner(Vector2Int position, GridDirection direction)
-            {
-                _position = position;
-                _direction = direction;
+                _lines[i] = _lines[i].WithEnd(_lines[i + 1].Start);
             }
 
-            public GridDirection Direction
+            // special handling of last line based on loop
+            if (Loop)
             {
-                get => _direction;
-                set => _direction = value;
+                _lines[^1] = _lines[^1].WithEnd(_lines[0].Start);
             }
-
-            public Vector2Int Position
+            else
             {
-                get => _position;
-                set => _position = value;
+                _lines[^1] = _lines[^1].AsOpenChainEnd(true);
             }
         }
     }
