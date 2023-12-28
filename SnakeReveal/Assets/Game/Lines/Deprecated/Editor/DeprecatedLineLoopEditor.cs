@@ -1,6 +1,4 @@
 using System.Linq;
-using Extensions;
-using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 

@@ -26,7 +26,7 @@ namespace Game.Lines.Multi
         public LineRenderer Get()
         {
             LineRenderer result;
-            
+
             if (_cache.Count == 0)
             {
                 result = Instantiate();

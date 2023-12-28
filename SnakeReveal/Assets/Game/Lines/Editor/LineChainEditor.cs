@@ -8,7 +8,7 @@ namespace Game.Lines.Editor
     public class LineChainEditor : UnityEditor.Editor
     {
         private const string IsIntegrationExpandedKey = "LineChainEditor.IsIntegrationExpanded";
-        private static readonly GUIContent TurnLabel = new(nameof(LineChain.Turn));
+        private SerializedProperty _clockwiseTurnWeightProperty;
         private bool _isIntegrationExpanded;
         private SerializedProperty _linesProperty;
         private SerializedProperty _loopProperty;
@@ -19,8 +19,12 @@ namespace Game.Lines.Editor
         {
             _linesProperty = serializedObject.FindProperty(LineChain.LinesPropertyName);
             _loopProperty = serializedObject.FindProperty(LineChain.LoopPropertyName);
-            _isIntegrationExpanded = EditorPrefs.GetBool(IsIntegrationExpandedKey, false);
+            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineChain.ClockwiseTurnWeightPropertyName);
+            _isIntegrationExpanded = EditorPrefs.GetBool(LineChain.ClockwiseTurnWeightPropertyName, false);
+
             Undo.undoRedoEvent += OnUndoRedo;
+
+            ApplyChainChanges((LineChain)target);
         }
 
 
@@ -104,6 +108,11 @@ namespace Game.Lines.Editor
                 }
             }
 
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
+            }
+
             GUI.enabled = !Application.isPlaying;
 
             EditorGUI.BeginChangeCheck();
@@ -173,8 +182,9 @@ namespace Game.Lines.Editor
             }
 
             Undo.RecordObject(chain, nameof(ApplyChainChanges));
-            chain.EditModeApplyLines();
-            chain.EditModeUpdateLineRenderers();
+            chain.EditModeFixLines();
+            chain.EditModeReevaluateClockwiseTurnWeight();
+            chain.EditModeRebuildLineRenderers();
         }
 
         private void DrawIntegration(LineChain chain)

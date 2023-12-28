@@ -1,10 +1,8 @@
 ﻿using System;
 using Game.Enums;
-using Game.Lines;
 using Game.Lines.Deprecated;
 using Game.Player;
 using JetBrains.Annotations;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game
@@ -16,11 +14,11 @@ namespace Game
 
         private readonly DeprecatedLineChain _drawingLineChain;
 
-        // whether the player in shape travel mode is traveling in the same direction as the shape turn
-        private bool _isTravelingInShapeDirection;
-
         private readonly DeprecatedLineLoop _shape;
         private readonly Simulation _simulation;
+
+        // whether the player in shape travel mode is traveling in the same direction as the shape turn
+        private bool _isTravelingInShapeDirection;
 
         private int _lastDirectionChangeRequestTick = -1;
 
@@ -214,9 +212,9 @@ namespace Game
         {
             DeprecatedLine newShapeTravelLine = _drawingLineChain.End;
             _isTravelingInShapeDirection = _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
-            #if DEBUG
+#if DEBUG
             Debug.Assert(_shape.OutlineContains(newShapeTravelLine));
-            #endif
+#endif
             _shapeTravelLine = newShapeTravelLine;
             _actor.Direction = _shapeTravelLine.GetDirection(_isTravelingInShapeDirection);
             _movementMode = PlayerMovementMode.ShapeTravel;

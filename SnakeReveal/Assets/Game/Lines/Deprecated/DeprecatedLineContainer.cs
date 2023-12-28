@@ -1,5 +1,4 @@
 ﻿using Extensions;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Game.Lines.Deprecated

@@ -1,10 +1,8 @@
 using System;
-using Extensions;
 using Game.Enums;
 using Unity.Mathematics;
 using UnityEngine;
 using Utility;
-using Debug = UnityEngine.Debug;
 
 namespace Game.Lines.Deprecated
 {
@@ -171,7 +169,7 @@ namespace Game.Lines.Deprecated
             // save original chain end line (non-reversed) before eventually reversing it
             // this will be the new star of the loop
             DeprecatedLine originalChainEndLine = chain.End;
-            
+
             if (!followsLoopTurn)
             {
                 chain.Reverse();
@@ -213,7 +211,7 @@ namespace Game.Lines.Deprecated
                     Debug.Assert(current != null);
 #endif
                     DeprecatedLine next = current.Next;
-                    
+
                     Return(current);
                     current = next;
                 }
@@ -229,8 +227,8 @@ namespace Game.Lines.Deprecated
 
             // start may have been removed, but chain end line is now in the loop for sure
             // therefore make chain end the new start
-            _start = originalChainEndLine;            
-            
+            _start = originalChainEndLine;
+
 #if DEBUG
             if (!GetIsLooping())
             {
@@ -285,13 +283,14 @@ namespace Game.Lines.Deprecated
             {
                 counter++;
 #if DEBUG
-                
-                if(counter > threshold)
+
+                if (counter > threshold)
                 {
                     Debug.LogError($"Line loop is not looping after {threshold} iterations");
                     return false;
                 }
-                if(current.Next == null)
+
+                if (current.Next == null)
                 {
                     Debug.LogError("Line loop is not closed");
                     return false;

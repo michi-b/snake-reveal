@@ -1,5 +1,4 @@
-﻿using Game.Lines;
-using Game.Lines.Deprecated;
+﻿using Game.Lines.Deprecated;
 using Game.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,7 +16,7 @@ namespace Game
         private PlayerDrawingSimulation _playerDrawingSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
-        public int Ticks { get; private set; } 
+        public int Ticks { get; private set; }
 
         protected virtual void Awake()
         {

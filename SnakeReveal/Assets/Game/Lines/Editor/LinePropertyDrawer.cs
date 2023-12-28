@@ -16,20 +16,20 @@ namespace Game.Lines.Editor
             SerializedProperty directionProperty = property.FindDirectChild(Line.DirectionPropertyName);
             SerializedProperty endProperty = property.FindDirectChild(Line.EndPropertyName);
             SerializedProperty isOpenChainEndProperty = property.FindDirectChild(Line.IsChainEndPropertyName);
-            
+
             float thirdOfWidth = Mathf.Floor(position.width * 0.33333333f);
             float directionRectWidth = Mathf.Min(thirdOfWidth, 60f);
             float vectorWidth = Mathf.Floor((position.width - directionRectWidth) * 0.5f);
             Rect startRect = position.TakeFromLeft(vectorWidth);
             Rect directionRect = position.TakeFromLeft(directionRectWidth);
             Rect endRect = position.TakeFromLeft(vectorWidth);
-            
+
             EditorGUI.PropertyField(startRect, startProperty, GUIContent.none);
-            
+
             bool guiWasEnabled = GUI.enabled;
             GUI.enabled = false;
             {
-                GridDirection direction = directionProperty.GetEnumValue<GridDirection>();
+                var direction = directionProperty.GetEnumValue<GridDirection>();
                 Color originalGuiColor = GUI.color;
                 bool hasDirection = direction != GridDirection.None;
                 GUI.color = hasDirection ? originalGuiColor : new Color(1f, 0.5f, 0f);
@@ -38,7 +38,7 @@ namespace Game.Lines.Editor
                 }
                 GUI.color = originalGuiColor;
 
-                GUI.enabled = isOpenChainEndProperty.boolValue;                
+                GUI.enabled = isOpenChainEndProperty.boolValue;
                 EditorGUI.PropertyField(endRect, endProperty, GUIContent.none);
             }
             GUI.enabled = guiWasEnabled;

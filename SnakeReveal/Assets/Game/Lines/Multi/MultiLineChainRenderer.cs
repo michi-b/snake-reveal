@@ -13,7 +13,7 @@ namespace Game.Lines.Multi
 
         public override void EditModeRebuild(IList<Vector2> points, bool loop)
         {
-            Undo.RegisterCompleteObjectUndo(this.gameObject, nameof(EditModeRebuild));
+            Undo.RegisterCompleteObjectUndo(gameObject, nameof(EditModeRebuild));
             EditModeClear();
             for (int i = 0; i < points.Count - 1; i++)
             {
@@ -34,6 +34,7 @@ namespace Game.Lines.Multi
             {
                 DestroyImmediate(transform.GetChild(0).gameObject);
             }
+
             _lines.Clear();
         }
 

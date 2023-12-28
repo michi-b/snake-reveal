@@ -40,7 +40,7 @@ namespace Game
                 Vector3 top = GetWorldPosition(new Vector2Int(x, gizmoCellCount.y));
                 Gizmos.DrawLine(bottom, top);
             }
-            
+
             for (int y = 0; y <= gizmoCellCount.y; y++)
             {
                 Vector3 left = GetWorldPosition(new Vector2Int(0, y));

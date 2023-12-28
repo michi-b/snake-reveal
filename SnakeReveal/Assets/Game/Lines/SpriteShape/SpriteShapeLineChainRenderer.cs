@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +9,7 @@ namespace Game.Lines.SpriteShape
     public class SpriteShapeLineChainRenderer : LineChainRenderer
     {
         [SerializeField] [Range(0f, 0.1f)] private float _width = 0.02f;
-        
+
         private SpriteShapeController _controller;
 
         private SpriteShapeController Controller => _controller ? _controller : _controller = GetComponent<SpriteShapeController>();
@@ -28,6 +27,7 @@ namespace Game.Lines.SpriteShape
                 spline.SetTangentMode(i, ShapeTangentMode.Linear);
                 spline.SetCorner(i, true);
             }
+
             spline.isOpenEnded = !loop;
         }
     }

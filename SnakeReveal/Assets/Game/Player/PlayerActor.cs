@@ -1,9 +1,7 @@
 using Extensions;
 using Game.Enums;
-using Game.Lines;
 using Game.Lines.Deprecated;
 using JetBrains.Annotations;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
