@@ -1,4 +1,5 @@
-﻿using Editor;
+﻿using System;
+using Editor;
 using Extensions;
 using UnityEditor;
 using UnityEngine;
@@ -22,6 +23,18 @@ namespace Game.Lines.Editor
             _linesProperty = serializedObject.FindProperty(LineChain.LinesPropertyName);
             _loopProperty = serializedObject.FindProperty(LineChain.LoopPropertyName);
             _isIntegrationExpanded = EditorPrefs.GetBool(IsIntegrationExpandedKey, false);
+        }
+
+        protected void OnSceneGUI()
+        {
+            var chain = (LineChain)target;
+            
+            for (int i = 0; i < chain.Count; i++)
+            {
+                
+                Handles.TransformHandle();
+            }
+            
         }
 
         public override void OnInspectorGUI()
