@@ -93,11 +93,14 @@ namespace Game.Lines
             if (Loop)
             {
                 _lines.Add(new Line(position, _lines[0].Start));
-                _lines[^2] = _lines[^2].WithEnd(position);
+                _lines[^1] = _lines[^1].WithEnd(position);
                 return;
             }
+            else
+            {
+                _lines[^1] = _lines[^1].AsOpenChainEnd(false);   
+            }
 
-            _lines[^1] = _lines[^1].AsOpenChainEnd(false);
             _lines.Add(new Line(_lines[^1].End, position, true));
         }
 
@@ -135,27 +138,33 @@ namespace Game.Lines
             }
         }
 
-        public void ReevaluateLinesFromStartPositions()
+        public void EditModeApplyLines()
         {
             if (Count == 0)
             {
                 return;
             }
 
+            for (int i = 0; i < _lines.Count; i++)
+            {
+                _lines[i] = _lines[i].Clamp(Grid);
+            }
+            
             for (int i = 0; i < Count - 1; i++)
             {
-                _lines[i] = _lines[i].WithEnd(_lines[i + 1].Start);
+                _lines[i] = _lines[i].WithEnd(_lines[i + 1].Start).AsOpenChainEnd(false);
             }
 
             // special handling of last line based on loop
             if (Loop)
             {
-                _lines[^1] = _lines[^1].WithEnd(_lines[0].Start);
+                _lines[^1] = _lines[^1].WithEnd(_lines[0].Start).AsOpenChainEnd(false);
             }
             else
             {
                 _lines[^1] = _lines[^1].AsOpenChainEnd(true);
             }
+
         }
     }
 }

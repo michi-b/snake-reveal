@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing.Drawing2D;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,45 +29,6 @@ namespace Game.Lines.Editor
             Undo.undoRedoEvent -= OnUndoRedo;
         }
 
-        private void OnUndoRedo(in UndoRedoInfo undoRedoInfo)
-        {
-            var chain = (LineChain)target;
-            ApplyChainChanges(chain);
-        }
-
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-
-            var chain = (LineChain)target;
-            
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(_loopProperty);
-            EditorGUILayout.PropertyField(_linesProperty);
-            if (serializedObject.ApplyModifiedProperties())
-            {
-                ApplyChainChanges(chain);
-            }
-
-            GUI.enabled = !Application.isPlaying;
-
-            EditorGUI.BeginChangeCheck();
-            _move = EditorGUILayout.Vector2IntField("Move", _move);
-            if (EditorGUI.EndChangeCheck() && _move != Vector2Int.zero)
-            {
-                Undo.RecordObject(chain, "Move Chain");
-                for (int i = 0; i < chain.Count; i++)
-                {
-                    chain[i] = chain[i].Move(_move);
-                }
-
-                ApplyChainChanges(chain);
-                _move = Vector2Int.zero;
-            }
-
-            DrawIntegration(chain);
-        }
-
         protected void OnSceneGUI()
         {
             var chain = (LineChain)target;
@@ -85,6 +44,7 @@ namespace Game.Lines.Editor
                 {
                     continue;
                 }
+
                 Undo.RecordObject(chain, "Move Corner");
                 chain[i] = chain[i].WithStart(newStartPosition);
                 ApplyChainChanges(chain);
@@ -109,27 +69,111 @@ namespace Game.Lines.Editor
             }
         }
 
-        private static void ApplyChainChanges(LineChain chain)
+        private void OnUndoRedo(in UndoRedoInfo undoRedoInfo)
         {
-            // ReSharper disable once ConvertIfStatementToSwitchStatement
-            if (chain.Loop && chain[^1].IsOpenChainEnd)
+            var chain = (LineChain)target;
+            ApplyChainChanges(chain);
+        }
+
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            var chain = (LineChain)target;
+
+            {
+                int oldCount = chain.Count;
+                bool wasLoop = chain.Loop;
+
+                serializedObject.Update();
+                EditorGUILayout.PropertyField(_loopProperty);
+                EditorGUILayout.PropertyField(_linesProperty);
+
+                if (serializedObject.ApplyModifiedProperties())
+                {
+                    if (chain.Count != oldCount)
+                    {
+                        HandleChainCountChange(chain, oldCount);
+                    }
+                    else if (chain.Loop != wasLoop)
+                    {
+                        HandleChainIsLoopChange(chain);
+                    }
+
+                    ApplyChainChanges(chain);
+                }
+            }
+
+            GUI.enabled = !Application.isPlaying;
+
+            EditorGUI.BeginChangeCheck();
+            _move = EditorGUILayout.Vector2IntField("Move", _move);
+            if (EditorGUI.EndChangeCheck() && _move != Vector2Int.zero)
+            {
+                Undo.RecordObject(chain, "Move Chain");
+                for (int i = 0; i < chain.Count; i++)
+                {
+                    chain[i] = chain[i].Move(_move);
+                }
+
+                ApplyChainChanges(chain);
+                _move = Vector2Int.zero;
+            }
+
+            DrawIntegration(chain);
+        }
+
+        private void HandleChainCountChange(LineChain chain, int oldCount)
+        {
+            if (chain.Count <= oldCount)
+            {
+                chain[^1] = chain[^1].AsOpenChainEnd(!chain.Loop);
+                return;
+            }
+
+            // chain.Count > oldCount
+            int oldLastIndex = oldCount - 1;
+            Line oldChainEnd = chain[oldLastIndex];
+
+            chain[oldLastIndex] = chain[oldLastIndex].AsOpenChainEnd(false);
+
+            for (int i = oldCount; i < chain.Count - 1; i++)
+            {
+                chain[i] = chain[i].WithStart(oldChainEnd.End).AsOpenChainEnd(false);
+            }
+
+            chain[^1] = chain[^1].WithStart(oldChainEnd.End).AsOpenChainEnd(!chain.Loop);
+        }
+
+        private void HandleChainIsLoopChange(LineChain chain)
+        {
+            // open -> loop
+            if (chain.Loop)
             {
                 chain[^1] = chain[^1].AsOpenChainEnd(false);
                 chain.Append(chain[^1].End);
+                return;
             }
-            else if (!chain.Loop && !chain[^1].IsOpenChainEnd)
-            {
-                chain[^1] = chain[^1].AsOpenChainEnd(true);
-                chain.RemoveLast();
-            }
-            
+
+            // loop -> open
+            chain.RemoveLast();
+            chain[^1] = chain[^1].AsOpenChainEnd(true);
+        }
+
+        private void HandleChainCountUpdate(LineChain chain)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void ApplyChainChanges(LineChain chain)
+        {
             if (chain.Grid == null)
             {
                 return;
             }
 
             Undo.RecordObject(chain, nameof(ApplyChainChanges));
-            chain.ReevaluateLinesFromStartPositions();
+            chain.EditModeApplyLines();
             chain.EditModeUpdateLineRenderers();
         }
 
