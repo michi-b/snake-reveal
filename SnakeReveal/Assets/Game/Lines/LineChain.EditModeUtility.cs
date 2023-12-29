@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Game.Enums;
-using Game.Lines.Colliders;
 using UnityEditor;
 
 namespace Game.Lines
@@ -108,6 +107,14 @@ namespace Game.Lines
                 }
 
                 container._lines = newLines;
+            }
+
+            public static void RebuildLineColliders(LineContainer container)
+            {
+                while (container._colliderContainer)
+                {
+                    DestroyImmediate(container._colliderContainer.gameObject);
+                }
             }
         }
     }

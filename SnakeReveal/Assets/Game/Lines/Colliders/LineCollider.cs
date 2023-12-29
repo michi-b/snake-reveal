@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Game.Lines.Colliders
@@ -10,8 +9,8 @@ namespace Game.Lines.Colliders
 
         [SerializeField] private LineContainer _container;
         [SerializeField] private int _index = -1;
-        
-        
+
+
         protected void Reset()
         {
             _collider = GetComponent<BoxCollider2D>();

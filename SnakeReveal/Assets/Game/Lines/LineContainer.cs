@@ -14,7 +14,7 @@ namespace Game.Lines
         [SerializeField] private SimulationGrid _grid;
 
         [SerializeField] private LineColliderCache _colliderCache;
-        
+
         [SerializeField] private Transform _colliderContainer;
 
         [SerializeField] private bool _drawGizmos = true;
@@ -66,34 +66,24 @@ namespace Game.Lines
             return Grid.GetScenePosition(position).ToVector3(transform.position.z);
         }
 
-        public void Append(Vector2Int position)
+        public void AppendToChain(Vector2Int position)
         {
+            Debug.Assert(!Loop, "Cannot append to looping line container");
             if (_lines.Count == 0)
             {
                 _lines.Add(new Line(position, position, !_loop));
                 return;
             }
 
-            if (Loop)
-            {
-                _lines.Add(new Line(position, _lines[0].Start));
-                _lines[^1] = _lines[^1].WithEnd(position);
-                return;
-            }
-
             _lines[^1] = _lines[^1].AsOpenChainEnd(false);
-
             _lines.Add(new Line(_lines[^1].End, position, true));
         }
 
-        public void RemoveLast()
+        public void RemoveLastFromChain()
         {
-            Vector2Int lastStart = _lines[^1].Start;
+            Debug.Assert(!Loop, "Cannot remove last of looping line container");
             _lines.RemoveAt(_lines.Count - 1);
-            if (_lines.Count > 0)
-            {
-                _lines[^1] = _lines[^1].WithEnd(Loop ? _lines[0].Start : lastStart);
-            }
+            _lines[^1] = _lines[^1].AsOpenChainEnd(true);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Utility;
 
 namespace Game
 {
@@ -9,7 +8,7 @@ namespace Game
         private const int InitialCapacity = 1000;
 
         [SerializeField] private TComponent _prefab;
-        
+
         private readonly Stack<TComponent> _cache;
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace Game
             result.gameObject.SetActive(true);
             return result;
         }
-        
+
         protected virtual TComponent Instantiate()
         {
             return Instantiate(_prefab);

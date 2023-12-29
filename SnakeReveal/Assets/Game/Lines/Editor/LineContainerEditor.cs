@@ -155,7 +155,7 @@ namespace Game.Lines.Editor
             DrawInsert(chain);
         }
 
-        private void HandleChainCountChange(LineContainer container, int oldCount)
+        private static void HandleChainCountChange(LineContainer container, int oldCount)
         {
             if (container.Count <= oldCount)
             {
@@ -177,18 +177,18 @@ namespace Game.Lines.Editor
             container[^1] = container[^1].WithStart(oldChainEnd.End).AsOpenChainEnd(!container.Loop);
         }
 
-        private void HandleChainIsLoopChange(LineContainer container)
+        private static void HandleChainIsLoopChange(LineContainer container)
         {
             // open -> loop
             if (container.Loop)
             {
                 container[^1] = container[^1].AsOpenChainEnd(false);
-                container.Append(container[^1].End);
+                container.AppendToChain(container[^1].End);
                 return;
             }
 
             // loop -> open
-            container.RemoveLast();
+            container.RemoveLastFromChain();
             container[^1] = container[^1].AsOpenChainEnd(true);
         }
 
@@ -203,6 +203,7 @@ namespace Game.Lines.Editor
             LineContainer.EditModeUtility.FixLines(container);
             LineContainer.EditModeUtility.EditModeReevaluateClockwiseTurnWeight(container);
             LineContainer.EditModeUtility.RebuildLineRenderers(container);
+            LineContainer.EditModeUtility.RebuildLineColliders(container);
         }
 
         private void DrawInsert(LineContainer container)
