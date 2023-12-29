@@ -3,12 +3,12 @@ using Extensions;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Lines.Multi
+namespace Game.Lines.Renderers
 {
     public class MultiLineChainRenderer : LineChainRenderer
     {
         private const int InitialLineCapacity = 1000;
-        
+
         [SerializeField] private LineCache _cache;
         [SerializeField] private List<LineRenderer> _lines = new(InitialLineCapacity);
 

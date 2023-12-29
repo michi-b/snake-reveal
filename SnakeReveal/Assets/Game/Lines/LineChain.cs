@@ -1,22 +1,28 @@
 using System;
 using System.Collections.Generic;
 using Extensions;
+using Game.Enums;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Game.Lines
 {
     public partial class LineChain : MonoBehaviour
     {
+        private const int InitialLinesCapacity = 1000;
+
         [SerializeField] private SimulationGrid _grid;
 
         [SerializeField] private LineChainRenderer[] _lineRenderers = Array.Empty<LineChainRenderer>();
 
-        [SerializeField] [HideInInspector] private List<Line> _lines = new();
+        [SerializeField] [HideInInspector] private List<Line> _lines = new(InitialLinesCapacity);
 
         [SerializeField] [HideInInspector] private int _clockwiseTurnWeight;
 
         [SerializeField] [HideInInspector] private bool _loop;
+
+        [SerializeField] private Color _startIndicatorGizmoColor = Color.blue;
+
+        [SerializeField] private bool _drawStartIndicatorGizmo = true;
 
         public SimulationGrid Grid => _grid;
 
@@ -28,6 +34,26 @@ namespace Game.Lines
         {
             get => _lines[index];
             set => _lines[index] = value;
+        }
+
+        private Turn Turn => _clockwiseTurnWeight switch
+        {
+            0 => Turn.None,
+            _ => _clockwiseTurnWeight > 0 ? Turn.Right : Turn.Left
+        };
+
+        protected void OnDrawGizmos()
+        {
+            if (_drawStartIndicatorGizmo && Count > 0 && Grid != null)
+            {
+                Color originalGizmoColor = Gizmos.color;
+                Gizmos.color = _startIndicatorGizmoColor;
+                Vector3 startPosition = GetWorldPosition(this[0].Start);
+                Vector3 endPosition = GetWorldPosition(this[0].End);
+                Gizmos.DrawWireSphere(startPosition, Grid.SceneCellSize.magnitude * 0.5f);
+                Gizmos.DrawLine(startPosition, endPosition);
+                Gizmos.color = originalGizmoColor;
+            }
         }
 
         public Vector3 GetWorldPosition(Vector2Int position)

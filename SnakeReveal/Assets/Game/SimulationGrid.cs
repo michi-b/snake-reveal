@@ -22,6 +22,8 @@ namespace Game
 
         public Vector2Int Size => _size;
 
+        public Vector2 SceneCellSize => _sceneCellSize;
+
         protected void OnDrawGizmos()
         {
             if (!_drawGizmo)
@@ -59,7 +61,7 @@ namespace Game
 
         public Vector2 GetScenePosition(Vector2Int gridPosition)
         {
-            return _lowerLeftCornerScenePosition + _sceneCellSize * gridPosition;
+            return _lowerLeftCornerScenePosition + SceneCellSize * gridPosition;
         }
 
         private Vector3 GetWorldPosition(Vector2Int gridPosition)
@@ -83,7 +85,7 @@ namespace Game
         public Vector2Int RoundToGrid(Vector2 scenePosition)
         {
             Vector2 gridPosition = scenePosition - _lowerLeftCornerScenePosition;
-            gridPosition /= _sceneCellSize;
+            gridPosition /= SceneCellSize;
             return Vector2Int.RoundToInt(gridPosition);
         }
     }

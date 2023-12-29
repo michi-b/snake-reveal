@@ -23,14 +23,14 @@ namespace Game.Enums
                 return 1;
             }
 
-            Debug.Assert(target == turn.GetOpposite());
+            Debug.Assert(target == turn.Reverse());
             return -1;
 #else
             return turn == target ? 1 : -1;
 #endif
         }
 
-        public static Turn GetOpposite(this Turn turn)
+        public static Turn Reverse(this Turn turn)
         {
             return turn switch
             {

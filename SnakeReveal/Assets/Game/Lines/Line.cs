@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Game.Enums;
 using UnityEngine;
 using Utility;
@@ -38,6 +39,8 @@ namespace Game.Lines
         public Vector2Int End => _end;
 
         public bool IsOpenChainEnd => _isOpenChainEnd;
+
+        public AxisOrientation Orientation => _direction.GetOrientation();
 
         public bool Equals(Line other)
         {
@@ -90,6 +93,52 @@ namespace Game.Lines
         public Line Clamp(SimulationGrid grid)
         {
             return new Line(grid.Clamp(_start), grid.Clamp(_end), _isOpenChainEnd);
+        }
+
+        public bool Contains(Vector2Int position)
+        {
+            return _direction.GetOrientation() switch
+            {
+                AxisOrientation.Horizontal => ContainsHorizontalNoAssert(position),
+                AxisOrientation.Vertical => ContainsVerticallyNoAssert(position),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        public static bool ContainsHorizontal(Line line, Vector2Int position)
+        {
+#if DEBUG
+            Debug.Assert(line.Orientation == AxisOrientation.Horizontal);
+#endif
+            return line.ContainsHorizontalNoAssert(position);
+        }
+
+        public static bool ContainsVertical(Line line, Vector2Int position)
+        {
+#if DEBUG
+            Debug.Assert(line.Orientation == AxisOrientation.Vertical);
+#endif
+            return line.ContainsVerticallyNoAssert(position);
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool ContainsHorizontalNoAssert(Vector2Int position)
+        {
+            return _start.y == position.y
+                   && _start.x < position.x != _end.x < position.x;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool ContainsVerticallyNoAssert(Vector2Int position)
+        {
+            return _start.x == position.x
+                   && _start.y < position.y != _end.y < position.y;
+        }
+
+        public Line Invert()
+        {
+            return new Line(_end, _start, _isOpenChainEnd);
         }
     }
 }

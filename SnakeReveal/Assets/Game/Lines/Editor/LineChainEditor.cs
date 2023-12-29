@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Game.Lines.Editor
@@ -7,9 +6,14 @@ namespace Game.Lines.Editor
     [CustomEditor(typeof(LineChain), true)]
     public class LineChainEditor : UnityEditor.Editor
     {
-        private const string IsIntegrationExpandedKey = "LineChainEditor.IsIntegrationExpanded";
+        private const string IsInsertExpandedKey = "LineChainEditor.IsInsertionExpanded";
+        private const string InsertTargetIdKey = "LineChainEditor.InsertTargetId";
+
+
         private SerializedProperty _clockwiseTurnWeightProperty;
-        private bool _isIntegrationExpanded;
+        private LineChain _insertTarget;
+        private int _insertTargetId;
+        private bool _isInsertExpanded;
         private SerializedProperty _linesProperty;
         private SerializedProperty _loopProperty;
 
@@ -17,10 +21,16 @@ namespace Game.Lines.Editor
 
         protected void OnEnable()
         {
-            _linesProperty = serializedObject.FindProperty(LineChain.LinesPropertyName);
-            _loopProperty = serializedObject.FindProperty(LineChain.LoopPropertyName);
-            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineChain.ClockwiseTurnWeightPropertyName);
-            _isIntegrationExpanded = EditorPrefs.GetBool(LineChain.ClockwiseTurnWeightPropertyName, false);
+            _linesProperty = serializedObject.FindProperty(LineChain.EditModeUtility.LinesPropertyName);
+            _loopProperty = serializedObject.FindProperty(LineChain.EditModeUtility.LoopPropertyName);
+            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineChain.EditModeUtility.ClockwiseTurnWeightPropertyName);
+            _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
+
+            _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
+            if (_insertTargetId != 0)
+            {
+                _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as LineChain;
+            }
 
             Undo.undoRedoEvent += OnUndoRedo;
 
@@ -33,13 +43,18 @@ namespace Game.Lines.Editor
             Undo.undoRedoEvent -= OnUndoRedo;
         }
 
-        protected void OnSceneGUI()
+        protected virtual void OnSceneGUI()
         {
             var chain = (LineChain)target;
             if (chain.Grid == null)
             {
                 return;
             }
+
+            Matrix4x4 originalHandlesMatrix = Handles.matrix;
+            const float handleScale = 0.8f;
+            const float inverseHandleScale = 1f / handleScale;
+            Handles.matrix = Matrix4x4.Scale(Vector3.one * handleScale) * Handles.matrix;
 
             for (int i = 0; i < chain.Count; i++)
             {
@@ -67,10 +82,12 @@ namespace Game.Lines.Editor
 
             bool MoveWithHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
             {
-                Vector3 newPosition = Handles.PositionHandle(chain.GetWorldPosition(originalGridPosition), Quaternion.identity);
+                Vector3 newPosition = Handles.PositionHandle(chain.GetWorldPosition(originalGridPosition) * inverseHandleScale, Quaternion.identity) * handleScale;
                 newGridPosition = chain.Grid.RoundToGrid(newPosition);
                 return newGridPosition != originalGridPosition;
             }
+
+            Handles.matrix = originalHandlesMatrix;
         }
 
         private void OnUndoRedo(in UndoRedoInfo undoRedoInfo)
@@ -129,7 +146,13 @@ namespace Game.Lines.Editor
                 _move = Vector2Int.zero;
             }
 
-            DrawIntegration(chain);
+            if (GUILayout.Button("Invert"))
+            {
+                LineChain.EditModeUtility.Invert(chain);
+                ApplyChainChanges(chain);
+            }
+
+            DrawInsert(chain);
         }
 
         private void HandleChainCountChange(LineChain chain, int oldCount)
@@ -169,11 +192,6 @@ namespace Game.Lines.Editor
             chain[^1] = chain[^1].AsOpenChainEnd(true);
         }
 
-        private void HandleChainCountUpdate(LineChain chain)
-        {
-            throw new NotImplementedException();
-        }
-
         private static void ApplyChainChanges(LineChain chain)
         {
             if (chain.Grid == null)
@@ -182,30 +200,52 @@ namespace Game.Lines.Editor
             }
 
             Undo.RecordObject(chain, nameof(ApplyChainChanges));
-            chain.EditModeFixLines();
-            chain.EditModeReevaluateClockwiseTurnWeight();
-            chain.EditModeRebuildLineRenderers();
+            LineChain.EditModeUtility.EditModeFixLines(chain);
+            LineChain.EditModeUtility.EditModeReevaluateClockwiseTurnWeight(chain);
+            LineChain.EditModeUtility.EditModeRebuildLineRenderers(chain);
         }
 
-        private void DrawIntegration(LineChain chain)
+        private void DrawInsert(LineChain chain)
         {
             EditorGUI.BeginChangeCheck();
-            _isIntegrationExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_isIntegrationExpanded, "Integration");
+            _isInsertExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_isInsertExpanded, "Insert");
             if (EditorGUI.EndChangeCheck())
             {
-                EditorPrefs.SetBool(IsIntegrationExpandedKey, _isIntegrationExpanded);
+                EditorPrefs.SetBool(IsInsertExpandedKey, _isInsertExpanded);
             }
 
-            if (_isIntegrationExpanded)
+            if (_isInsertExpanded)
             {
-                DrawIntegrationExpansion(chain);
+                DrawInsertContent(chain);
             }
 
             EditorGUI.EndFoldoutHeaderGroup();
         }
 
-        private void DrawIntegrationExpansion(LineChain chain)
+        private void DrawInsertContent(LineChain chain)
         {
+            using var indent = new EditorGUI.IndentLevelScope(1);
+
+            EditorGUI.BeginChangeCheck();
+            _insertTarget = EditorGUILayout.ObjectField("Insert Target", _insertTarget, typeof(LineChain), true) as LineChain;
+            if (EditorGUI.EndChangeCheck())
+            {
+                _insertTargetId = _insertTarget != null ? _insertTarget.GetInstanceID() : 0;
+                EditorPrefs.SetInt(InsertTargetIdKey, _insertTargetId);
+            }
+
+            bool mayBeAbleToInsert = _insertTarget != null
+                                     && _insertTarget != chain
+                                     && chain.Loop
+                                     && !_insertTarget.Loop;
+
+            using (new EditorGUI.DisabledScope(!mayBeAbleToInsert))
+            {
+                if (GUILayout.Button("Insert"))
+                {
+                    LineChain.InsertUtility.Insert(chain, _insertTarget);
+                }
+            }
         }
     }
 }

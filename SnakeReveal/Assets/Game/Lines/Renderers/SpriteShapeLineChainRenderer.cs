@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
 
-namespace Game.Lines.SpriteShape
+namespace Game.Lines.Renderers
 {
     [RequireComponent(typeof(SpriteShapeController))]
     public class SpriteShapeLineChainRenderer : LineChainRenderer
@@ -17,7 +17,7 @@ namespace Game.Lines.SpriteShape
         public override void EditModeRebuild(IReadOnlyList<Line> lines)
         {
             bool loop = lines[0].Start == lines[^1].End;
-            
+
             Undo.RecordObject(this, nameof(EditModeRebuild));
             Spline spline = Controller.spline;
             spline.Clear();
