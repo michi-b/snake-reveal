@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    public partial class LineChain
+    public partial class LineContainer
     {
         public static class InsertUtility
         {
-            public static void Insert(LineChain loop, LineChain chain)
+            public static void Insert(LineContainer loop, LineContainer container)
             {
 #if DEBUG
                 Debug.Assert(loop.Loop, "Line chain must be a loop to insert another chain");
-                Debug.Assert(!chain.Loop, "Inserted line chain must not be a loop");
+                Debug.Assert(!container.Loop, "Inserted line chain must not be a loop");
                 Debug.Assert(Math.Abs(loop._clockwiseTurnWeight) == 4, "A looping line chain must have a clockwise turn weight of 4 or -4 " +
                                                                        "(full single turnaround in either clockwise or counter clockwise direction)");
 #endif
@@ -21,23 +21,23 @@ namespace Game.Lines
                 // Get line indices of breakout position and re-insertion position.
                 // Note that the lines of the loop are filtered by their direction.
                 // This is not only a performance optimization, but also ensures that we get the correct perpendicular lines at the correct positions.
-                GridDirection insertionStartLineDirection = chain[0].Direction.Turn(loopTurn);
-                GridDirection insertionEndLineDirection = chain[^1].Direction.Turn(loopTurn.Reverse());
+                GridDirection insertionStartLineDirection = container[0].Direction.Turn(loopTurn);
+                GridDirection insertionEndLineDirection = container[^1].Direction.Turn(loopTurn.Reverse());
 
-                Vector2Int chainStart = chain[0].Start;
+                Vector2Int chainStart = container[0].Start;
                 if (!TryGetIndexAt(loop, chainStart, insertionStartLineDirection, out int insertionStartIndex))
                 {
                     throw GetPositionIsNotOnLoopException("start", chainStart, insertionStartLineDirection);
                 }
 
-                Vector2Int chainEnd = chain[^1].End;
+                Vector2Int chainEnd = container[^1].End;
                 if (!TryGetIndexAt(loop, chainEnd, insertionEndLineDirection, out int insertionEndIndex))
                 {
                     throw GetPositionIsNotOnLoopException("end", chainEnd, insertionEndLineDirection);
                 }
 
                 int loopTurnWeight = GetTurnWeight(loop, insertionStartIndex, insertionEndIndex);
-                int chainTurnWeight = loop._clockwiseTurnWeight == 4 ? chain._clockwiseTurnWeight : -chain._clockwiseTurnWeight;
+                int chainTurnWeight = loop._clockwiseTurnWeight == 4 ? container._clockwiseTurnWeight : -container._clockwiseTurnWeight;
                 // Turn weight delta is always one of -6, -2, 2, and 6.
                 // -2 and 2 being the regular cases, -6 and 6 might occur when chain start and end are the same,
                 // or when the loop contains the wraparound point (start of line 0) between chain start and end.
@@ -45,13 +45,12 @@ namespace Game.Lines
                 int deltaTurnWeight = chainTurnWeight - loopTurnWeight;
 
 #if UNITY_EDITOR
-                Debug.Log($"{(deltaTurnWeight > 0 ? "IN TURN" : "NOT IN TURN")} with DeltaTurnWeight={deltaTurnWeight}\n" +
-                          $"LoopTurnWeight={loopTurnWeight} ({insertionStartIndex}->{insertionEndIndex})\n" +
-                          $"ChainTurnWeight={chainTurnWeight}, \n");
+                Debug.Log($"\"{(deltaTurnWeight > 0 ? "IN TURN" : "NOT IN TURN")}\" with DeltaTurnWeight = \"{deltaTurnWeight}\"\n" +
+                          $"ChainTurnWeight = \"{chainTurnWeight}\"-LoopTurnWeight = \"{loopTurnWeight}\"\t (index \"{insertionStartIndex}\" -> index {insertionEndIndex}\")");
 #endif
             }
 
-            private static bool TryGetIndexAt(LineChain loop, Vector2Int position, GridDirection lineDirection, out int index)
+            private static bool TryGetIndexAt(LineContainer loop, Vector2Int position, GridDirection lineDirection, out int index)
             {
                 Func<Line, Vector2Int, bool> lineContainsCheck = lineDirection.GetOrientation() switch
                 {
@@ -79,7 +78,7 @@ namespace Game.Lines
                 return false;
             }
 
-            private static int GetTurnWeight(LineChain loop, int startIndex, int endIndex)
+            private static int GetTurnWeight(LineContainer loop, int startIndex, int endIndex)
             {
                 int clockwiseTurnWeight = 0;
                 int currentIndex = startIndex;

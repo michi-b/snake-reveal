@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace Game.Lines.Editor
 {
-    [CustomEditor(typeof(LineChain), true)]
-    public class LineChainEditor : UnityEditor.Editor
+    [CustomEditor(typeof(LineContainer), true)]
+    public class LineContainerEditor : UnityEditor.Editor
     {
-        private const string IsInsertExpandedKey = "LineChainEditor.IsInsertionExpanded";
-        private const string InsertTargetIdKey = "LineChainEditor.InsertTargetId";
+        private const string IsInsertExpandedKey = "LineContainerEditor.IsInsertionExpanded";
+        private const string InsertTargetIdKey = "LineContainerEditor.InsertTargetId";
 
 
         private SerializedProperty _clockwiseTurnWeightProperty;
-        private LineChain _insertTarget;
+        private LineContainer _insertTarget;
         private int _insertTargetId;
         private bool _isInsertExpanded;
         private SerializedProperty _linesProperty;
@@ -21,20 +21,20 @@ namespace Game.Lines.Editor
 
         protected void OnEnable()
         {
-            _linesProperty = serializedObject.FindProperty(LineChain.EditModeUtility.LinesPropertyName);
-            _loopProperty = serializedObject.FindProperty(LineChain.EditModeUtility.LoopPropertyName);
-            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineChain.EditModeUtility.ClockwiseTurnWeightPropertyName);
+            _linesProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.LinesPropertyName);
+            _loopProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.LoopPropertyName);
+            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
 
             _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
             if (_insertTargetId != 0)
             {
-                _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as LineChain;
+                _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as LineContainer;
             }
 
             Undo.undoRedoEvent += OnUndoRedo;
 
-            ApplyChainChanges((LineChain)target);
+            ApplyChainChanges((LineContainer)target);
         }
 
 
@@ -45,7 +45,7 @@ namespace Game.Lines.Editor
 
         protected virtual void OnSceneGUI()
         {
-            var chain = (LineChain)target;
+            var chain = (LineContainer)target;
             if (chain.Grid == null)
             {
                 return;
@@ -92,7 +92,7 @@ namespace Game.Lines.Editor
 
         private void OnUndoRedo(in UndoRedoInfo undoRedoInfo)
         {
-            var chain = (LineChain)target;
+            var chain = (LineContainer)target;
             ApplyChainChanges(chain);
         }
 
@@ -100,7 +100,7 @@ namespace Game.Lines.Editor
         {
             base.OnInspectorGUI();
 
-            var chain = (LineChain)target;
+            var chain = (LineContainer)target;
 
             {
                 int oldCount = chain.Count;
@@ -148,64 +148,64 @@ namespace Game.Lines.Editor
 
             if (GUILayout.Button("Invert"))
             {
-                LineChain.EditModeUtility.Invert(chain);
+                LineContainer.EditModeUtility.Invert(chain);
                 ApplyChainChanges(chain);
             }
 
             DrawInsert(chain);
         }
 
-        private void HandleChainCountChange(LineChain chain, int oldCount)
+        private void HandleChainCountChange(LineContainer container, int oldCount)
         {
-            if (chain.Count <= oldCount)
+            if (container.Count <= oldCount)
             {
-                chain[^1] = chain[^1].AsOpenChainEnd(!chain.Loop);
+                container[^1] = container[^1].AsOpenChainEnd(!container.Loop);
                 return;
             }
 
             // chain.Count > oldCount
             int oldLastIndex = oldCount - 1;
-            Line oldChainEnd = chain[oldLastIndex];
+            Line oldChainEnd = container[oldLastIndex];
 
-            chain[oldLastIndex] = chain[oldLastIndex].AsOpenChainEnd(false);
+            container[oldLastIndex] = container[oldLastIndex].AsOpenChainEnd(false);
 
-            for (int i = oldCount; i < chain.Count - 1; i++)
+            for (int i = oldCount; i < container.Count - 1; i++)
             {
-                chain[i] = chain[i].WithStart(oldChainEnd.End).AsOpenChainEnd(false);
+                container[i] = container[i].WithStart(oldChainEnd.End).AsOpenChainEnd(false);
             }
 
-            chain[^1] = chain[^1].WithStart(oldChainEnd.End).AsOpenChainEnd(!chain.Loop);
+            container[^1] = container[^1].WithStart(oldChainEnd.End).AsOpenChainEnd(!container.Loop);
         }
 
-        private void HandleChainIsLoopChange(LineChain chain)
+        private void HandleChainIsLoopChange(LineContainer container)
         {
             // open -> loop
-            if (chain.Loop)
+            if (container.Loop)
             {
-                chain[^1] = chain[^1].AsOpenChainEnd(false);
-                chain.Append(chain[^1].End);
+                container[^1] = container[^1].AsOpenChainEnd(false);
+                container.Append(container[^1].End);
                 return;
             }
 
             // loop -> open
-            chain.RemoveLast();
-            chain[^1] = chain[^1].AsOpenChainEnd(true);
+            container.RemoveLast();
+            container[^1] = container[^1].AsOpenChainEnd(true);
         }
 
-        private static void ApplyChainChanges(LineChain chain)
+        private static void ApplyChainChanges(LineContainer container)
         {
-            if (chain.Grid == null)
+            if (container.Grid == null)
             {
                 return;
             }
 
-            Undo.RecordObject(chain, nameof(ApplyChainChanges));
-            LineChain.EditModeUtility.EditModeFixLines(chain);
-            LineChain.EditModeUtility.EditModeReevaluateClockwiseTurnWeight(chain);
-            LineChain.EditModeUtility.EditModeRebuildLineRenderers(chain);
+            Undo.RecordObject(container, nameof(ApplyChainChanges));
+            LineContainer.EditModeUtility.FixLines(container);
+            LineContainer.EditModeUtility.EditModeReevaluateClockwiseTurnWeight(container);
+            LineContainer.EditModeUtility.RebuildLineRenderers(container);
         }
 
-        private void DrawInsert(LineChain chain)
+        private void DrawInsert(LineContainer container)
         {
             EditorGUI.BeginChangeCheck();
             _isInsertExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_isInsertExpanded, "Insert");
@@ -216,18 +216,18 @@ namespace Game.Lines.Editor
 
             if (_isInsertExpanded)
             {
-                DrawInsertContent(chain);
+                DrawInsertContent(container);
             }
 
             EditorGUI.EndFoldoutHeaderGroup();
         }
 
-        private void DrawInsertContent(LineChain chain)
+        private void DrawInsertContent(LineContainer container)
         {
             using var indent = new EditorGUI.IndentLevelScope(1);
 
             EditorGUI.BeginChangeCheck();
-            _insertTarget = EditorGUILayout.ObjectField("Insert Target", _insertTarget, typeof(LineChain), true) as LineChain;
+            _insertTarget = EditorGUILayout.ObjectField("Insert Target", _insertTarget, typeof(LineContainer), true) as LineContainer;
             if (EditorGUI.EndChangeCheck())
             {
                 _insertTargetId = _insertTarget != null ? _insertTarget.GetInstanceID() : 0;
@@ -235,15 +235,15 @@ namespace Game.Lines.Editor
             }
 
             bool mayBeAbleToInsert = _insertTarget != null
-                                     && _insertTarget != chain
-                                     && chain.Loop
+                                     && _insertTarget != container
+                                     && container.Loop
                                      && !_insertTarget.Loop;
 
             using (new EditorGUI.DisabledScope(!mayBeAbleToInsert))
             {
                 if (GUILayout.Button("Insert"))
                 {
-                    LineChain.InsertUtility.Insert(chain, _insertTarget);
+                    LineContainer.InsertUtility.Insert(container, _insertTarget);
                 }
             }
         }

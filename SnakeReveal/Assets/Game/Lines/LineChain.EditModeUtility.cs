@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using Game.Enums;
+using Game.Lines.Colliders;
 using UnityEditor;
 
 namespace Game.Lines
 {
-    public partial class LineChain
+    public partial class LineContainer
     {
         public static class EditModeUtility
         {
@@ -12,7 +13,7 @@ namespace Game.Lines
             public const string LoopPropertyName = nameof(_loop);
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
 
-            public static void EditModeReevaluateClockwiseTurnWeight(LineChain target)
+            public static void EditModeReevaluateClockwiseTurnWeight(LineContainer target)
             {
                 var lastDirection = GridDirection.None;
 
@@ -52,7 +53,7 @@ namespace Game.Lines
                 target._clockwiseTurnWeight = clockwiseWeight;
             }
 
-            public static void EditModeRebuildLineRenderers(LineChain target)
+            public static void RebuildLineRenderers(LineContainer target)
             {
                 foreach (LineChainRenderer lineChainRenderer in target._lineRenderers)
                 {
@@ -60,7 +61,7 @@ namespace Game.Lines
                 }
             }
 
-            public static void EditModeFixLines(LineChain target)
+            public static void FixLines(LineContainer target)
             {
                 if (target.Count == 0)
                 {
@@ -88,25 +89,25 @@ namespace Game.Lines
                 }
             }
 
-            public static void Invert(LineChain chain)
+            public static void Invert(LineContainer container)
             {
-                Undo.RecordObject(chain, nameof(Invert));
+                Undo.RecordObject(container, nameof(Invert));
 
                 var newLines = new List<Line>(InitialLinesCapacity);
-                int count = chain.Count;
+                int count = container.Count;
                 for (int i = 0; i < count; i++)
                 {
                     int invertedIndex = count - i - 1;
-                    newLines.Add(chain[invertedIndex].Invert());
+                    newLines.Add(container[invertedIndex].Invert());
                 }
 
-                if (!chain.Loop)
+                if (!container.Loop)
                 {
                     newLines[0] = newLines[0].AsOpenChainEnd(false);
                     newLines[^1] = newLines[^1].AsOpenChainEnd(true);
                 }
 
-                chain._lines = newLines;
+                container._lines = newLines;
             }
         }
     }
