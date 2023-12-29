@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Game.Enums;
+using Game.Lines.Colliders;
 using UnityEditor;
+using UnityEngine;
 
 namespace Game.Lines
 {
@@ -9,6 +11,7 @@ namespace Game.Lines
         public static class EditModeUtility
         {
             public const string LinesPropertyName = nameof(_lines);
+            public const string CollidersPropertyName = nameof(_colliders);
             public const string LoopPropertyName = nameof(_loop);
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
 
@@ -56,7 +59,7 @@ namespace Game.Lines
             {
                 foreach (LineChainRenderer lineChainRenderer in target._lineRenderers)
                 {
-                    lineChainRenderer.EditModeRebuild(target._lines);
+                    lineChainRenderer.EditModeRebuild(target.Grid, target._lines);
                 }
             }
 
@@ -109,11 +112,27 @@ namespace Game.Lines
                 container._lines = newLines;
             }
 
-            public static void RebuildLineColliders(LineContainer container)
+            public static void RebuildLineColliders(LineContainer target)
             {
-                while (container._colliderContainer)
+                Debug.Assert(target._colliderContainer != null);
+                Debug.Assert(target._colliderCache != null);
+                Debug.Assert(target._colliderCache.Prefab != null);
+
+                Transform container = target._colliderContainer;
+                while (container.childCount > 0)
                 {
-                    DestroyImmediate(container._colliderContainer.gameObject);
+                    DestroyImmediate(container.GetChild(0).gameObject);
+                }
+
+                target._colliders.Clear();
+
+                for (int index = 0; index < target.Count; index++)
+                {
+                    if (target[index].Direction != GridDirection.None)
+                    {
+                        LineCollider lineCollider = Instantiate(target._colliderCache.Prefab, container);
+                        lineCollider.Set(target, index);
+                    }
                 }
             }
         }

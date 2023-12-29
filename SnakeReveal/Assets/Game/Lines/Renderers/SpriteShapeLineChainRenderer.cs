@@ -14,7 +14,7 @@ namespace Game.Lines.Renderers
 
         private SpriteShapeController Controller => _controller ? _controller : _controller = GetComponent<SpriteShapeController>();
 
-        public override void EditModeRebuild(IReadOnlyList<Line> lines)
+        public override void EditModeRebuild(SimulationGrid grid, IReadOnlyList<Line> lines)
         {
             bool loop = lines[0].Start == lines[^1].End;
 
@@ -24,7 +24,7 @@ namespace Game.Lines.Renderers
 
             for (int i = 0; i < lines.Count; i++)
             {
-                spline.InsertPointAt(i, Grid.GetScenePosition(lines[i].Start));
+                spline.InsertPointAt(i, grid.GetScenePosition(lines[i].Start));
                 // spline.SetHeight(i, _width);
                 // spline.SetTangentMode(i, ShapeTangentMode.Linear);
                 // spline.SetCorner(i, true);
@@ -33,7 +33,7 @@ namespace Game.Lines.Renderers
             int lastIndex = lines.Count - 1;
             if (!loop)
             {
-                spline.InsertPointAt(lastIndex, Grid.GetScenePosition(lines[lastIndex].End));
+                spline.InsertPointAt(lastIndex, grid.GetScenePosition(lines[lastIndex].End));
             }
 
             spline.isOpenEnded = !loop;

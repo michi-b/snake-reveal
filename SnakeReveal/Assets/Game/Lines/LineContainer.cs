@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Extensions;
 using Game.Enums;
 using Game.Lines.Colliders;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Game.Lines
 {
@@ -24,6 +26,8 @@ namespace Game.Lines
         [SerializeField] private LineChainRenderer[] _lineRenderers = Array.Empty<LineChainRenderer>();
 
         [SerializeField] [HideInInspector] private List<Line> _lines = new(InitialLinesCapacity);
+
+        [SerializeField] [HideInInspector] private List<LineCollider> _colliders = new(InitialLinesCapacity);
 
         [SerializeField] [HideInInspector] private int _clockwiseTurnWeight;
 
@@ -71,12 +75,12 @@ namespace Game.Lines
             Debug.Assert(!Loop, "Cannot append to looping line container");
             if (_lines.Count == 0)
             {
-                _lines.Add(new Line(position, position, !_loop));
+                _lines.Add(new Line(position, position));
                 return;
             }
 
             _lines[^1] = _lines[^1].AsOpenChainEnd(false);
-            _lines.Add(new Line(_lines[^1].End, position, true));
+            _lines.Add(new Line(_lines[^1].End, position));
         }
 
         public void RemoveLastFromChain()
@@ -84,6 +88,15 @@ namespace Game.Lines
             Debug.Assert(!Loop, "Cannot remove last of looping line container");
             _lines.RemoveAt(_lines.Count - 1);
             _lines[^1] = _lines[^1].AsOpenChainEnd(true);
+        }
+
+        [Conditional("DEBUG")]
+        private void ValidateIndex(int index)
+        {
+            if (index < 0 || index >= _lines.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
         }
     }
 }

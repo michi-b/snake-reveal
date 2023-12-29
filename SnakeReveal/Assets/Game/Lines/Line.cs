@@ -18,18 +18,15 @@ namespace Game.Lines
 
         public const string DirectionPropertyName = nameof(_direction);
 
-        public const string IsChainEndPropertyName = nameof(_isOpenChainEnd);
         [SerializeField] private Vector2Int _start;
         [SerializeField] private Vector2Int _end;
         [SerializeField] private GridDirection _direction;
-        [SerializeField] private bool _isOpenChainEnd;
 
-        public Line(Vector2Int start, Vector2Int end, bool isOpenChainEnd = false)
+        public Line(Vector2Int start, Vector2Int end)
         {
             _start = start;
             _end = end;
             _direction = _start.GetDirection(_end);
-            _isOpenChainEnd = isOpenChainEnd;
         }
 
         public GridDirection Direction => _direction;
@@ -38,36 +35,33 @@ namespace Game.Lines
 
         public Vector2Int End => _end;
 
-        public bool IsOpenChainEnd => _isOpenChainEnd;
-
         public AxisOrientation Orientation => _direction.GetOrientation();
 
         public bool Equals(Line other)
         {
             return _start.Equals(other._start)
                    && _end.Equals(other._end)
-                   && _direction == other._direction
-                   && _isOpenChainEnd == other._isOpenChainEnd;
+                   && _direction == other._direction;
         }
 
         public Line WithEnd(Vector2Int end)
         {
-            return new Line(_start, end, _isOpenChainEnd);
+            return new Line(_start, end);
         }
 
         public Line WithStart(Vector2Int start)
         {
-            return new Line(start, _end, _isOpenChainEnd);
+            return new Line(start, _end);
         }
 
         public Line Move(Vector2Int move)
         {
-            return new Line(_start + move, _end + move, _isOpenChainEnd);
+            return new Line(_start + move, _end + move);
         }
 
         public Line AsOpenChainEnd(bool isOpenChainEnd)
         {
-            return new Line(_start, _end, isOpenChainEnd);
+            return new Line(_start, _end);
         }
 
         public static bool operator ==(Line left, Line right)
@@ -87,12 +81,12 @@ namespace Game.Lines
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(_start, _end, (int)_direction, _isOpenChainEnd);
+            return HashCode.Combine(_start, _end, (int)_direction);
         }
 
         public Line Clamp(SimulationGrid grid)
         {
-            return new Line(grid.Clamp(_start), grid.Clamp(_end), _isOpenChainEnd);
+            return new Line(grid.Clamp(_start), grid.Clamp(_end));
         }
 
         public bool Contains(Vector2Int position)
@@ -138,7 +132,7 @@ namespace Game.Lines
 
         public Line Invert()
         {
-            return new Line(_end, _start, _isOpenChainEnd);
+            return new Line(_end, _start);
         }
     }
 }
