@@ -1,4 +1,5 @@
 using Extensions;
+using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -88,6 +89,12 @@ namespace Game.Grid
             Vector2 gridPosition = scenePosition - _lowerLeftCornerScenePosition;
             gridPosition /= SceneCellSize;
             return Vector2Int.RoundToInt(gridPosition);
+        }
+
+        [CanBeNull]
+        public static SimulationGrid EditModeFind()
+        {
+            return FindObjectsByType<SimulationGrid>(FindObjectsInactive.Include, FindObjectsSortMode.None)?[0];
         }
     }
 }

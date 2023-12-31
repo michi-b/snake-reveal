@@ -1,21 +1,22 @@
-﻿using System.Collections.Generic;
-using Game.Enums;
-using Game.Lines.Colliders;
-using UnityEditor;
-using UnityEngine;
-
-namespace Game.Lines
+﻿namespace Game.Lines
 {
-    public partial class LineContainer
+    public partial class DoubleLinkedLineList
     {
         public static class EditModeUtility
         {
-            public const string LinesPropertyName = nameof(_lines);
+            public const string StartPropertyName = nameof(_start);
+
+            public static Line GetStart(DoubleLinkedLineList container)
+            {
+                return container._start;
+            }
+        }
+
+#if false
             public const string CollidersPropertyName = nameof(_colliders);
             public const string LoopPropertyName = nameof(_loop);
-            public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
 
-            public static void EditModeReevaluateClockwiseTurnWeight(LineContainer target)
+            public static void EditModeReevaluateClockwiseTurnWeight(DoubleLinkedLineList target)
             {
                 var lastDirection = GridDirection.None;
 
@@ -55,7 +56,7 @@ namespace Game.Lines
                 target._clockwiseTurnWeight = clockwiseWeight;
             }
 
-            public static void RebuildLineRenderers(LineContainer target)
+            public static void RebuildLineRenderers(DoubleLinkedLineList target)
             {
                 foreach (LineChainRenderer lineChainRenderer in target._lineRenderers)
                 {
@@ -63,7 +64,7 @@ namespace Game.Lines
                 }
             }
 
-            public static void FixLines(LineContainer target)
+            public static void FixLines(DoubleLinkedLineList target)
             {
                 if (target.Count == 0)
                 {
@@ -91,7 +92,7 @@ namespace Game.Lines
                 }
             }
 
-            public static void Invert(LineContainer container)
+            public static void Invert(DoubleLinkedLineList container)
             {
                 Undo.RecordObject(container, nameof(Invert));
 
@@ -112,7 +113,7 @@ namespace Game.Lines
                 container._lines = newLines;
             }
 
-            public static void RebuildLineColliders(LineContainer target)
+            public static void RebuildLineColliders(DoubleLinkedLineList target)
             {
                 Debug.Assert(target._colliderContainer != null);
                 Debug.Assert(target._colliderCache != null);
@@ -136,5 +137,6 @@ namespace Game.Lines
                 }
             }
         }
+#endif
     }
 }

@@ -32,7 +32,7 @@ namespace Game.Grid
         protected virtual void Reset()
         {
             RecordUndo("Reset Grid Transform");
-            _grid = FindObjectsByType<SimulationGrid>(FindObjectsInactive.Include, FindObjectsSortMode.None)?[0];
+            _grid = SimulationGrid.EditModeFind();
             if (_grid != null)
             {
                 Transform thisTransform = transform;

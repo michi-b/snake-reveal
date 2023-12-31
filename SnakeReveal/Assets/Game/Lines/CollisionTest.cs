@@ -2,7 +2,7 @@ using Game.Grid;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Game.Lines.Colliders
+namespace Game.Lines
 {
     /// <summary>
     ///     Utility class for testing collisions with this transform in editor.

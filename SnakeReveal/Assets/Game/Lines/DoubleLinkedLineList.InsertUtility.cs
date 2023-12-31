@@ -1,14 +1,11 @@
-﻿using System;
-using Game.Enums;
-using UnityEngine;
-
-namespace Game.Lines
+﻿namespace Game.Lines
 {
-    public partial class LineContainer
+    public partial class DoubleLinkedLineList
     {
+#if false
         public static class InsertUtility
         {
-            public static void Insert(LineContainer loop, LineContainer container)
+            public static void Insert(DoubleLinkedLineList loop, DoubleLinkedLineList container)
             {
 #if DEBUG
                 Debug.Assert(loop.Loop, "Line chain must be a loop to insert another chain");
@@ -50,7 +47,7 @@ namespace Game.Lines
 #endif
             }
 
-            private static bool TryGetIndexAt(LineContainer loop, Vector2Int position, GridDirection lineDirection, out int index)
+            private static bool TryGetIndexAt(DoubleLinkedLineList loop, Vector2Int position, GridDirection lineDirection, out int index)
             {
                 Func<Line, Vector2Int, bool> lineContainsCheck = lineDirection.GetOrientation() switch
                 {
@@ -78,7 +75,7 @@ namespace Game.Lines
                 return false;
             }
 
-            private static int GetTurnWeight(LineContainer loop, int startIndex, int endIndex)
+            private static int GetTurnWeight(DoubleLinkedLineList loop, int startIndex, int endIndex)
             {
                 int clockwiseTurnWeight = 0;
                 int currentIndex = startIndex;
@@ -101,5 +98,6 @@ namespace Game.Lines
                 return new ArgumentException($"Chain {chainEndName} {position} is not on loop (with loop line direction {loopLineDirection})");
             }
         }
+#endif
     }
 }

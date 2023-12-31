@@ -1,17 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Extensions;
 using Game.Enums;
 using Game.Grid;
+using JetBrains.Annotations;
+using UnityEditor;
 using UnityEngine;
 using Utility;
+using Object = UnityEngine.Object;
 
 namespace Game.Lines
 {
     /// <summary>
     ///     minimal immutable struct to cache information of line container lines
     /// </summary>
-    [Serializable]
-    public struct Line : IEquatable<Line>
+    [RequireComponent(typeof(LineRenderer))]
+    [RequireComponent(typeof(EdgeCollider2D))]
+    public partial class Line : MonoBehaviour
     {
         public const string StartPropertyName = nameof(_start);
 
@@ -19,9 +25,18 @@ namespace Game.Lines
 
         public const string DirectionPropertyName = nameof(_direction);
 
+        private static readonly Object[] ThreeObjectsUndoBuffer = new Object[3];
+        private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
+
+        [SerializeField] private SimulationGrid _grid;
+        [SerializeField] private LineRenderer _renderer;
+        [SerializeField] private EdgeCollider2D _collider;
+
         [SerializeField] private Vector2Int _start;
         [SerializeField] private Vector2Int _end;
         [SerializeField] private GridDirection _direction;
+        [SerializeField] [CanBeNull] private Line _previous;
+        [SerializeField] [CanBeNull] private Line _next;
 
         public Line(Vector2Int start, Vector2Int end)
         {
@@ -32,62 +47,74 @@ namespace Game.Lines
 
         public GridDirection Direction => _direction;
 
-        public Vector2Int Start => _start;
+        public Vector2Int Start
+        {
+            get => _start;
+            set
+            {
+                _start = value;
+                if (_previous != null)
+                {
+                    _previous._end = value;
+                    _previous.ApplyPositions();
+                }
 
-        public Vector2Int End => _end;
+                ApplyPositions();
+            }
+        }
+
+        public Vector2Int End
+        {
+            get => _end;
+            set
+            {
+                _end = value;
+                if (_next != null)
+                {
+                    _next._start = value;
+                    _next.ApplyPositions();
+                }
+
+                ApplyPositions();
+            }
+        }
 
         public AxisOrientation Orientation => _direction.GetOrientation();
+        public Vector3 EndWorldPosition => _grid.GetScenePosition(_end).ToVector3(transform.position.z);
+        public Vector3 StartWorldPosition => transform.position;
 
-        public bool Equals(Line other)
+        public Line Previous
         {
-            return _start.Equals(other._start)
-                   && _end.Equals(other._end)
-                   && _direction == other._direction;
+            get => _previous;
+            set => _previous = value;
         }
 
-        public Line WithEnd(Vector2Int end)
+        public Line Next
         {
-            return new Line(_start, end);
+            get => _next;
+            set => _next = value;
         }
 
-        public Line WithStart(Vector2Int start)
+        protected void Reset()
         {
-            return new Line(start, _end);
+            _grid = SimulationGrid.EditModeFind();
         }
 
-        public Line Move(Vector2Int move)
+        private void ApplyPositions()
         {
-            return new Line(_start + move, _end + move);
-        }
+            transform.SetLocalPositionXY(_grid.GetScenePosition(_start));
 
-        public Line AsOpenChainEnd(bool isOpenChainEnd)
-        {
-            return new Line(_start, _end);
-        }
+            Vector2Int delta = _end - _start;
+            _direction = _start.GetDirection(_end);
 
-        public static bool operator ==(Line left, Line right)
-        {
-            return left.Equals(right);
-        }
+            Vector2 sceneDelta = delta * _grid.SceneCellSize;
 
-        public static bool operator !=(Line left, Line right)
-        {
-            return !(left == right);
-        }
+            // first point of renderer must always be Vector2.zero
+            _renderer.SetPosition(1, sceneDelta);
 
-        public override bool Equals(object obj)
-        {
-            return obj is Line other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(_start, _end, (int)_direction);
-        }
-
-        public Line Clamp(SimulationGrid grid)
-        {
-            return new Line(grid.Clamp(_start), grid.Clamp(_end));
+            // first element in collider points update buffer must always be Vector2.zero
+            ColliderPointsUpdateBuffer[1] = sceneDelta;
+            _collider.SetPoints(ColliderPointsUpdateBuffer);
         }
 
         public bool Contains(Vector2Int position)
@@ -131,9 +158,22 @@ namespace Game.Lines
                    && _start.y < position.y != _end.y < position.y;
         }
 
-        public Line Invert()
+        public Enumerator GetEnumerator()
         {
-            return new Line(_end, _start);
+            return new Enumerator(this);
+        }
+
+        public SkipFirstLineEnumerable SkipFirst()
+        {
+            return new SkipFirstLineEnumerable(this);
+        }
+
+        public void RecordUndoWithNeighbors(string operationName)
+        {
+            ThreeObjectsUndoBuffer[0] = Previous;
+            ThreeObjectsUndoBuffer[1] = this;
+            ThreeObjectsUndoBuffer[2] = Next;
+            Undo.RegisterCompleteObjectUndo(ThreeObjectsUndoBuffer, operationName);
         }
     }
 }
