@@ -1,5 +1,6 @@
 using Extensions;
 using Game.Enums;
+using Game.Grid;
 using Game.Lines.Deprecated;
 using JetBrains.Annotations;
 using UnityEngine;

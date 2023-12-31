@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 485212513775443106}
   - component: {fileID: 436270590794046781}
-  - component: {fileID: 3335130708575766290}
-  m_Layer: 0
+  - component: {fileID: 3619397922682057890}
+  m_Layer: 11
   m_Name: LineCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,11 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c32ade83c3924940b012556378a1ff2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _collider: {fileID: 3335130708575766290}
+  _collider: {fileID: 3619397922682057890}
   _container: {fileID: 0}
   _index: 0
---- !u!61 &3335130708575766290
-BoxCollider2D:
+--- !u!68 &3619397922682057890
+EdgeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -68,29 +68,26 @@ BoxCollider2D:
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ForceReceiveLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ContactCaptureLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_CallbackLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.01000001
+  m_Points:
+  - {x: -0.02, y: 0}
+  - {x: 0.02, y: 0}
+  m_AdjacentStartPoint: {x: 0, y: 0}
+  m_AdjacentEndPoint: {x: 0, y: 0}
+  m_UseAdjacentStartPoint: 0
+  m_UseAdjacentEndPoint: 0

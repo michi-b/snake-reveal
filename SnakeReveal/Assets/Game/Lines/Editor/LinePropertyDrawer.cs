@@ -25,7 +25,7 @@ namespace Game.Lines.Editor
 
             EditorGUI.PropertyField(startRect, startProperty, GUIContent.none);
             EditorGUI.PropertyField(endRect, endProperty, GUIContent.none);
-            
+
             bool guiWasEnabled = GUI.enabled;
             GUI.enabled = false;
             {

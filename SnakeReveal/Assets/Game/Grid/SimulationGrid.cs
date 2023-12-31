@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Game
+namespace Game.Grid
 {
     public class SimulationGrid : MonoBehaviour
     {
@@ -23,6 +23,7 @@ namespace Game
         public Vector2Int Size => _size;
 
         public Vector2 SceneCellSize => _sceneCellSize;
+        public Vector2Int CenterPosition => _size / 2;
 
         protected void OnDrawGizmos()
         {

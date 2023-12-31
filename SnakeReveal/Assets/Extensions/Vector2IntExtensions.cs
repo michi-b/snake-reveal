@@ -1,4 +1,4 @@
-﻿using Game;
+﻿using Game.Grid;
 using UnityEngine;
 
 namespace Extensions

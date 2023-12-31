@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Editor;
+using UnityEditor;
 using UnityEngine;
 
 namespace Game.Lines.Editor
@@ -21,9 +22,9 @@ namespace Game.Lines.Editor
 
         protected void OnEnable()
         {
-            _linesProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.LinesPropertyName);
-            _loopProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.LoopPropertyName);
-            _clockwiseTurnWeightProperty = serializedObject.FindProperty(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
+            _linesProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.LinesPropertyName);
+            _loopProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.LoopPropertyName);
+            _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
 
             _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
@@ -59,7 +60,7 @@ namespace Game.Lines.Editor
             for (int i = 0; i < chain.Count; i++)
             {
                 Vector2Int oldStartPosition = chain[i].Start;
-                if (!MoveWithHandle(oldStartPosition, out Vector2Int newStartPosition))
+                if (!PositionHandle(oldStartPosition, out Vector2Int newStartPosition))
                 {
                     continue;
                 }
@@ -72,7 +73,7 @@ namespace Game.Lines.Editor
             if (!chain.Loop)
             {
                 Vector2Int oldEndPosition = chain[^1].End;
-                if (MoveWithHandle(oldEndPosition, out Vector2Int newEndPosition))
+                if (PositionHandle(oldEndPosition, out Vector2Int newEndPosition))
                 {
                     Undo.RecordObject(chain, "Move Corner");
                     chain[^1] = chain[^1].WithEnd(newEndPosition);
@@ -80,7 +81,7 @@ namespace Game.Lines.Editor
                 }
             }
 
-            bool MoveWithHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
+            bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
             {
                 Vector3 newPosition = Handles.PositionHandle(chain.GetWorldPosition(originalGridPosition) * inverseHandleScale, Quaternion.identity) * handleScale;
                 newGridPosition = chain.Grid.RoundToGrid(newPosition);
