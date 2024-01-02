@@ -60,7 +60,7 @@ namespace Game.Player
 
         public void Step()
         {
-            Position += Direction.ToInt2();
+            Position += Direction.ToVector2Int();
             Position = _grid.Clamp(Position);
 
             // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering

@@ -10,7 +10,7 @@ namespace Game.Enums
         private static readonly Quaternion LeftRotation = Quaternion.Euler(0f, 0f, 180f);
         private static readonly Quaternion DownRotation = Quaternion.Euler(0f, 0f, 270f);
 
-        public static Vector2Int ToInt2(this GridDirection target)
+        public static Vector2Int ToVector2Int(this GridDirection target)
         {
             return target switch
             {

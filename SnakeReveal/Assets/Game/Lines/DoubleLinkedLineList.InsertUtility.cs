@@ -1,6 +1,6 @@
 ﻿namespace Game.Lines
 {
-    public partial class DoubleLinkedLineList
+    public partial class LineContainer
     {
 #if false
         public static class InsertUtility

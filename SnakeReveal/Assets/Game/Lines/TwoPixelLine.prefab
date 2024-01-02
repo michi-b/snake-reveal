@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3830899397263375926}
   - component: {fileID: 3619397922682057890}
   m_Layer: 11
-  m_Name: Line
+  m_Name: TwoPixelLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

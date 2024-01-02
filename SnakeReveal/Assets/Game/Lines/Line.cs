@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Extensions;
 using Game.Enums;
 using Game.Grid;
 using JetBrains.Annotations;
+using UnityEditor;
 using UnityEngine;
 using Utility;
 
@@ -77,8 +76,9 @@ namespace Game.Lines
         }
 
         public AxisOrientation Orientation => _direction.GetOrientation();
-        public Vector3 EndWorldPosition => _grid.GetScenePosition(_end).ToVector3(transform.position.z);
+        
         public Vector3 StartWorldPosition => transform.position;
+        public Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
 
         public Line Previous
         {
@@ -92,9 +92,31 @@ namespace Game.Lines
             set => _next = value;
         }
 
+        public Vector2Int Delta => _end - _start;
+
+        public Vector2 ScenePositionDelta => _renderer.GetPosition(1);
+
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
+        }
+
+        protected void OnDrawGizmosSelected()
+        {
+            if (Selection.Contains(gameObject))
+            {
+                Color originalGizmoColor = Gizmos.color;
+                Gizmos.color = Color.black;
+
+                float diameter = _grid.SceneCellSize.magnitude * 0.25f;
+                Vector3 startWorldPosition = StartWorldPosition;
+                Vector3 endWorldPosition = EndWorldPosition;
+                Gizmos.DrawWireSphere(startWorldPosition, diameter);
+                Vector3 direction = endWorldPosition - startWorldPosition;
+                GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
+
+                Gizmos.color = originalGizmoColor;
+            }
         }
 
         IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
@@ -105,6 +127,12 @@ namespace Game.Lines
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        [PublicAPI("Allocation-free enumerator")]
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
         }
 
         private void ApplyPositions()
@@ -124,56 +152,10 @@ namespace Game.Lines
             _collider.SetPoints(ColliderPointsUpdateBuffer);
         }
 
-        public bool Contains(Vector2Int position)
+        [PublicAPI("Allocation-free enumerator with options")]
+        public LineEnumerable AsEnumerable(LineEnumerator.Options options)
         {
-            return _direction.GetOrientation() switch
-            {
-                AxisOrientation.Horizontal => ContainsHorizontalNoAssert(position),
-                AxisOrientation.Vertical => ContainsVerticallyNoAssert(position),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-
-        public static bool ContainsHorizontal(Line line, Vector2Int position)
-        {
-#if DEBUG
-            Debug.Assert(line.Orientation == AxisOrientation.Horizontal);
-#endif
-            return line.ContainsHorizontalNoAssert(position);
-        }
-
-        public static bool ContainsVertical(Line line, Vector2Int position)
-        {
-#if DEBUG
-            Debug.Assert(line.Orientation == AxisOrientation.Vertical);
-#endif
-            return line.ContainsVerticallyNoAssert(position);
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ContainsHorizontalNoAssert(Vector2Int position)
-        {
-            return _start.y == position.y
-                   && _start.x < position.x != _end.x < position.x;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ContainsVerticallyNoAssert(Vector2Int position)
-        {
-            return _start.x == position.x
-                   && _start.y < position.y != _end.y < position.y;
-        }
-
-
-        public SkipFirstLineEnumerable SkipFirst()
-        {
-            return new SkipFirstLineEnumerable(this);
-        }
-
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
+            return new LineEnumerable(this, options);
         }
     }
 }

@@ -3,53 +3,20 @@ using System.Collections.Generic;
 
 namespace Game.Lines
 {
-    public readonly struct SkipFirstLineEnumerable : IEnumerable<Line>
+    public readonly struct LineEnumerable : IEnumerable<Line>
     {
         private readonly Line _line;
+        private readonly LineEnumerator.Options _options;
 
-        public SkipFirstLineEnumerable(Line line)
+        public LineEnumerable(Line line, LineEnumerator.Options options = LineEnumerator.Options.None)
         {
             _line = line;
+            _options = options;
         }
 
-        public SkipFirstEnumerator GetEnumerator()
+        public LineEnumerator GetEnumerator()
         {
-            return new SkipFirstEnumerator(_line);
-        }
-
-        public struct SkipFirstEnumerator : IEnumerator<Line>
-        {
-            private readonly Line _first;
-            public Line Current { get; private set; }
-
-            public SkipFirstEnumerator(Line first)
-            {
-                _first = first;
-                Current = _first;
-            }
-
-            public bool MoveNext()
-            {
-                // empty case
-                if (Current == null)
-                {
-                    return false;
-                }
-
-                Current = Current.Next;
-                return Current != null && Current != _first;
-            }
-
-            public void Reset()
-            {
-                Current = _first;
-            }
-
-            object IEnumerator.Current => Current;
-
-            public void Dispose()
-            {
-            }
+            return new LineEnumerator(_line, _options);
         }
 
         IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
