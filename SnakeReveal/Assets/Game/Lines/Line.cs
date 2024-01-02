@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Extensions;
 using Game.Enums;
 using Game.Grid;
@@ -15,7 +14,7 @@ namespace Game.Lines
     /// </summary>
     [RequireComponent(typeof(LineRenderer))]
     [RequireComponent(typeof(EdgeCollider2D))]
-    public partial class Line : MonoBehaviour, IEnumerable<Line>
+    public partial class Line : MonoBehaviour
     {
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
 
@@ -76,16 +75,18 @@ namespace Game.Lines
         }
 
         public AxisOrientation Orientation => _direction.GetOrientation();
-        
+
         public Vector3 StartWorldPosition => transform.position;
         public Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
 
+        [CanBeNull]
         public Line Previous
         {
             get => _previous;
             set => _previous = value;
         }
 
+        [CanBeNull]
         public Line Next
         {
             get => _next;
@@ -119,22 +120,6 @@ namespace Game.Lines
             }
         }
 
-        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        [PublicAPI("Allocation-free enumerator")]
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
         private void ApplyPositions()
         {
             transform.SetLocalPositionXY(_grid.GetScenePosition(_start));
@@ -150,12 +135,6 @@ namespace Game.Lines
             // first element in collider points update buffer must always be Vector2.zero
             ColliderPointsUpdateBuffer[1] = sceneDelta;
             _collider.SetPoints(ColliderPointsUpdateBuffer);
-        }
-
-        [PublicAPI("Allocation-free enumerator with options")]
-        public LineEnumerable AsEnumerable(LineEnumerator.Options options)
-        {
-            return new LineEnumerable(this, options);
         }
     }
 }

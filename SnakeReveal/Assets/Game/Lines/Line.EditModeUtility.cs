@@ -13,7 +13,7 @@ namespace Game.Lines
                     Undo.RegisterFullObjectHierarchyUndo(line, operationName);
                 }
             }
-            
+
             public static void RecordUndoWithNeighbors(Line line, string operationName)
             {
                 RegisterUndo(line._previous, operationName);

@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Game.Player
 {
-    public partial class PlayerActorControls : IInputActionCollection2, IDisposable
+    public partial class PlayerActorControls
     {
         private readonly Action<GridDirection> _requestDirectionChange;
 

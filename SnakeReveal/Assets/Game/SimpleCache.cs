@@ -9,7 +9,7 @@ namespace Game
 
         [SerializeField] private TComponent _prefab;
 
-        private readonly Stack<TComponent> _cache;
+        private readonly Stack<TComponent> _cache = new(InitialCapacity);
 
         /// <summary>
         ///     access to private prefab for edit mode instantiation,

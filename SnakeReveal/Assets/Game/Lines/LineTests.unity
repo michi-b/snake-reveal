@@ -378,7 +378,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 224885320}
         m_TargetAssemblyTypeName: Game.Lines.Colliders.CollisionTest, Assembly-CSharp
-        m_MethodName: Test
+        m_MethodName: EditModeTest
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

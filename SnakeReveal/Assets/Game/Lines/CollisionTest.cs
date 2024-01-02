@@ -4,17 +4,13 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    /// <summary>
-    ///     Utility class for testing collisions with this transform in editor.
-    ///     Not meant to be used at runtime, as it's not optimized at all.
-    /// </summary>
-    [RequireComponent(typeof(SimulationGridTransform))]
     public class CollisionTest : MonoBehaviour
     {
-        [SerializeField] private SimulationGridTransform _transform;
         [SerializeField] private LayerMask _layerMask;
+        
+        // ReSharper disable once NotAccessedField.Local
+        // this serialized referenced is just abused to display overlaps in the inspector
         [SerializeField] private Collider2D[] _overlappingColliders;
-
 
         public LayerMask LayerMask
         {
@@ -24,12 +20,15 @@ namespace Game.Lines
 
         private void Reset()
         {
-            _transform = GetComponent<SimulationGridTransform>();
+            GetComponent<SimulationGridTransform>();
         }
-
+        
         [PublicAPI("Targeted by UnityEvents")]
-        public void Test()
+        public void EditModeTest()
         {
+            Reset();
+            // ReSharper disable once Unity.PreferNonAllocApi
+            // This is currently only used for debugging in editor
             _overlappingColliders = Physics2D.OverlapPointAll(transform.position, LayerMask);
         }
     }

@@ -1,72 +1,61 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 
 namespace Game.Lines
 {
     public struct LineEnumerator : IEnumerator<Line>
     {
-        private readonly Line _first;
-        private readonly Options _options;
-        public Line Current { get; private set; }
+        private Line _forcedIncludedBegin;
+        private Line _exclusiveEnd;
 
-        public LineEnumerator(Line first, Options options)
+        /// <summary>
+        ///     Enumerates the lines from start to end, EXCLUDING end.
+        ///     It will NOT yield anything if <see cref="forcedIncludedBegin" /> is NULL.
+        ///     Otherwise, if <see cref="forcedIncludedBegin" /> and <see cref="exclusiveEnd" /> are the same,
+        ///     the beginning line is still yielded.
+        /// </summary>
+        /// <param name="forcedIncludedBegin">
+        ///     The first Line this enumerator will yield.
+        ///     It is also yielded if it is the same as <see cref="exclusiveEnd" />.
+        /// </param>
+        /// <param name="exclusiveEnd">
+        ///     The line after the last line the enumerator should yield.
+        ///     NULL is a valid choice for an open-ended line chain.
+        ///     If it is not NULL but the same as, it is yielded.
+        /// </param>
+        public LineEnumerator(Line forcedIncludedBegin, Line exclusiveEnd)
         {
-            _first = first;
-            _options = options;
+            _forcedIncludedBegin = forcedIncludedBegin;
+            _exclusiveEnd = exclusiveEnd;
             Current = null;
         }
 
         public bool MoveNext()
         {
-            // empty case
-            if (_first == null)
+            // first iteration case
+            if (ReferenceEquals(Current, null))
             {
-                return false;
-            }
-
-            if (Current == null)
-            {
-                Current = _first;
-                bool skipFirst = ((int)_options & (int)Options.SkipFirst) != 0;
-                if (!skipFirst)
-                {
-                    return true;
-                }
+                Current = _forcedIncludedBegin;
+                return !ReferenceEquals(Current, null);
             }
 
             Current = Current.Next;
-            
-            if(Current == null
-               || Current == _first)
-            {
-                return false;
-            }
-            
-            bool skipLast = ((int)_options & (int)Options.SkipLast) != 0;
-            
-            return !skipLast || (Current.Next != null && Current.Next != _first);
+            return !ReferenceEquals(Current, _exclusiveEnd);
         }
 
         public void Reset()
         {
-            Current = _first;
+            Current = null;
         }
+
+        public Line Current { get; private set; }
 
         object IEnumerator.Current => Current;
 
         public void Dispose()
         {
-        }
-
-        [Flags]
-        public enum Options
-        {
-            None = 0,
-            SkipFirst = 1 << 0,
-            SkipLast = 1 << 1,
-            SkipFirstAndLast = SkipFirst | SkipLast
+            _forcedIncludedBegin = null;
+            _exclusiveEnd = null;
         }
     }
 }

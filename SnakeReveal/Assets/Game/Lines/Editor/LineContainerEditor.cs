@@ -113,7 +113,7 @@ namespace Game.Lines.Editor
         {
             var container = (LineContainer)target;
 
-            if (!LineContainer.EditModeUtility.GetHasGridAndLineCache((LineContainer)target))
+            if (!LineContainer.EditModeUtility.GetHasGridAndLineCache(container))
             {
                 return;
             }
@@ -142,7 +142,9 @@ namespace Game.Lines.Editor
                 start.End = newStartEnd;
             }
 
-            foreach (Line lineAfterFirst in start.AsEnumerable(LineEnumerator.Options.SkipFirst))
+            Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd(container);
+            var skipFirstLineSpan = new LineSpan(start.Next, exclusiveEnd);
+            foreach (Line lineAfterFirst in skipFirstLineSpan)
             {
                 if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
                 {
@@ -277,10 +279,9 @@ namespace Game.Lines.Editor
                 _corners.Add(start.Start);
                 _corners.Add(start.End);
                 bool isLoop = LineContainer.EditModeUtility.GetIsLoop((LineContainer)target);
-                LineEnumerator.Options enumeratorOptions = isLoop
-                    ? LineEnumerator.Options.SkipFirstAndLast
-                    : LineEnumerator.Options.SkipFirst;
-                _corners.AddRange(start.AsEnumerable(enumeratorOptions).Select(line => line.End));
+                Line exclusiveEnd = isLoop ? start.Previous : null;
+                List<Line> lineSpan = new LineSpan(start.Next, exclusiveEnd).ToList();
+                _corners.AddRange(lineSpan.Select(line => line.End));
             }
         }
 

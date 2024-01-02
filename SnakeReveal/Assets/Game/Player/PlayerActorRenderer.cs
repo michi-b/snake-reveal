@@ -5,7 +5,7 @@ namespace Game.Player
 {
     public class PlayerActorRenderer : MonoBehaviour
     {
-        [SerializeField] private SpriteRenderer _dot;
+        // [SerializeField] private SpriteRenderer _dot;
         [SerializeField] private SpriteRenderer _arrow;
 
 
