@@ -20,7 +20,7 @@ namespace Game.Lines
                 if (Current == null)
                 {
                     Current = _start;
-                    return true;
+                    return Current != null;
                 }
 
                 if (Current.Next == null)

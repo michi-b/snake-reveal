@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using Extensions;
 using Game.Grid;
 using JetBrains.Annotations;
@@ -5,11 +7,13 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    public partial class DoubleLinkedLineList : MonoBehaviour
+    public partial class DoubleLinkedLineList : MonoBehaviour, IEnumerable<Line>
     {
         private const int InitialLinesCapacity = 1000;
 
         [SerializeField] private SimulationGrid _grid;
+
+        [SerializeField] private LineCache _lineCache;
 
         [SerializeField] private bool _drawGizmos = true;
 
@@ -18,8 +22,6 @@ namespace Game.Lines
         [SerializeField] [HideInInspector] [CanBeNull]
         protected Line _start;
 
-        public SimulationGrid Grid => _grid;
-
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
@@ -27,7 +29,7 @@ namespace Game.Lines
 
         protected void OnDrawGizmos()
         {
-            if (_start == null)
+            if (_start == null || !_drawGizmos)
             {
                 return;
             }
@@ -35,7 +37,7 @@ namespace Game.Lines
             Color originalGizmoColor = Gizmos.color;
             Gizmos.color = _gizmosColor;
 
-            Gizmos.DrawWireSphere(_start.StartWorldPosition, Grid.SceneCellSize.magnitude * 0.5f);
+            Gizmos.DrawWireSphere(_start.StartWorldPosition, _grid.SceneCellSize.magnitude * 0.5f);
 
             foreach (Line line in _start.SkipFirst())
             {
@@ -47,11 +49,27 @@ namespace Game.Lines
 
         public Vector3 GetWorldPosition(Vector2Int position)
         {
-            return Grid.GetScenePosition(position).ToVector3(transform.position.z);
+            return _grid.GetScenePosition(position).ToVector3(transform.position.z);
         }
 
-        private struct Skip
+        public Line.Enumerator GetEnumerator()
         {
+            return new Line.Enumerator(_start);
+        }
+
+        public SkipFirstLineEnumerable SkipFirst()
+        {
+            return new SkipFirstLineEnumerable(_start);
+        }
+
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

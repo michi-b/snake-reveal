@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Extensions;
 using Game.Enums;
 using Game.Grid;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 using Utility;
-using Object = UnityEngine.Object;
 
 namespace Game.Lines
 {
@@ -17,15 +16,8 @@ namespace Game.Lines
     /// </summary>
     [RequireComponent(typeof(LineRenderer))]
     [RequireComponent(typeof(EdgeCollider2D))]
-    public partial class Line : MonoBehaviour
+    public partial class Line : MonoBehaviour, IEnumerable<Line>
     {
-        public const string StartPropertyName = nameof(_start);
-
-        public const string EndPropertyName = nameof(_end);
-
-        public const string DirectionPropertyName = nameof(_direction);
-
-        private static readonly Object[] ThreeObjectsUndoBuffer = new Object[3];
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
 
         [SerializeField] private SimulationGrid _grid;
@@ -43,6 +35,11 @@ namespace Game.Lines
             _start = start;
             _end = end;
             _direction = _start.GetDirection(_end);
+        }
+
+        public SimulationGrid Grid
+        {
+            set => _grid = value;
         }
 
         public GridDirection Direction => _direction;
@@ -98,6 +95,16 @@ namespace Game.Lines
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
+        }
+
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         private void ApplyPositions()
@@ -158,22 +165,15 @@ namespace Game.Lines
                    && _start.y < position.y != _end.y < position.y;
         }
 
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
 
         public SkipFirstLineEnumerable SkipFirst()
         {
             return new SkipFirstLineEnumerable(this);
         }
 
-        public void RecordUndoWithNeighbors(string operationName)
+        public Enumerator GetEnumerator()
         {
-            ThreeObjectsUndoBuffer[0] = Previous;
-            ThreeObjectsUndoBuffer[1] = this;
-            ThreeObjectsUndoBuffer[2] = Next;
-            Undo.RegisterCompleteObjectUndo(ThreeObjectsUndoBuffer, operationName);
+            return new Enumerator(this);
         }
     }
 }

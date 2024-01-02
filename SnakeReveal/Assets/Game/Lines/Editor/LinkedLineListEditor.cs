@@ -1,5 +1,10 @@
-﻿using Editor;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Editor;
+using Game.Grid;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Game.Lines.Editor
@@ -31,44 +36,97 @@ namespace Game.Lines.Editor
                 _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as DoubleLinkedLineList;
             }
 
-            // Undo.undoRedoEvent += OnUndoRedo;
-            //
-            // ApplyChainChanges((DoubleLinkedLineList)target);
+            ReadLinesIntoPositions();
+
+            _positionsList = new ReorderableList(_positions, typeof(Vector2Int), true, true, true, true);
+            _positionsList.drawHeaderCallback += rect => EditorGUI.LabelField(rect, "Positions");
+            _positionsList.drawElementCallback += DrawPositionsListElement;
+            _positionsList.onCanRemoveCallback += list => list.count > 2;
+            _positionsList.onCanAddCallback += list => list.count >= 2;
+            _positionsList.onAddCallback += PositionsListAdd;
+            _positionsList.onSelectCallback += list => SceneView.RepaintAll();
+
+            Undo.undoRedoEvent += OnUndoRedo;
+
+            Tools.hidden = true;
         }
 
+        private void PositionsListAdd(ReorderableList list)
+        {
+            ReadOnlyCollection<int> selectedIndices = _positionsList.selectedIndices;
+            if (selectedIndices.Count != 1)
+            {
+                _positions.Add(_positions.Last() + Vector2Int.right);
+            }
+            else
+            {
+                int selectedIndex = selectedIndices[0];
+                Vector2Int newPosition = _positions[selectedIndex] + Vector2Int.right;
+                _positions.Insert(selectedIndex + 1, newPosition);
+            }
+        }
 
-        // protected void OnDisable()
-        // {
-        //     Undo.undoRedoEvent -= OnUndoRedo;
-        // }
+        private void OnUndoRedo(in UndoRedoInfo undo)
+        {
+            ReadLinesIntoPositions();
+        }
+
+        private void ReadLinesIntoPositions()
+        {
+            _positions.Clear();
+            Line start = DoubleLinkedLineList.EditModeUtility.GetStart((DoubleLinkedLineList)target);
+            if (start != null)
+            {
+                _positions.Add(start.Start);
+                _positions.Add(start.End);
+                _positions.AddRange(start.SkipFirst().Select(line => line.End));
+            }
+        }
+
+        private void DrawPositionsListElement(Rect rect, int index, bool isActive, bool isFocused)
+        {
+            _positions[index] = EditorGUI.Vector2IntField(rect, GUIContent.none, _positions[index]);
+        }
+
+        private ReorderableList _positionsList;
+
+        protected void OnDisable()
+        {
+            _positionsList.drawElementCallback -= DrawPositionsListElement;
+            Undo.undoRedoEvent -= OnUndoRedo;
+            Tools.hidden = false;
+        }
 
         protected virtual void OnSceneGUI()
         {
-            var chain = (DoubleLinkedLineList)target;
-            if (chain.Grid == null)
+            var container = (DoubleLinkedLineList)target;
+            if (!IsFullyAssigned)
             {
                 return;
             }
 
+            SimulationGrid grid = DoubleLinkedLineList.EditModeUtility.GetGrid(container);
             Matrix4x4 originalHandlesMatrix = Handles.matrix;
-            const float handleScale = 0.8f;
-            const float inverseHandleScale = 1f / handleScale;
-            Handles.matrix = Matrix4x4.Scale(Vector3.one * handleScale) * Handles.matrix;
-            Line start = DoubleLinkedLineList.EditModeUtility.GetStart(chain);
+
+
+            Line start = DoubleLinkedLineList.EditModeUtility.GetStart(container);
             if (start == null)
             {
                 return;
             }
 
+            bool anyPositionHandleChanged = false;
+            int handleIndex = 0;
+
             if (PositionHandle(start.Start, out Vector2Int newStartStart))
             {
-                start.RecordUndoWithNeighbors(LinePositionHandleMoveOperationName);
+                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
                 start.Start = newStartStart;
             }
 
             if (PositionHandle(start.End, out Vector2Int newStartEnd))
             {
-                start.RecordUndoWithNeighbors(LinePositionHandleMoveOperationName);
+                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
                 start.End = newStartEnd;
             }
 
@@ -76,19 +134,46 @@ namespace Game.Lines.Editor
             {
                 if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
                 {
-                    lineAfterFirst.RecordUndoWithNeighbors(LinePositionHandleMoveOperationName);
+                    Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
                     lineAfterFirst.End = newLineAfterStartEnd;
                 }
             }
 
-            bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
+            if (anyPositionHandleChanged)
             {
-                Vector3 newPosition = Handles.PositionHandle(chain.GetWorldPosition(originalGridPosition) * inverseHandleScale, Quaternion.identity) * handleScale;
-                newGridPosition = chain.Grid.RoundToGrid(newPosition);
-                return newGridPosition != originalGridPosition;
+                ReadLinesIntoPositions();
+                Repaint();
             }
 
-            Handles.matrix = originalHandlesMatrix;
+            bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
+            {
+                Vector3 originalWorldPosition = container.GetWorldPosition(originalGridPosition);
+
+                if (_positionsList.selectedIndices.Contains(handleIndex))
+                {
+                    Handles.DrawWireDisc(originalWorldPosition, Vector3.back, grid.SceneCellSize.magnitude * 0.5f);
+                }
+
+                EditorGUI.BeginChangeCheck();
+                Vector3 newWorldPosition = Handles.PositionHandle(originalWorldPosition, Quaternion.identity);
+                newGridPosition = grid.Round(newWorldPosition);
+
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _positionsList.Select(handleIndex);
+
+                    if (newGridPosition != originalGridPosition)
+                    {
+                        anyPositionHandleChanged = true;
+                        handleIndex++;
+                        return true;
+                    }
+                }
+
+                handleIndex++;
+                return false;
+            }
         }
 
 
@@ -98,6 +183,10 @@ namespace Game.Lines.Editor
         //     ApplyChainChanges(chain);
         // }
 
+        private readonly List<Vector2Int> _positions = new();
+
+        private bool IsFullyAssigned => DoubleLinkedLineList.EditModeUtility.GetIsFullyAssigned((DoubleLinkedLineList)target);
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -105,6 +194,36 @@ namespace Game.Lines.Editor
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.PropertyField(_startProperty);
+            }
+
+            if (Application.isPlaying || !IsFullyAssigned)
+            {
+                return;
+            }
+
+            var container = (DoubleLinkedLineList)target;
+
+            EditorGUI.BeginChangeCheck();
+            _positionsList.DoLayoutList();
+            if (EditorGUI.EndChangeCheck())
+            {
+                ApplyPositions(container);
+            }
+
+            if (_positions.Count < 2 && GUILayout.Button("Initialize Positions"))
+            {
+                //ensure we got at least 2 positions
+                if (_positions.Count == 0)
+                {
+                    _positions.Add(DoubleLinkedLineList.EditModeUtility.GetGrid(container).CenterPosition);
+                }
+
+                if (_positions.Count == 1)
+                {
+                    _positions.Add(_positions[0] + Vector2Int.right);
+                }
+
+                ApplyPositions(container);
             }
 
             // GUI.enabled = !Application.isPlaying;
@@ -130,6 +249,12 @@ namespace Game.Lines.Editor
             // }
             //
             // DrawInsert(chain);
+        }
+
+        private void ApplyPositions(DoubleLinkedLineList container)
+        {
+            DoubleLinkedLineList.EditModeUtility.Rebuild(container, _positions);
+            ReadLinesIntoPositions();
         }
 
 #if false

@@ -84,7 +84,7 @@ namespace Game.Grid
             );
         }
 
-        public Vector2Int RoundToGrid(Vector2 scenePosition)
+        public Vector2Int Round(Vector2 scenePosition)
         {
             Vector2 gridPosition = scenePosition - _lowerLeftCornerScenePosition;
             gridPosition /= SceneCellSize;

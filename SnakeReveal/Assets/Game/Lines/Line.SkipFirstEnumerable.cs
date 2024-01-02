@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Game.Lines
 {
-    public readonly struct SkipFirstLineEnumerable
+    public readonly struct SkipFirstLineEnumerable : IEnumerable<Line>
     {
         private readonly Line _line;
 
@@ -50,6 +50,16 @@ namespace Game.Lines
             public void Dispose()
             {
             }
+        }
+
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

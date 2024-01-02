@@ -42,7 +42,7 @@ namespace Game.Grid.Editor
             {
                 var originalPosition = transform.Grid.GetScenePosition(originalGridPosition).ToVector3(transform.transform.localPosition.z);
                 Vector3 newPosition = Handles.PositionHandle(originalPosition, Quaternion.identity);
-                result = transform.Grid.RoundToGrid(newPosition);
+                result = transform.Grid.Round(newPosition);
                 return result != originalGridPosition;
             }
         }

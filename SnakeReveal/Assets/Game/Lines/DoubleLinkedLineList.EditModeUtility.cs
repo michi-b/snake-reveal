@@ -1,4 +1,10 @@
-﻿namespace Game.Lines
+﻿using System.Collections.Generic;
+using System.Linq;
+using Game.Grid;
+using UnityEditor;
+using UnityEngine;
+
+namespace Game.Lines
 {
     public partial class DoubleLinkedLineList
     {
@@ -9,6 +15,55 @@
             public static Line GetStart(DoubleLinkedLineList container)
             {
                 return container._start;
+            }
+
+            public static void Rebuild(DoubleLinkedLineList container, List<Vector2Int> positions)
+            {
+                Debug.Assert(positions.Count >= 2, "positions.Count >= 2");
+                Undo.RegisterFullObjectHierarchyUndo(container, "Rebuild Double Linked Line List");
+                ClearLines(container);
+
+                Line start = InstantiateLine(container, positions[0], positions[1]);
+                container._start = start;
+                Line last = start;
+
+                for (int i = 2; i < positions.Count; i++)
+                {
+                    Line line = InstantiateLine(container, last.End, positions[i]);
+                    last.Next = line;
+                    line.Previous = last;
+                    last = line;
+                }
+            }
+
+            private static Line InstantiateLine(DoubleLinkedLineList container, Vector2Int startPosition, Vector2Int endPosition)
+            {
+                Line result = Instantiate(container._lineCache.Prefab, container.transform);
+                Undo.RegisterCreatedObjectUndo(result.gameObject, "Instantiate Line");
+                result.Grid = container._grid;
+                result.Start = startPosition;
+                result.End = endPosition;
+                return result;
+            }
+
+            private static void ClearLines(DoubleLinkedLineList container)
+            {
+                foreach (Line line in container.ToArray())
+                {
+                    Undo.DestroyObjectImmediate(line.gameObject);
+                }
+
+                container._start = null;
+            }
+
+            public static bool GetIsFullyAssigned(DoubleLinkedLineList container)
+            {
+                return container._grid != null && container._lineCache != null;
+            }
+
+            public static SimulationGrid GetGrid(DoubleLinkedLineList container)
+            {
+                return container._grid;
             }
         }
 

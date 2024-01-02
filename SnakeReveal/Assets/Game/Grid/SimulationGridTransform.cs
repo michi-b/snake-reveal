@@ -36,7 +36,7 @@ namespace Game.Grid
             if (_grid != null)
             {
                 Transform thisTransform = transform;
-                _position = _grid.RoundToGrid(thisTransform.position);
+                _position = _grid.Round(thisTransform.position);
             }
 
             Apply();
