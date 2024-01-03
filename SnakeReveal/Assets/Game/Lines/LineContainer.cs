@@ -90,7 +90,7 @@ namespace Game.Lines
             {
                 Debug.Assert(positions.Count >= 2, "positions.Count >= 2");
 
-                Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild) + " - Clear Lines");
+                Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild) + " - clear Lines");
                 ClearLines(container);
 
                 Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild));
@@ -98,37 +98,39 @@ namespace Game.Lines
                 Line last = start;
                 for (int i = 2; i < positions.Count; i++)
                 {
+                    // note: the order of assignments and registering UNDO operations is extremely sensible here! 
                     Line line = InstantiateLine(container, last.End, positions[i]);
-                    Undo.RecordObject(line, nameof(Rebuild) + " - patch line before created line");
-                    Undo.RecordObject(line, nameof(Rebuild) + " - patch created line");
-                    last.Next = line;
+                    Undo.RegisterCreatedObjectUndo(line.gameObject, nameof(InstantiateLine));
                     line.Previous = last;
+                    ApplyHideLineInSceneView(container, line);
+
+                    Undo.RecordObject(last, nameof(Rebuild) + " - patch line before created line");
+                    last.Next = line;
                     last = line;
                 }
 
                 if (loop)
                 {
+                    // note: the order of assignments and registering UNDO operations is extremely sensible here! 
                     Line loopConnection = InstantiateLine(container, last.End, start.Start);
-                    Undo.RecordObject(loopConnection, nameof(Rebuild) + " - patch loop connection");
-                    Undo.RecordObject(start, nameof(Rebuild) + " - patch loop connection start");
-                    last.Next = loopConnection;
+                    Undo.RegisterCreatedObjectUndo(loopConnection.gameObject, nameof(InstantiateLine));
                     loopConnection.Previous = last;
-                    start.Previous = loopConnection;
                     loopConnection.Next = start;
+                    ApplyHideLineInSceneView(container, loopConnection);
+
+                    Undo.RecordObject(start, nameof(Rebuild) + " - patch loop connection start");
+                    Undo.RecordObject(last, nameof(Rebuild) + " - patch loop connection last");
+                    last.Next = loopConnection;
+                    start.Previous = loopConnection;
                 }
 
                 Undo.RecordObject(container, nameof(Rebuild) + " Assign Start");
-
                 container._start = start;
             }
 
             private static Line InstantiateLine(LineContainer container, Vector2Int startPosition, Vector2Int endPosition)
             {
                 Line result = Instantiate(container._lineCache.Prefab, container.transform);
-
-                Undo.RegisterCreatedObjectUndo(result.gameObject, nameof(InstantiateLine));
-                ApplyHideLineInSceneView(container, result);
-
                 Undo.RecordObject(result, nameof(InstantiateLine) + " - Initialization");
                 result.Grid = container._grid;
                 result.Start = startPosition;
