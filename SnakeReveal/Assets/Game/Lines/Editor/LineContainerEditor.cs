@@ -193,6 +193,7 @@ namespace Game.Lines.Editor
                     {
                         _corners.Reverse();
                     }
+
                     ApplyCorners(container);
                 }
 

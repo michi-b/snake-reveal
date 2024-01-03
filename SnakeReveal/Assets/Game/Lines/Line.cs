@@ -24,8 +24,8 @@ namespace Game.Lines
         [SerializeField] private Vector2Int _start;
         [SerializeField] private Vector2Int _end;
         [SerializeField] private GridDirection _direction;
-        [SerializeField, CanBeNull]  private Line _previous;
-        [SerializeField, CanBeNull]  private Line _next;
+        [SerializeField, CanBeNull] private Line _previous;
+        [SerializeField, CanBeNull] private Line _next;
 
         public Line(Vector2Int start, Vector2Int end)
         {

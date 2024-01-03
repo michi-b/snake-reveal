@@ -21,12 +21,17 @@ namespace Game.Lines
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
         public override bool Loop => true;
 
-        private int LayerMask => 1 << gameObject.layer;
+        public Turn Turn => _turn;
 
         protected override void PostProcessLineChanges()
         {
             _clockwiseTurnWeight = this.Sum(line => line.Direction.GetTurn(line.Next!.Direction).GetClockwiseWeight());
-            _turn = _clockwiseTurnWeight == 0 ? Turn.None : _clockwiseTurnWeight > 0 ? Turn.Right : Turn.Left;
+            _turn = _clockwiseTurnWeight switch
+            {
+                4 => Turn.Right,
+                -4 => Turn.Left,
+                _ => Turn.None
+            };
         }
 
         public void EditModeInsert(LineChain insertTarget)

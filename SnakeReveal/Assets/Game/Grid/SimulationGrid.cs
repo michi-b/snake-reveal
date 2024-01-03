@@ -2,7 +2,6 @@ using Extensions;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Game.Grid
 {
@@ -11,14 +10,9 @@ namespace Game.Grid
         [SerializeField] private Vector2 _sceneSize = new(10.8f, 10.8f);
         [SerializeField] private Vector2Int _size = new(1024, 1024);
         [SerializeField] private Vector2 _sceneCellSize;
-
-        [FormerlySerializedAs("_lowerLeftScenePosition"), SerializeField] 
-        private Vector2 _lowerLeftCornerScenePosition;
-
+        [SerializeField] private Vector2 _lowerLeftCornerScenePosition;
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
-
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
-
         [SerializeField] private bool _drawGizmo = true;
 
         public Vector2Int Size => _size;

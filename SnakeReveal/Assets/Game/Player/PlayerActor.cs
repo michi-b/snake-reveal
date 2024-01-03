@@ -4,21 +4,15 @@ using Game.Grid;
 using Game.Lines.Deprecated;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Game.Player
 {
     public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
-
         [SerializeField] private PlayerActorRenderer _renderer;
-
         [SerializeField] private Vector2Int _position;
-
-        [FormerlySerializedAs("_gridDirection"), SerializeField] 
-        private GridDirection _direction = GridDirection.None;
-
+        [SerializeField] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
 
         private PlayerActorControls _controls;

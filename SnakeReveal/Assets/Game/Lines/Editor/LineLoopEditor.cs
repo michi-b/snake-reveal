@@ -96,7 +96,7 @@ namespace Game.Lines.Editor
                 EditorPrefs.SetInt(InsertTargetIdKey, _insertTargetId);
             }
 
-            using (new EditorGUI.DisabledScope(_insertTarget == null))
+            using (new EditorGUI.DisabledScope(_insertTarget == null || loop.Turn == Turn.None))
             {
                 if (GUILayout.Button("Insert"))
                 {

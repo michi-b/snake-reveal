@@ -28,6 +28,7 @@ namespace Game.Lines
         protected SimulationGrid Grid => _grid;
 
         private Line ExclusiveEnd => Loop ? _start : null;
+        protected int LayerMask => 1 << gameObject.layer;
 
         protected void Reset()
         {
