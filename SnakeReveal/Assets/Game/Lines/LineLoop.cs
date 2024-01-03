@@ -35,7 +35,7 @@ namespace Game.Lines
             Line chainEnd = insertTarget.Last();
             GridDirection breakInDirection = chainEnd.Direction.Turn(_turn.Reverse());
             Line breakInLine = FindLine(chainEnd.End, breakInDirection);
-            Debug.Assert(breakInLine != null, "No suitable break in on loop.");
+            Debug.Assert(breakInLine != null, "No suitable break-in on loop.");
         }
 
         [CanBeNull]

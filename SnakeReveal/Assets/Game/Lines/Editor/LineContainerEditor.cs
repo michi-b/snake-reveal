@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Editor;
@@ -19,6 +20,7 @@ namespace Game.Lines.Editor
         private static readonly GUIContent InitializeCornersLabel = new("Initialize Corners", "Initialize the corners list and apply it to form a single line.");
 
         private static readonly GUIContent ReadCornersLabel = new("Read Corners", "Read the corners from connected lines starting at the start line.");
+
         private static readonly GUIContent ReverseCornersLabel = new("Reverse", "Reverse the corners list and apply it.\n" +
                                                                                 "If the container is a loop, the first corner keeps its place.");
 
@@ -35,6 +37,8 @@ namespace Game.Lines.Editor
         private SerializedProperty _startProperty;
 
         public abstract bool IsLoop { get; }
+
+        protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
 
         protected virtual void OnEnable()
         {
@@ -62,8 +66,6 @@ namespace Game.Lines.Editor
             Tools.hidden = true;
         }
 
-        protected abstract int GetInitialSelectionIndex(int count);
-
         protected void OnDisable()
         {
             _cornersList.drawElementCallback -= DrawCorner;
@@ -75,80 +77,11 @@ namespace Game.Lines.Editor
         {
             var container = (LineContainer)target;
 
-            if (!LineContainer.EditModeUtility.GetHasGridAndLineCache(container))
+            DrawHandles(container, true);
+
+            foreach (LineContainer additionalHandlesTarget in AdditionalHandlesTargets)
             {
-                return;
-            }
-
-            SimulationGrid grid = LineContainer.EditModeUtility.GetGrid(container);
-            Line start = LineContainer.EditModeUtility.GetStart(container);
-
-            if (start == null)
-            {
-                return;
-            }
-
-            bool anyPositionHandleChanged = false;
-            int handleIndex = 0;
-
-            if (PositionHandle(start.Start, out Vector2Int newStartStart))
-            {
-                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
-                start.Start = newStartStart;
-            }
-
-            if (PositionHandle(start.End, out Vector2Int newStartEnd))
-            {
-                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
-                start.End = newStartEnd;
-            }
-
-            Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd(container);
-            var skipFirstLineSpan = new LineSpan(start.Next, exclusiveEnd);
-            foreach (Line lineAfterFirst in skipFirstLineSpan)
-            {
-                if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
-                {
-                    Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
-                    lineAfterFirst.End = newLineAfterStartEnd;
-                }
-            }
-
-            if (anyPositionHandleChanged)
-            {
-                LineContainer.EditModeUtility.PostProcessLineChanges(container);
-                ReadLinesIntoCorners();
-                Repaint();
-            }
-
-            bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
-            {
-                Vector3 originalWorldPosition = container.GetWorldPosition(originalGridPosition);
-
-                if (_cornersList.selectedIndices.Contains(handleIndex))
-                {
-                    Handles.DrawWireDisc(originalWorldPosition, Vector3.back, grid.SceneCellSize.magnitude * 0.5f);
-                }
-
-                EditorGUI.BeginChangeCheck();
-                Vector3 newWorldPosition = Handles.PositionHandle(originalWorldPosition, Quaternion.identity);
-                newGridPosition = grid.Round(newWorldPosition);
-
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    _cornersList.Select(handleIndex);
-
-                    if (newGridPosition != originalGridPosition)
-                    {
-                        anyPositionHandleChanged = true;
-                        handleIndex++;
-                        return true;
-                    }
-                }
-
-                handleIndex++;
-                return false;
+                DrawHandles(additionalHandlesTarget, false);
             }
         }
 
@@ -175,6 +108,8 @@ namespace Game.Lines.Editor
             _cornersList.Select(newIndex);
         }
 
+        protected abstract int GetInitialSelectionIndex(int count);
+
         private void OnUndoRedo(in UndoRedoInfo undo)
         {
             ReadLinesIntoCorners();
@@ -189,8 +124,6 @@ namespace Game.Lines.Editor
                 }
             }
         }
-
-        protected abstract void DrawDerivedProperties();
 
         public override void OnInspectorGUI()
         {
@@ -251,7 +184,7 @@ namespace Game.Lines.Editor
                 {
                     ReadLinesIntoCorners();
                 }
-                
+
                 if (GUILayout.Button(ReverseCornersLabel))
                 {
                     _corners.Reverse(1, _corners.Count - 1);
@@ -275,6 +208,93 @@ namespace Game.Lines.Editor
 
                 ApplyCorners(container);
                 _move = Vector2Int.zero;
+            }
+        }
+
+        protected abstract void DrawDerivedProperties();
+
+        private void DrawHandles(LineContainer container, bool drawThisContainer)
+        {
+            if (!LineContainer.EditModeUtility.GetHasGridAndLineCache(container))
+            {
+                return;
+            }
+
+            SimulationGrid grid = LineContainer.EditModeUtility.GetGrid(container);
+            Line start = LineContainer.EditModeUtility.GetStart(container);
+
+            if (start == null)
+            {
+                return;
+            }
+
+            bool anyPositionHandleChanged = false;
+            int handleIndex = 0;
+
+            if (PositionHandle(start.Start, out Vector2Int newStartStart))
+            {
+                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
+                start.Start = newStartStart;
+            }
+
+            if (PositionHandle(start.End, out Vector2Int newStartEnd))
+            {
+                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
+                start.End = newStartEnd;
+            }
+
+            Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd(container);
+            var skipFirstLineSpan = new LineSpan(start.Next, exclusiveEnd);
+            foreach (Line lineAfterFirst in skipFirstLineSpan)
+            {
+                if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
+                {
+                    Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
+                    lineAfterFirst.End = newLineAfterStartEnd;
+                }
+            }
+
+            if (anyPositionHandleChanged)
+            {
+                LineContainer.EditModeUtility.PostProcessLineChanges(container);
+                if (drawThisContainer)
+                {
+                    ReadLinesIntoCorners();
+                    Repaint();
+                }
+            }
+
+            bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
+            {
+                Vector3 originalWorldPosition = container.GetWorldPosition(originalGridPosition);
+
+                if (drawThisContainer && _cornersList.selectedIndices.Contains(handleIndex))
+                {
+                    Handles.DrawWireDisc(originalWorldPosition, Vector3.back, grid.SceneCellSize.magnitude * 0.5f);
+                }
+
+                EditorGUI.BeginChangeCheck();
+                Vector3 newWorldPosition = Handles.PositionHandle(originalWorldPosition, Quaternion.identity);
+                newGridPosition = grid.Round(newWorldPosition);
+
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (drawThisContainer)
+                    {
+                        _cornersList.Select(handleIndex);
+                    }
+
+                    if (newGridPosition != originalGridPosition)
+                    {
+                        anyPositionHandleChanged = true;
+                        handleIndex++;
+                        return true;
+                    }
+                }
+
+                handleIndex++;
+                return false;
             }
         }
 

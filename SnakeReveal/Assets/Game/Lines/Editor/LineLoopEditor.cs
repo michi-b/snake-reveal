@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Editor;
 using Game.Enums;
 using UnityEditor;
@@ -20,6 +21,17 @@ namespace Game.Lines.Editor
         private SerializedProperty _turnProperty;
 
         public override bool IsLoop => true;
+
+        protected override IEnumerable<LineContainer> AdditionalHandlesTargets
+        {
+            get
+            {
+                if (_insertTarget != null && _isInsertExpanded)
+                {
+                    yield return _insertTarget;
+                }
+            }
+        }
 
         protected override void OnEnable()
         {
@@ -63,6 +75,7 @@ namespace Game.Lines.Editor
             if (EditorGUI.EndChangeCheck())
             {
                 EditorPrefs.SetBool(IsInsertExpandedKey, _isInsertExpanded);
+                SceneView.RepaintAll();
             }
 
             if (_isInsertExpanded)
@@ -94,13 +107,14 @@ namespace Game.Lines.Editor
                         Debug.LogWarning("Insertion cancelled because loop contains lines with  \"NONE\" direction");
                         return;
                     }
-                    
+
                     // ReSharper disable once AssignNullToNotNullAttribute
                     if (_insertTarget.Any(line => line.Direction == GridDirection.None))
                     {
                         Debug.LogWarning("Insertion cancelled because target chain contains lines with  \"NONE\" direction");
                         return;
                     }
+
                     loop.EditModeInsert(_insertTarget);
                 }
             }
