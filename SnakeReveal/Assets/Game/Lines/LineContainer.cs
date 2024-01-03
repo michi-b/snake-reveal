@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using Game.Grid;
-using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using Utility;
@@ -22,11 +21,13 @@ namespace Game.Lines
 
         protected abstract Color GizmosColor { get; }
 
-        protected abstract Line ExclusiveEnd { get; }
+        public abstract bool Loop { get; }
 
         protected Line Start => _start;
-        
+
         protected SimulationGrid Grid => _grid;
+
+        private Line ExclusiveEnd => Loop ? _start : null;
 
         protected void Reset()
         {
@@ -75,7 +76,7 @@ namespace Game.Lines
 
         public LineEnumerator GetEnumerator()
         {
-            return new LineEnumerator(_start, ExclusiveEnd);
+            return new LineEnumerator(_start, ExclusiveEnd, Loop);
         }
 
         public static class EditModeUtility
@@ -88,7 +89,7 @@ namespace Game.Lines
                 return container._start;
             }
 
-            public static void Rebuild(LineContainer container, List<Vector2Int> positions, bool loop)
+            public static void Rebuild(LineContainer container, List<Vector2Int> positions)
             {
                 Debug.Assert(positions.Count >= 2, "positions.Count >= 2");
 
@@ -110,7 +111,7 @@ namespace Game.Lines
                     last = line;
                 }
 
-                if (loop)
+                if (container.Loop)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
                     Line loopConnection = InstantiateLine(container, last.End, start.Start);
@@ -135,14 +136,14 @@ namespace Game.Lines
                 result.Grid = container._grid;
                 result.Start = startPosition;
                 result.End = endPosition;
-                
+
                 GameObject resultGameObject = result.gameObject;
                 Undo.RecordObject(resultGameObject, nameof(InstantiateLine) + " - Set Layer");
                 resultGameObject.layer = container.gameObject.layer;
                 Undo.RegisterCreatedObjectUndo(resultGameObject, nameof(InstantiateLine));
-                
+
                 ApplyHideLineInSceneView(container, result);
-                
+
                 return result;
             }
 
@@ -183,16 +184,16 @@ namespace Game.Lines
                 line.gameObject.SetVisibleInSceneView(container._displayLinesInHierarchy);
             }
 
-            [CanBeNull]
-            public static Line GetExclusiveEnd(LineContainer container)
-            {
-                return container.ExclusiveEnd;
-            }
 
             public static void PostProcessLineChanges(LineContainer container)
             {
                 Undo.RecordObject(container, nameof(PostProcessLineChanges));
                 container.PostProcessLineChanges();
+            }
+
+            public static Line GetExclusiveEnd(LineContainer container)
+            {
+                return container.Loop ? container._start : null;
             }
         }
     }

@@ -6,28 +6,31 @@ namespace Game.Lines
 {
     public struct LineEnumerator : IEnumerator<Line>
     {
-        private Line _forcedIncludedBegin;
+        private Line _begin;
         private Line _exclusiveEnd;
+        private readonly bool _loop;
 
         /// <summary>
-        ///     Enumerates the lines from start to end, EXCLUDING end.
-        ///     It will NOT yield anything if <see cref="forcedIncludedBegin" /> is NULL.
-        ///     Otherwise, if <see cref="forcedIncludedBegin" /> and <see cref="exclusiveEnd" /> are the same,
-        ///     the beginning line is still yielded.
+        ///     Enumerates the lines from start to end, EXCLUDING <see cref="exclusiveEnd" />.
+        ///     It will NOT yield anything if <see cref="begin" /> is NULL.
         /// </summary>
-        /// <param name="forcedIncludedBegin">
-        ///     The first Line this enumerator will yield.
-        ///     It is also yielded if it is the same as <see cref="exclusiveEnd" />.
+        /// <param name="begin">
+        ///     The first Line this enumerator should yield
         /// </param>
         /// <param name="exclusiveEnd">
         ///     The line after the last line the enumerator should yield.
         ///     NULL is a valid choice for an open-ended line chain.
-        ///     If it is not NULL but the same as, it is yielded.
         /// </param>
-        public LineEnumerator(Line forcedIncludedBegin, [CanBeNull] Line exclusiveEnd)
+        /// <param name="loop">
+        ///     Just in case <see cref="begin" /> is the same as <see cref="exclusiveEnd" />,
+        ///     should the line list be assumed to be loop and yield all lines (otherwise none)
+        /// </param>
+        /// <remarks>Bypasses Unity lifecycle checks for performance reasons.</remarks>
+        public LineEnumerator(Line begin, [CanBeNull] Line exclusiveEnd, bool loop)
         {
-            _forcedIncludedBegin = forcedIncludedBegin;
+            _begin = begin;
             _exclusiveEnd = exclusiveEnd;
+            _loop = loop;
             Current = null;
         }
 
@@ -36,8 +39,9 @@ namespace Game.Lines
             // first iteration case
             if (ReferenceEquals(Current, null))
             {
-                Current = _forcedIncludedBegin;
-                return !ReferenceEquals(Current, null);
+                Current = _begin;
+                return !ReferenceEquals(Current, null)
+                       && (_loop || !ReferenceEquals(Current, _exclusiveEnd));
             }
 
             Current = Current.Next;
@@ -55,7 +59,7 @@ namespace Game.Lines
 
         public void Dispose()
         {
-            _forcedIncludedBegin = null;
+            _begin = null;
             _exclusiveEnd = null;
         }
     }

@@ -12,8 +12,7 @@ namespace Game.Lines
     /// <summary>
     ///     minimal immutable struct to cache information of line container lines
     /// </summary>
-    [RequireComponent(typeof(LineRenderer))]
-    [RequireComponent(typeof(EdgeCollider2D))]
+    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D))]
     public partial class Line : MonoBehaviour
     {
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
@@ -25,8 +24,8 @@ namespace Game.Lines
         [SerializeField] private Vector2Int _start;
         [SerializeField] private Vector2Int _end;
         [SerializeField] private GridDirection _direction;
-        [SerializeField] [CanBeNull] private Line _previous;
-        [SerializeField] [CanBeNull] private Line _next;
+        [SerializeField, CanBeNull]  private Line _previous;
+        [SerializeField, CanBeNull]  private Line _next;
 
         public Line(Vector2Int start, Vector2Int end)
         {

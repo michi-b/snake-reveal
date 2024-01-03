@@ -20,8 +20,6 @@ namespace Game.Lines.Editor
         private bool _isInsertExpanded;
         private SerializedProperty _turnProperty;
 
-        public override bool IsLoop => true;
-
         protected override IEnumerable<LineContainer> AdditionalHandlesTargets
         {
             get

@@ -16,7 +16,7 @@ namespace Game.Player
 
         [SerializeField] private Vector2Int _position;
 
-        [FormerlySerializedAs("_gridDirection")] [SerializeField]
+        [FormerlySerializedAs("_gridDirection"), SerializeField] 
         private GridDirection _direction = GridDirection.None;
 
         [SerializeField] private int _speed = 1;

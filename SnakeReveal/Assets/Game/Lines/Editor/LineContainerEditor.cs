@@ -36,8 +36,6 @@ namespace Game.Lines.Editor
 
         private SerializedProperty _startProperty;
 
-        public abstract bool IsLoop { get; }
-
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
 
         protected virtual void OnEnable()
@@ -97,7 +95,7 @@ namespace Game.Lines.Editor
 
             // evaluate an intuitive position of the new inserted or appended corner
             GridDirection flowDirection = currentIndex == _cornersList.count - 1
-                ? IsLoop
+                ? ((LineContainer)target).Loop
                     ? current.GetDirection(_corners[(currentIndex + 1) % _cornersList.count])
                     : _corners[currentIndex - 1].GetDirection(current) // current is last
                 : current.GetDirection(_corners[currentIndex + 1]); // current is not last
@@ -187,7 +185,14 @@ namespace Game.Lines.Editor
 
                 if (GUILayout.Button(ReverseCornersLabel))
                 {
-                    _corners.Reverse(1, _corners.Count - 1);
+                    if (container.Loop)
+                    {
+                        _corners.Reverse(1, _corners.Count - 1);
+                    }
+                    else
+                    {
+                        _corners.Reverse();
+                    }
                     ApplyCorners(container);
                 }
 
@@ -320,7 +325,7 @@ namespace Game.Lines.Editor
 
         private void ApplyCorners(LineContainer container)
         {
-            LineContainer.EditModeUtility.Rebuild(container, _corners, IsLoop);
+            LineContainer.EditModeUtility.Rebuild(container, _corners);
             LineContainer.EditModeUtility.PostProcessLineChanges(container);
         }
     }

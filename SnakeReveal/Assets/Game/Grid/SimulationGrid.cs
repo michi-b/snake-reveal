@@ -12,7 +12,7 @@ namespace Game.Grid
         [SerializeField] private Vector2Int _size = new(1024, 1024);
         [SerializeField] private Vector2 _sceneCellSize;
 
-        [FormerlySerializedAs("_lowerLeftScenePosition")] [SerializeField]
+        [FormerlySerializedAs("_lowerLeftScenePosition"), SerializeField] 
         private Vector2 _lowerLeftCornerScenePosition;
 
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;

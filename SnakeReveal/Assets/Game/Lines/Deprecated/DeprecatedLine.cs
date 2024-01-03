@@ -9,8 +9,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Game.Lines.Deprecated
 {
-    [RequireComponent(typeof(LineRenderer))]
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [RequireComponent(typeof(LineRenderer)), DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class DeprecatedLine : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;

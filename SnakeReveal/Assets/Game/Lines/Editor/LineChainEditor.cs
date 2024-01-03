@@ -8,8 +8,6 @@ namespace Game.Lines.Editor
     {
         private SerializedProperty _lastLineProperty;
 
-        public override bool IsLoop => false;
-
         protected override void OnEnable()
         {
             base.OnEnable();
