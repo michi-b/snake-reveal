@@ -14,8 +14,6 @@ namespace Game.Lines.Editor
     [CustomEditor(typeof(LineContainer), true)]
     public class LineContainerEditor : UnityEditor.Editor
     {
-        private const string IsInsertExpandedKey = "LinkedLineListEditor.IsInsertionExpanded";
-        private const string InsertTargetIdKey = "LinkedLineListEditor.InsertTargetId";
         private const string LinePositionHandleMoveOperationName = "Line Position Handle Move";
 
         private static readonly GUIContent InitializeCornersLabel = new("Initialize Corners", "Initialize the corners list and apply it to form a single line.");
@@ -28,27 +26,17 @@ namespace Game.Lines.Editor
 
         private readonly List<Vector2Int> _corners = new();
         private ReorderableList _cornersList;
-
-        private SerializedProperty _startProperty;
         private SerializedProperty _hideLinesInSceneViewProperty;
-
-        private LineContainer _insertTarget;
-        private int _insertTargetId;
-        private bool _isInsertExpanded;
 
         private Vector2Int _move;
 
-        protected void OnEnable()
+        private SerializedProperty _startProperty;
+
+        protected virtual void OnEnable()
         {
             _startProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.StartPropertyName);
             _hideLinesInSceneViewProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.DisplayLinesInHierarchyPropertyName);
-            _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
 
-            _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
-            if (_insertTargetId != 0)
-            {
-                _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as LineContainer;
-            }
 
             ReadLinesIntoCorners();
 
@@ -70,43 +58,11 @@ namespace Game.Lines.Editor
             Tools.hidden = true;
         }
 
-        private void CornersListAdd(ReorderableList list)
+        protected void OnDisable()
         {
-            bool isLoop = LineContainer.EditModeUtility.GetIsLoop((LineContainer)target);
-            ReadOnlyCollection<int> selectedIndices = _cornersList.selectedIndices;
-
-            // evaluate "current index", which is either the selected one, or the last one if there is no selection
-            int currentIndex = selectedIndices.Count == 0
-                ? _cornersList.count - 1
-                : selectedIndices[0];
-            Vector2Int current = _corners[currentIndex];
-
-            // evaluate an intuitive position of the new inserted or appended corner
-            GridDirection flowDirection = currentIndex == _cornersList.count - 1
-                ? isLoop
-                    ? current.GetDirection(_corners[(currentIndex + 1) % _cornersList.count])
-                    : _corners[currentIndex - 1].GetDirection(current) // current is last
-                : current.GetDirection(_corners[currentIndex + 1]); // current is not last
-            Vector2Int newPosition = current + flowDirection.ToVector2Int();
-
-            int newIndex = currentIndex + 1;
-            _corners.Insert(newIndex, newPosition);
-            _cornersList.Select(newIndex);
-        }
-
-        private void OnUndoRedo(in UndoRedoInfo undo)
-        {
-            ReadLinesIntoCorners();
-
-            // ensure that the selected index is not out of bounds
-            if (_cornersList.selectedIndices.Count > 0)
-            {
-                int selectedIndex = _cornersList.selectedIndices[0];
-                if (selectedIndex > _cornersList.count - 1)
-                {
-                    _cornersList.Select(_cornersList.count - 1);
-                }
-            }
+            _cornersList.drawElementCallback -= DrawCorner;
+            Undo.undoRedoEvent -= OnUndoRedo;
+            Tools.hidden = false;
         }
 
         protected virtual void OnSceneGUI()
@@ -189,6 +145,45 @@ namespace Game.Lines.Editor
             }
         }
 
+        private void CornersListAdd(ReorderableList list)
+        {
+            bool isLoop = LineContainer.EditModeUtility.GetIsLoop((LineContainer)target);
+            ReadOnlyCollection<int> selectedIndices = _cornersList.selectedIndices;
+
+            // evaluate "current index", which is either the selected one, or the last one if there is no selection
+            int currentIndex = selectedIndices.Count == 0
+                ? _cornersList.count - 1
+                : selectedIndices[0];
+            Vector2Int current = _corners[currentIndex];
+
+            // evaluate an intuitive position of the new inserted or appended corner
+            GridDirection flowDirection = currentIndex == _cornersList.count - 1
+                ? isLoop
+                    ? current.GetDirection(_corners[(currentIndex + 1) % _cornersList.count])
+                    : _corners[currentIndex - 1].GetDirection(current) // current is last
+                : current.GetDirection(_corners[currentIndex + 1]); // current is not last
+            Vector2Int newPosition = current + flowDirection.ToVector2Int();
+
+            int newIndex = currentIndex + 1;
+            _corners.Insert(newIndex, newPosition);
+            _cornersList.Select(newIndex);
+        }
+
+        private void OnUndoRedo(in UndoRedoInfo undo)
+        {
+            ReadLinesIntoCorners();
+
+            // ensure that the selected index is not out of bounds
+            if (_cornersList.selectedIndices.Count > 0)
+            {
+                int selectedIndex = _cornersList.selectedIndices[0];
+                if (selectedIndex > _cornersList.count - 1)
+                {
+                    _cornersList.Select(_cornersList.count - 1);
+                }
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -266,8 +261,6 @@ namespace Game.Lines.Editor
                 ApplyCorners(container);
                 _move = Vector2Int.zero;
             }
-
-            DrawInsert(container);
         }
 
         private void ReadLinesIntoCorners()
@@ -290,114 +283,9 @@ namespace Game.Lines.Editor
             _corners[index] = EditorGUI.Vector2IntField(rect, GUIContent.none, _corners[index]);
         }
 
-        protected void OnDisable()
-        {
-            _cornersList.drawElementCallback -= DrawCorner;
-            Undo.undoRedoEvent -= OnUndoRedo;
-            Tools.hidden = false;
-        }
-
         private void ApplyCorners(LineContainer container)
         {
             LineContainer.EditModeUtility.Rebuild(container, _corners);
         }
-
-        private void DrawInsert(LineContainer container)
-        {
-            EditorGUI.BeginChangeCheck();
-            _isInsertExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_isInsertExpanded, "Insert");
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorPrefs.SetBool(IsInsertExpandedKey, _isInsertExpanded);
-            }
-
-            if (_isInsertExpanded)
-            {
-                DrawInsertContent(container);
-            }
-
-            EditorGUI.EndFoldoutHeaderGroup();
-        }
-
-        private void DrawInsertContent(LineContainer container)
-        {
-            using var indent = new EditorGUI.IndentLevelScope(1);
-
-            EditorGUI.BeginChangeCheck();
-            _insertTarget = EditorGUILayout.ObjectField("Insert Target", _insertTarget, typeof(LineContainer), true) as LineContainer;
-            if (EditorGUI.EndChangeCheck())
-            {
-                _insertTargetId = _insertTarget != null ? _insertTarget.GetInstanceID() : 0;
-                EditorPrefs.SetInt(InsertTargetIdKey, _insertTargetId);
-            }
-
-            bool mayBeAbleToInsert = _insertTarget != null
-                                     && _insertTarget != container
-                                     && LineContainer.EditModeUtility.GetIsLoop(container)
-                                     && !LineContainer.EditModeUtility.GetIsLoop(_insertTarget);
-
-            using (new EditorGUI.DisabledScope(!mayBeAbleToInsert))
-            {
-                if (GUILayout.Button("Insert"))
-                {
-                    LineContainer.EditModeUtility.Insert(container, _insertTarget);
-                }
-            }
-        }
-
-#if false
-        private static void HandleChainCountChange(DoubleLinkedLineList container, int oldCount)
-        {
-            if (container.Count <= oldCount)
-            {
-                container[^1] = container[^1].AsOpenChainEnd(!container.Loop);
-                return;
-            }
-
-            // chain.Count > oldCount
-            int oldLastIndex = oldCount - 1;
-            Line oldChainEnd = container[oldLastIndex];
-
-            container[oldLastIndex] = container[oldLastIndex].AsOpenChainEnd(false);
-
-            for (int i = oldCount; i < container.Count - 1; i++)
-            {
-                container[i] = container[i].WithStart(oldChainEnd.End).AsOpenChainEnd(false);
-            }
-
-            container[^1] = container[^1].WithStart(oldChainEnd.End).AsOpenChainEnd(!container.Loop);
-        }
-
-        private static void HandleChainIsLoopChange(DoubleLinkedLineList container)
-        {
-            // open -> loop
-            if (container.Loop)
-            {
-                container[^1] = container[^1].AsOpenChainEnd(false);
-                container.AppendToChain(container[^1].End);
-                return;
-            }
-
-            // loop -> open
-            container.RemoveLastFromChain();
-            container[^1] = container[^1].AsOpenChainEnd(true);
-        }
-
-        private static void ApplyChainChanges(DoubleLinkedLineList container)
-        {
-            if (container.Grid == null)
-            {
-                return;
-            }
-
-            Undo.RecordObject(container, nameof(ApplyChainChanges));
-            DoubleLinkedLineList.EditModeUtility.FixLines(container);
-            DoubleLinkedLineList.EditModeUtility.EditModeReevaluateClockwiseTurnWeight(container);
-            DoubleLinkedLineList.EditModeUtility.RebuildLineRenderers(container);
-            DoubleLinkedLineList.EditModeUtility.RebuildLineColliders(container);
-        }
-
-
-#endif
     }
 }

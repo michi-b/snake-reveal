@@ -14,5 +14,10 @@ namespace Game.Lines
         {
             return new LineEnumerator(Start, Start);
         }
+
+        public void EditModeInsert(LineChain insertTarget)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

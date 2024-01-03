@@ -150,11 +150,6 @@ namespace Game.Lines
                 return container._grid;
             }
 
-            public static void Insert(LineContainer container, LineContainer insertTarget)
-            {
-                throw new NotImplementedException();
-            }
-
             public static void ApplyHideLinesInSceneView(LineContainer container)
             {
                 foreach (Line line in container)
