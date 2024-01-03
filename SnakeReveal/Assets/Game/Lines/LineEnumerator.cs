@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Game.Lines
 {
@@ -23,7 +24,7 @@ namespace Game.Lines
         ///     NULL is a valid choice for an open-ended line chain.
         ///     If it is not NULL but the same as, it is yielded.
         /// </param>
-        public LineEnumerator(Line forcedIncludedBegin, Line exclusiveEnd)
+        public LineEnumerator(Line forcedIncludedBegin, [CanBeNull] Line exclusiveEnd)
         {
             _forcedIncludedBegin = forcedIncludedBegin;
             _exclusiveEnd = exclusiveEnd;

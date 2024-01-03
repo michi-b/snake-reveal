@@ -1,17 +1,21 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace Game.Lines
 {
     public class LineChain : LineContainer
     {
-        protected override bool Loop => false;
+        public const string LastFieldName = nameof(_last);
+        
+        [SerializeField, HideInInspector] private Line _last;
+        
         protected override Color GizmosColor => new(1f, 0.5f, 0f);
 
-        [PublicAPI("Allocation-free enumeration of all lines.")]
-        public override LineEnumerator GetEnumerator()
+        protected override Line ExclusiveEnd => null;
+
+        protected override void PostProcessLineChanges()
         {
-            return new LineEnumerator(Start, null);
+            _last = this.Last();
         }
     }
 }

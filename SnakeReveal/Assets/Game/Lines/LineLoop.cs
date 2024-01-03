@@ -1,23 +1,31 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Linq;
+using Game.Enums;
 using UnityEngine;
 
 namespace Game.Lines
 {
     public class LineLoop : LineContainer
     {
-        protected override bool Loop => true;
+        public const string ClockwiseTurnWeightFieldName = nameof(_clockwiseTurnWeight);
+        public const string TurnFieldName = nameof(_turn);
+
+        [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
+
+        [SerializeField, HideInInspector] private Turn _turn;
 
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
+        protected override Line ExclusiveEnd => Start;
 
-        [PublicAPI("Allocation-free enumeration of all lines.")]
-        public override LineEnumerator GetEnumerator()
+        protected override void PostProcessLineChanges()
         {
-            return new LineEnumerator(Start, Start);
+            _clockwiseTurnWeight = this.Sum(line => line.Direction.GetTurn(line.Next!.Direction).GetClockwiseWeight());
+            _turn = _clockwiseTurnWeight == 0 ? Turn.None : _clockwiseTurnWeight > 0 ? Turn.Right : Turn.Left;
         }
 
         public void EditModeInsert(LineChain insertTarget)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

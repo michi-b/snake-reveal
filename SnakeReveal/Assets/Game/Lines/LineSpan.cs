@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Game.Lines
 {
@@ -13,7 +14,7 @@ namespace Game.Lines
         ///     excluding <see cref="exclusiveEnd" />,
         ///     except it is the same as <see cref="forcedIncludedBegin" />.
         /// </summary>
-        public LineSpan(Line forcedIncludedBegin, Line exclusiveEnd)
+        public LineSpan(Line forcedIncludedBegin, [CanBeNull] Line exclusiveEnd)
         {
             _forcedIncludedBegin = forcedIncludedBegin;
             _exclusiveEnd = exclusiveEnd;

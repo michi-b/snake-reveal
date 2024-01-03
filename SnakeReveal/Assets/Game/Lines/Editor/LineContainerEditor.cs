@@ -11,16 +11,18 @@ using Utility;
 
 namespace Game.Lines.Editor
 {
-    [CustomEditor(typeof(LineContainer), true)]
-    public class LineContainerEditor : UnityEditor.Editor
+    [CustomEditor(typeof(LineContainer), false)]
+    public abstract class LineContainerEditor : UnityEditor.Editor
     {
         private const string LinePositionHandleMoveOperationName = "Line Position Handle Move";
 
         private static readonly GUIContent InitializeCornersLabel = new("Initialize Corners", "Initialize the corners list and apply it to form a single line.");
-        private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
+        private static readonly GUIContent ReadCornersLabel = new("Read Corners", "Read the corners from connected lines starting at the start line.");
         private static readonly GUIContent ReverseCornersLabel = new("Reverse", "Reverse the corners list and apply it.\n" +
                                                                                 "If the container is a loop, the first corner keeps its place.");
+
+        private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
         private static readonly GUIContent MoveLabel = new("Move", "Move all corners by modifying this vector.");
 
@@ -31,6 +33,8 @@ namespace Game.Lines.Editor
         private Vector2Int _move;
 
         private SerializedProperty _startProperty;
+
+        public abstract bool IsLoop { get; }
 
         protected virtual void OnEnable()
         {
@@ -50,13 +54,15 @@ namespace Game.Lines.Editor
 
             if (_cornersList.count > 0)
             {
-                _cornersList.Select(0);
+                _cornersList.Select(GetInitialSelectionIndex(_cornersList.count));
             }
 
             Undo.undoRedoEvent += OnUndoRedo;
 
             Tools.hidden = true;
         }
+
+        protected abstract int GetInitialSelectionIndex(int count);
 
         protected void OnDisable()
         {
@@ -110,6 +116,7 @@ namespace Game.Lines.Editor
 
             if (anyPositionHandleChanged)
             {
+                LineContainer.EditModeUtility.PostProcessLineChanges(container);
                 ReadLinesIntoCorners();
                 Repaint();
             }
@@ -147,7 +154,6 @@ namespace Game.Lines.Editor
 
         private void CornersListAdd(ReorderableList list)
         {
-            bool isLoop = LineContainer.EditModeUtility.GetIsLoop((LineContainer)target);
             ReadOnlyCollection<int> selectedIndices = _cornersList.selectedIndices;
 
             // evaluate "current index", which is either the selected one, or the last one if there is no selection
@@ -158,7 +164,7 @@ namespace Game.Lines.Editor
 
             // evaluate an intuitive position of the new inserted or appended corner
             GridDirection flowDirection = currentIndex == _cornersList.count - 1
-                ? isLoop
+                ? IsLoop
                     ? current.GetDirection(_corners[(currentIndex + 1) % _cornersList.count])
                     : _corners[currentIndex - 1].GetDirection(current) // current is last
                 : current.GetDirection(_corners[currentIndex + 1]); // current is not last
@@ -184,6 +190,8 @@ namespace Game.Lines.Editor
             }
         }
 
+        protected abstract void DrawDerivedProperties();
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -192,6 +200,8 @@ namespace Game.Lines.Editor
             {
                 EditorGUILayout.PropertyField(_startProperty);
             }
+
+            DrawDerivedProperties();
 
             var container = (LineContainer)target;
 
@@ -237,6 +247,11 @@ namespace Game.Lines.Editor
             }
             else
             {
+                if (GUILayout.Button(ReadCornersLabel))
+                {
+                    ReadLinesIntoCorners();
+                }
+                
                 if (GUILayout.Button(ReverseCornersLabel))
                 {
                     _corners.Reverse(1, _corners.Count - 1);
@@ -271,9 +286,9 @@ namespace Game.Lines.Editor
             {
                 _corners.Add(start.Start);
                 _corners.Add(start.End);
-                bool isLoop = LineContainer.EditModeUtility.GetIsLoop((LineContainer)target);
-                Line exclusiveEnd = isLoop ? start.Previous : null;
-                List<Line> lineSpan = new LineSpan(start.Next, exclusiveEnd).ToList();
+                Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd((LineContainer)target);
+                // ReSharper disable once Unity.NoNullPropagation
+                List<Line> lineSpan = new LineSpan(start.Next, exclusiveEnd?.Previous).ToList();
                 _corners.AddRange(lineSpan.Select(line => line.End));
             }
         }
@@ -285,7 +300,8 @@ namespace Game.Lines.Editor
 
         private void ApplyCorners(LineContainer container)
         {
-            LineContainer.EditModeUtility.Rebuild(container, _corners);
+            LineContainer.EditModeUtility.Rebuild(container, _corners, IsLoop);
+            LineContainer.EditModeUtility.PostProcessLineChanges(container);
         }
     }
 }

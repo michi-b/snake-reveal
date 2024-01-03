@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Editor;
+using UnityEditor;
 using UnityEngine;
 
 namespace Game.Lines.Editor
@@ -8,14 +9,23 @@ namespace Game.Lines.Editor
     {
         private const string IsInsertExpandedKey = "LinkedLineListEditor.IsInsertionExpanded";
         private const string InsertTargetIdKey = "LinkedLineListEditor.InsertTargetId";
-        
+
+        private SerializedProperty _clockwiseTurnWeightProperty;
+
         private LineChain _insertTarget;
         private int _insertTargetId;
         private bool _isInsertExpanded;
-        
+        private SerializedProperty _turnProperty;
+
+        public override bool IsLoop => true;
+
         protected override void OnEnable()
         {
             base.OnEnable();
+
+            _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineLoop.ClockwiseTurnWeightFieldName);
+            _turnProperty = serializedObject.FindDirectChild(LineLoop.TurnFieldName);
+
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
 
             _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
@@ -24,14 +34,26 @@ namespace Game.Lines.Editor
                 _insertTarget = EditorUtility.InstanceIDToObject(_insertTargetId) as LineChain;
             }
         }
-        
+
+        protected override int GetInitialSelectionIndex(int count)
+        {
+            return 0;
+        }
+
+        protected override void DrawDerivedProperties()
+        {
+            using var disabledScope = new EditorGUI.DisabledScope(true);
+            EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
+            EditorGUILayout.PropertyField(_turnProperty);
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            LineLoop loop = (LineLoop) target;
+            var loop = (LineLoop)target;
             DrawInsert(loop);
         }
-        
+
         private void DrawInsert(LineLoop loop)
         {
             EditorGUI.BeginChangeCheck();
