@@ -18,13 +18,15 @@ namespace Game.Lines
 
         [SerializeField, HideInInspector] private Line _start;
 
-        [SerializeField, HideInInspector] private bool _displayLinesInHierarchy = true;
+        [SerializeField, HideInInspector] private bool _displayLinesInHierarchy;
 
         protected abstract Color GizmosColor { get; }
 
-        protected Line Start => _start;
-
         protected abstract Line ExclusiveEnd { get; }
+
+        protected Line Start => _start;
+        
+        protected SimulationGrid Grid => _grid;
 
         protected void Reset()
         {
@@ -73,7 +75,7 @@ namespace Game.Lines
 
         public LineEnumerator GetEnumerator()
         {
-            return new LineEnumerator(Start, ExclusiveEnd);
+            return new LineEnumerator(_start, ExclusiveEnd);
         }
 
         public static class EditModeUtility
@@ -100,9 +102,8 @@ namespace Game.Lines
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
                     Line line = InstantiateLine(container, last.End, positions[i]);
-                    Undo.RegisterCreatedObjectUndo(line.gameObject, nameof(InstantiateLine));
+                    Undo.RecordObject(line, nameof(Rebuild) + " - patch created line");
                     line.Previous = last;
-                    ApplyHideLineInSceneView(container, line);
 
                     Undo.RecordObject(last, nameof(Rebuild) + " - patch line before created line");
                     last.Next = line;
@@ -113,13 +114,12 @@ namespace Game.Lines
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
                     Line loopConnection = InstantiateLine(container, last.End, start.Start);
-                    Undo.RegisterCreatedObjectUndo(loopConnection.gameObject, nameof(InstantiateLine));
+                    Undo.RecordObject(loopConnection, nameof(Rebuild) + " - patch loop connection");
                     loopConnection.Previous = last;
                     loopConnection.Next = start;
-                    ApplyHideLineInSceneView(container, loopConnection);
 
-                    Undo.RecordObject(start, nameof(Rebuild) + " - patch loop connection start");
-                    Undo.RecordObject(last, nameof(Rebuild) + " - patch loop connection last");
+                    Undo.RecordObject(start, nameof(Rebuild) + " - patch start to loop connection");
+                    Undo.RecordObject(last, nameof(Rebuild) + " - patch last to loop connection");
                     last.Next = loopConnection;
                     start.Previous = loopConnection;
                 }
@@ -128,13 +128,21 @@ namespace Game.Lines
                 container._start = start;
             }
 
-            private static Line InstantiateLine(LineContainer container, Vector2Int startPosition, Vector2Int endPosition)
+            public static Line InstantiateLine(LineContainer container, Vector2Int startPosition, Vector2Int endPosition)
             {
                 Line result = Instantiate(container._lineCache.Prefab, container.transform);
                 Undo.RecordObject(result, nameof(InstantiateLine) + " - Initialization");
                 result.Grid = container._grid;
                 result.Start = startPosition;
                 result.End = endPosition;
+                
+                GameObject resultGameObject = result.gameObject;
+                Undo.RecordObject(resultGameObject, nameof(InstantiateLine) + " - Set Layer");
+                resultGameObject.layer = container.gameObject.layer;
+                Undo.RegisterCreatedObjectUndo(resultGameObject, nameof(InstantiateLine));
+                
+                ApplyHideLineInSceneView(container, result);
+                
                 return result;
             }
 

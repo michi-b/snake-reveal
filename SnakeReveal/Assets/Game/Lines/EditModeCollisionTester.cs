@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    public class CollisionTest : MonoBehaviour
+    public class EditModeCollisionTester : MonoBehaviour
     {
         [SerializeField] private LayerMask _layerMask;
 

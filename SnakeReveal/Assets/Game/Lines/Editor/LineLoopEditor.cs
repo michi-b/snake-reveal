@@ -1,4 +1,6 @@
-﻿using Editor;
+﻿using System.Linq;
+using Editor;
+using Game.Enums;
 using UnityEditor;
 using UnityEngine;
 
@@ -87,6 +89,18 @@ namespace Game.Lines.Editor
             {
                 if (GUILayout.Button("Insert"))
                 {
+                    if (loop.Any(line => line.Direction == GridDirection.None))
+                    {
+                        Debug.LogWarning("Insertion cancelled because loop contains lines with  \"NONE\" direction");
+                        return;
+                    }
+                    
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    if (_insertTarget.Any(line => line.Direction == GridDirection.None))
+                    {
+                        Debug.LogWarning("Insertion cancelled because target chain contains lines with  \"NONE\" direction");
+                        return;
+                    }
                     loop.EditModeInsert(_insertTarget);
                 }
             }
