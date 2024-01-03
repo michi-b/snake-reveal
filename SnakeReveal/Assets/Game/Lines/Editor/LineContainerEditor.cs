@@ -21,8 +21,8 @@ namespace Game.Lines.Editor
         private static readonly GUIContent InitializeCornersLabel = new("Initialize Corners", "Initialize the corners list and apply it to form a single line.");
         private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
-        private static readonly GUIContent ReverseCornersLabel = new("Reverse Corners", "Reverse the corners list and apply it.\n" +
-                                                                                        "If the container is a loop, the first corner keeps its place.");
+        private static readonly GUIContent ReverseCornersLabel = new("Reverse", "Reverse the corners list and apply it.\n" +
+                                                                                "If the container is a loop, the first corner keeps its place.");
 
         private static readonly GUIContent MoveLabel = new("Move", "Move all corners by modifying this vector.");
 
@@ -126,7 +126,6 @@ namespace Game.Lines.Editor
                 return;
             }
 
-
             bool anyPositionHandleChanged = false;
             int handleIndex = 0;
 
@@ -202,7 +201,8 @@ namespace Game.Lines.Editor
             var container = (LineContainer)target;
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(_hideLinesInSceneViewProperty);
+            SerializedProperty hideProp = _hideLinesInSceneViewProperty;
+            hideProp.boolValue = EditorGUILayout.ToggleLeft(hideProp.displayName, hideProp.boolValue);
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
@@ -242,14 +242,14 @@ namespace Game.Lines.Editor
             }
             else
             {
-                if (GUILayout.Button(ApplyCornersLabel))
-                {
-                    ApplyCorners(container);
-                }
-
                 if (GUILayout.Button(ReverseCornersLabel))
                 {
                     _corners.Reverse(1, _corners.Count - 1);
+                    ApplyCorners(container);
+                }
+
+                if (GUILayout.Button(ApplyCornersLabel))
+                {
                     ApplyCorners(container);
                 }
             }

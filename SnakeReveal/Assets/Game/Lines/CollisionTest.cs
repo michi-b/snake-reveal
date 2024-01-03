@@ -7,7 +7,7 @@ namespace Game.Lines
     public class CollisionTest : MonoBehaviour
     {
         [SerializeField] private LayerMask _layerMask;
-        
+
         // ReSharper disable once NotAccessedField.Local
         // this serialized referenced is just abused to display overlaps in the inspector
         [SerializeField] private Collider2D[] _overlappingColliders;
@@ -22,7 +22,7 @@ namespace Game.Lines
         {
             GetComponent<SimulationGridTransform>();
         }
-        
+
         [PublicAPI("Targeted by UnityEvents")]
         public void EditModeTest()
         {

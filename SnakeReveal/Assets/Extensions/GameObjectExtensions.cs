@@ -9,9 +9,9 @@ namespace Extensions
         [Conditional("UNITY_EDITOR")]
         public static void SetVisibleInSceneView(this GameObject target, bool visible)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             target.hideFlags = EnumUtility.SetFlagEnabled(target.hideFlags, HideFlags.HideInHierarchy, !visible);
-            #endif
+#endif
         }
     }
 }

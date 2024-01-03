@@ -28,9 +28,9 @@ namespace Game.Lines
         protected abstract bool Loop { get; }
 
         protected abstract Color GizmosColor { get; }
-        
+
         protected Line Start => _start;
-        
+
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
@@ -75,7 +75,7 @@ namespace Game.Lines
         }
 
         public abstract LineEnumerator GetEnumerator();
-        
+
         public static class EditModeUtility
         {
             public const string StartPropertyName = nameof(_start);
@@ -168,7 +168,7 @@ namespace Game.Lines
                 Undo.RegisterFullObjectHierarchyUndo(line.gameObject, nameof(ApplyHideLineInSceneView));
                 line.gameObject.SetVisibleInSceneView(container._displayLinesInHierarchy);
             }
-            
+
             public static Line GetExclusiveEnd(LineContainer container)
             {
                 return container.Loop ? container._start : null;
