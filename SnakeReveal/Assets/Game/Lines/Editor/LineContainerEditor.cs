@@ -27,14 +27,16 @@ namespace Game.Lines.Editor
         private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
         private static readonly GUIContent MoveLabel = new("Move", "Move all corners by modifying this vector.");
+        
+        private SerializedProperty _hideLinesInSceneViewProperty;
+        private SerializedProperty _clockwiseTurnWeightProperty;
+        private SerializedProperty _startProperty;
 
         private readonly List<Vector2Int> _corners = new();
         private ReorderableList _cornersList;
-        private SerializedProperty _hideLinesInSceneViewProperty;
 
         private Vector2Int _move;
 
-        private SerializedProperty _startProperty;
 
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
 
@@ -42,7 +44,7 @@ namespace Game.Lines.Editor
         {
             _startProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.StartPropertyName);
             _hideLinesInSceneViewProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.DisplayLinesInHierarchyPropertyName);
-
+            _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
 
             ReadLinesIntoCorners();
 
@@ -127,12 +129,7 @@ namespace Game.Lines.Editor
         {
             base.OnInspectorGUI();
 
-            using (new EditorGUI.DisabledScope(true))
-            {
-                EditorGUILayout.PropertyField(_startProperty);
-            }
-
-            DrawDerivedProperties();
+            DrawProperties();
 
             var container = (LineContainer)target;
 
@@ -217,7 +214,14 @@ namespace Game.Lines.Editor
             }
         }
 
-        protected abstract void DrawDerivedProperties();
+        protected virtual void DrawProperties()
+        {
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.PropertyField(_startProperty);
+            }
+            EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
+        }
 
         private void DrawHandles(LineContainer container, bool drawThisContainer)
         {

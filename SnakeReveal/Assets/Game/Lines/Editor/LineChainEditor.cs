@@ -19,8 +19,10 @@ namespace Game.Lines.Editor
             return count - 1;
         }
 
-        protected override void DrawDerivedProperties()
+        protected override void DrawProperties()
         {
+            base.DrawProperties();
+
             using var disabledScope = new EditorGUI.DisabledScope(true);
             EditorGUILayout.PropertyField(_lastLineProperty);
         }

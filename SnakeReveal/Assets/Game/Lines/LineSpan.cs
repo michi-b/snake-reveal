@@ -19,6 +19,17 @@ namespace Game.Lines
             _loop = loop;
         }
 
+        public LineSpan AdvanceEnd(int count = 1)
+        {
+            Line newEnd = _exclusiveEnd;
+            for (int i = 0; i < count; i++)
+            {
+                newEnd = newEnd!.Next;
+            }
+
+            return new LineSpan(_forcedIncludedBegin, newEnd, _loop);
+        }
+
         public LineEnumerator GetEnumerator()
         {
             // ReSharper disable once Unity.NoNullPropagation
@@ -35,14 +46,21 @@ namespace Game.Lines
             return GetEnumerator();
         }
 
-        public int SumClockwiseTurnWeight(Turn turn)
+        public int SumClockwiseTurnWeight()
         {
             int result = 0;
+
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
-            // performance critical code -> avoid LINQ boxing allocation
+            // avoid LINQ to avoid boxing allocation
             foreach (Line line in this)
             {
-                result += line.Direction.GetTurn(line.Next!.Direction).GetClockwiseWeight();
+                Line next = line.Next;
+                if (ReferenceEquals(next, null))
+                {
+                    return result;
+                }
+                
+                result += line.Direction.GetTurn(next.Direction).GetClockwiseWeight();
             }
 
             return result;

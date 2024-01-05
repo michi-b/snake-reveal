@@ -12,23 +12,18 @@ namespace Game.Lines
     public abstract partial class LineContainer : MonoBehaviour, IEnumerable<Line>
     {
         [SerializeField] private SimulationGrid _grid;
-
         [SerializeField] private LineCache _lineCache;
-
         [SerializeField, HideInInspector] private Line _start;
-
         [SerializeField, HideInInspector] private bool _displayLinesInHierarchy;
-
+        [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
+        
         protected abstract Color GizmosColor { get; }
-
         public abstract bool Loop { get; }
-
         protected Line Start => _start;
-
         protected SimulationGrid Grid => _grid;
-
         private Line ExclusiveEnd => Loop ? _start : null;
         protected int LayerMask => 1 << gameObject.layer;
+        protected int ClockwiseTurnWeight => _clockwiseTurnWeight;
 
         protected void Reset()
         {
@@ -68,7 +63,10 @@ namespace Game.Lines
             return GetEnumerator();
         }
 
-        protected abstract void PostProcessLineChanges();
+        protected virtual void PostProcessLineChanges()
+        {
+            _clockwiseTurnWeight = AsSpan().SumClockwiseTurnWeight();
+        }
 
         public Vector3 GetWorldPosition(Vector2Int position)
         {
@@ -80,8 +78,14 @@ namespace Game.Lines
             return new LineEnumerator(_start, ExclusiveEnd, Loop);
         }
 
+        public LineSpan AsSpan()
+        {
+            return new LineSpan(_start, ExclusiveEnd, Loop);
+        }
+
         public static class EditModeUtility
         {
+            public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
             public const string StartPropertyName = nameof(_start);
             public const string DisplayLinesInHierarchyPropertyName = nameof(_displayLinesInHierarchy);
 

@@ -12,9 +12,7 @@ namespace Game.Lines.Editor
     {
         private const string IsInsertExpandedKey = "LinkedLineListEditor.IsInsertionExpanded";
         private const string InsertTargetIdKey = "LinkedLineListEditor.InsertTargetId";
-
-        private SerializedProperty _clockwiseTurnWeightProperty;
-
+        
         private LineChain _insertTarget;
         private int _insertTargetId;
         private bool _isInsertExpanded;
@@ -35,7 +33,6 @@ namespace Game.Lines.Editor
         {
             base.OnEnable();
 
-            _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineLoop.ClockwiseTurnWeightFieldName);
             _turnProperty = serializedObject.FindDirectChild(LineLoop.TurnFieldName);
 
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
@@ -52,10 +49,10 @@ namespace Game.Lines.Editor
             return 0;
         }
 
-        protected override void DrawDerivedProperties()
+        protected override void DrawProperties()
         {
+            base.DrawProperties();
             using var disabledScope = new EditorGUI.DisabledScope(true);
-            EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
             EditorGUILayout.PropertyField(_turnProperty);
         }
 

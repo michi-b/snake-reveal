@@ -9,10 +9,8 @@ namespace Game.Lines
 {
     public class LineLoop : LineContainer
     {
-        public const string ClockwiseTurnWeightFieldName = nameof(_clockwiseTurnWeight);
         public const string TurnFieldName = nameof(_turn);
 
-        [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
 
         [SerializeField, HideInInspector] private Turn _turn;
 
@@ -20,13 +18,13 @@ namespace Game.Lines
 
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
         public override bool Loop => true;
-
         public Turn Turn => _turn;
 
         protected override void PostProcessLineChanges()
         {
-            _clockwiseTurnWeight = this.Sum(line => line.Direction.GetTurn(line.Next!.Direction).GetClockwiseWeight());
-            _turn = _clockwiseTurnWeight switch
+            base.PostProcessLineChanges();
+
+            _turn = ClockwiseTurnWeight switch
             {
                 4 => Turn.Right,
                 -4 => Turn.Left,
@@ -46,9 +44,17 @@ namespace Game.Lines
             Line breakInLine = FindLine(chainEnd.End, breakInDirection);
             Debug.Assert(breakInLine != null, "No suitable break-in on loop.");
 
-            var loopSpan = new LineSpan(breakoutLine, breakInLine);
-            int turnWeight = loopSpan.SumClockwiseTurnWeight(_turn);
-            Debug.Log($"Turn weight along Loop: {turnWeight}");
+            int loopTurnClockwiseWeight = new LineSpan(breakoutLine, breakInLine).SumClockwiseTurnWeight();
+            int chainTurnClockwiseWeight = insertTarget.AsSpan(true).SumClockwiseTurnWeight();
+            int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
+            bool reconnectsInTurn = Turn switch
+            {
+                Turn.None => throw new ArgumentOutOfRangeException(),
+                Turn.Right => deltaClockwiseWeight > 0,
+                Turn.Left => deltaClockwiseWeight < 0,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            Debug.Log(reconnectsInTurn ? "Chain reconnects IN turn" : "Chain reconnects COUNTER turn");
         }
 
         [CanBeNull]

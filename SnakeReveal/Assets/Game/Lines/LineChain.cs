@@ -17,7 +17,16 @@ namespace Game.Lines
 
         protected override void PostProcessLineChanges()
         {
+            base.PostProcessLineChanges();
+            
             _last = this.Last();
+        }
+
+        public LineSpan AsSpan(bool excludeLast)
+        {
+            return excludeLast
+                ? new LineSpan(Start, Last)
+                : AsSpan();
         }
     }
 }
