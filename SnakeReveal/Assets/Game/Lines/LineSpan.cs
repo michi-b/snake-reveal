@@ -7,33 +7,20 @@ namespace Game.Lines
 {
     public readonly struct LineSpan : IEnumerable<Line>
     {
-        private readonly Line _forcedIncludedBegin;
-        private readonly Line _exclusiveEnd;
-        private readonly bool _loop;
+        private readonly Line _start;
+        private readonly Line _end;
 
-        /// <inheritdoc cref="LineEnumerator(Line, Line, bool)" />
-        public LineSpan(Line forcedIncludedBegin, [CanBeNull] Line exclusiveEnd, bool loop = false)
+        /// <inheritdoc cref="LineEnumerator(Line, Line)" />
+        public LineSpan(Line start, [CanBeNull] Line end)
         {
-            _forcedIncludedBegin = forcedIncludedBegin;
-            _exclusiveEnd = exclusiveEnd;
-            _loop = loop;
-        }
-
-        public LineSpan AdvanceEnd(int count = 1)
-        {
-            Line newEnd = _exclusiveEnd;
-            for (int i = 0; i < count; i++)
-            {
-                newEnd = newEnd!.Next;
-            }
-
-            return new LineSpan(_forcedIncludedBegin, newEnd, _loop);
+            _start = start;
+            _end = end;
         }
 
         public LineEnumerator GetEnumerator()
         {
             // ReSharper disable once Unity.NoNullPropagation
-            return new LineEnumerator(_forcedIncludedBegin, _exclusiveEnd, _loop);
+            return new LineEnumerator(_start, _end);
         }
 
         IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
@@ -45,22 +32,22 @@ namespace Game.Lines
         {
             return GetEnumerator();
         }
-
+        
         public int SumClockwiseTurnWeight()
         {
+            if (_start == _end)
+            {
+                return 0;
+            }
+            
             int result = 0;
 
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             // avoid LINQ to avoid boxing allocation
-            foreach (Line line in this)
+            foreach (Line line in new LineSpan(_start, _end.Previous))
             {
                 Line next = line.Next;
-                if (ReferenceEquals(next, null))
-                {
-                    return result;
-                }
-                
-                result += line.Direction.GetTurn(next.Direction).GetClockwiseWeight();
+                result += line.Direction.GetTurn(next!.Direction).GetClockwiseWeight();
             }
 
             return result;

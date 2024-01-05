@@ -16,12 +16,13 @@ namespace Game.Lines
         [SerializeField, HideInInspector] private Line _start;
         [SerializeField, HideInInspector] private bool _displayLinesInHierarchy;
         [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
-        
+
         protected abstract Color GizmosColor { get; }
         public abstract bool Loop { get; }
-        protected Line Start => _start;
-        protected SimulationGrid Grid => _grid;
-        private Line ExclusiveEnd => Loop ? _start : null;
+        public Line Start => _start;
+        public SimulationGrid Grid => _grid;
+        public LineCache LineCache => _lineCache;
+        public abstract Line End { get; }
         protected int LayerMask => 1 << gameObject.layer;
         protected int ClockwiseTurnWeight => _clockwiseTurnWeight;
 
@@ -63,9 +64,14 @@ namespace Game.Lines
             return GetEnumerator();
         }
 
-        protected virtual void PostProcessLineChanges()
+        protected virtual void PostProcessEditModeLineChanges()
         {
-            _clockwiseTurnWeight = AsSpan().SumClockwiseTurnWeight();
+            _clockwiseTurnWeight = EvaluateClockwiseTurnWeight();
+        }
+
+        protected virtual int EvaluateClockwiseTurnWeight()
+        {
+            return AsSpan().SumClockwiseTurnWeight();
         }
 
         public Vector3 GetWorldPosition(Vector2Int position)
@@ -75,12 +81,12 @@ namespace Game.Lines
 
         public LineEnumerator GetEnumerator()
         {
-            return new LineEnumerator(_start, ExclusiveEnd, Loop);
+            return new LineEnumerator(_start, End);
         }
 
         public LineSpan AsSpan()
         {
-            return new LineSpan(_start, ExclusiveEnd, Loop);
+            return new LineSpan(_start, End);
         }
 
         public static class EditModeUtility
@@ -88,11 +94,6 @@ namespace Game.Lines
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
             public const string StartPropertyName = nameof(_start);
             public const string DisplayLinesInHierarchyPropertyName = nameof(_displayLinesInHierarchy);
-
-            public static Line GetStart(LineContainer container)
-            {
-                return container._start;
-            }
 
             public static void Rebuild(LineContainer container, List<Vector2Int> positions)
             {
@@ -154,25 +155,13 @@ namespace Game.Lines
 
             private static void ClearLines(LineContainer container)
             {
-                if (container._start != null)
+                Line current = container._start;
+                while (current != null)
                 {
-                    foreach (Line line in container.ToArray())
-                    {
-                        Undo.DestroyObjectImmediate(line.gameObject);
-                    }
+                    Object.DestroyImmediate(current.gameObject);
+                    current = current.Next;
                 }
-
                 container._start = null;
-            }
-
-            public static bool GetHasGridAndLineCache(LineContainer container)
-            {
-                return container._grid != null && container._lineCache != null;
-            }
-
-            public static SimulationGrid GetGrid(LineContainer container)
-            {
-                return container._grid;
             }
 
             public static void ApplyHideLinesInSceneView(LineContainer container)
@@ -193,12 +182,7 @@ namespace Game.Lines
             public static void PostProcessLineChanges(LineContainer container)
             {
                 Undo.RecordObject(container, nameof(PostProcessLineChanges));
-                container.PostProcessLineChanges();
-            }
-
-            public static Line GetExclusiveEnd(LineContainer container)
-            {
-                return container.Loop ? container._start : null;
+                container.PostProcessEditModeLineChanges();
             }
         }
     }

@@ -52,8 +52,11 @@ namespace Game.Lines.Editor
         protected override void DrawProperties()
         {
             base.DrawProperties();
-            using var disabledScope = new EditorGUI.DisabledScope(true);
-            EditorGUILayout.PropertyField(_turnProperty);
+            
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.PropertyField(_turnProperty);
+            }
         }
 
         public override void OnInspectorGUI()

@@ -21,17 +21,13 @@ namespace Game.Lines
         [SerializeField] private LineRenderer _renderer;
         [SerializeField] private EdgeCollider2D _collider;
 
-        [SerializeField] private Vector2Int _start;
-        [SerializeField] private Vector2Int _end;
-        [SerializeField] private GridDirection _direction;
+        [SerializeField] private LineData _line;
         [SerializeField, CanBeNull] private Line _previous;
         [SerializeField, CanBeNull] private Line _next;
 
         public Line(Vector2Int start, Vector2Int end)
         {
-            _start = start;
-            _end = end;
-            _direction = _start.GetDirection(_end);
+            _line = new LineData(start, end);
         }
 
         public SimulationGrid Grid
@@ -39,17 +35,20 @@ namespace Game.Lines
             set => _grid = value;
         }
 
-        public GridDirection Direction => _direction;
+        public GridDirection Direction
+        {
+            get => _line.Direction;
+        }
 
         public Vector2Int Start
         {
-            get => _start;
+            get => _line.Start;
             set
             {
-                _start = value;
+                _line.Start = value;
                 if (_previous != null)
                 {
-                    _previous._end = value;
+                    _previous._line.End = value;
                     _previous.ApplyPositions();
                 }
 
@@ -59,21 +58,20 @@ namespace Game.Lines
 
         public Vector2Int End
         {
-            get => _end;
+            get => _line.End;
             set
             {
-                _end = value;
+                _line.End = value;
                 if (_next != null)
                 {
-                    _next._start = value;
+                    _next._line.Start = value;
                     _next.ApplyPositions();
                 }
-
                 ApplyPositions();
             }
         }
 
-        public AxisOrientation Orientation => _direction.GetOrientation();
+        public AxisOrientation Orientation => _line.Direction.GetOrientation();
 
         public Vector3 StartWorldPosition => transform.position;
         public Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
@@ -91,10 +89,6 @@ namespace Game.Lines
             get => _next;
             set => _next = value;
         }
-
-        public Vector2Int Delta => _end - _start;
-
-        public Vector2 ScenePositionDelta => _renderer.GetPosition(1);
 
         protected void Reset()
         {
@@ -121,10 +115,11 @@ namespace Game.Lines
 
         private void ApplyPositions()
         {
-            transform.SetLocalPositionXY(_grid.GetScenePosition(_start));
+            _line.ReevaluateDirection();
+            
+            transform.SetLocalPositionXY(_grid.GetScenePosition(Start));
 
-            Vector2Int delta = _end - _start;
-            _direction = _start.GetDirection(_end);
+            Vector2Int delta = End - Start;
 
             Vector2 sceneDelta = delta * _grid.SceneCellSize;
 

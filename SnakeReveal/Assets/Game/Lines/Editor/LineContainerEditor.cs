@@ -142,7 +142,7 @@ namespace Game.Lines.Editor
                 LineContainer.EditModeUtility.ApplyHideLinesInSceneView(container);
             }
 
-            bool hasGridAndLineCache = LineContainer.EditModeUtility.GetHasGridAndLineCache(container);
+            bool hasGridAndLineCache = container.Grid != null && container.LineCache != null;
             if (Application.isPlaying || !hasGridAndLineCache)
             {
                 return;
@@ -162,7 +162,7 @@ namespace Game.Lines.Editor
                     //ensure we got at least 2 positions
                     if (_corners.Count == 0)
                     {
-                        _corners.Add(LineContainer.EditModeUtility.GetGrid(container).CenterPosition);
+                        _corners.Add(container.Grid.CenterPosition);
                     }
 
                     if (_corners.Count == 1)
@@ -219,21 +219,21 @@ namespace Game.Lines.Editor
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.PropertyField(_startProperty);
+                EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
             }
-            EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
         }
 
         private void DrawHandles(LineContainer container, bool drawThisContainer)
         {
-            if (!LineContainer.EditModeUtility.GetHasGridAndLineCache(container))
+            SimulationGrid grid = container.Grid;
+            if (grid == null || container.LineCache == null)
             {
                 return;
             }
 
-            SimulationGrid grid = LineContainer.EditModeUtility.GetGrid(container);
-            Line start = LineContainer.EditModeUtility.GetStart(container);
-
-            if (start == null)
+            Line startLine = container.Start;
+            
+            if (startLine == null || container.End == null)
             {
                 return;
             }
@@ -241,26 +241,28 @@ namespace Game.Lines.Editor
             bool anyPositionHandleChanged = false;
             int handleIndex = 0;
 
-            if (PositionHandle(start.Start, out Vector2Int newStartStart))
+            if (PositionHandle(startLine.Start, out Vector2Int newStartStart))
             {
-                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
-                start.Start = newStartStart;
+                Line.EditModeUtility.RecordUndoWithNeighbors(startLine, LinePositionHandleMoveOperationName);
+                startLine.Start = newStartStart;
             }
 
-            if (PositionHandle(start.End, out Vector2Int newStartEnd))
+            if (PositionHandle(startLine.End, out Vector2Int newStartEnd))
             {
-                Line.EditModeUtility.RecordUndoWithNeighbors(start, LinePositionHandleMoveOperationName);
-                start.End = newStartEnd;
+                Line.EditModeUtility.RecordUndoWithNeighbors(startLine, LinePositionHandleMoveOperationName);
+                startLine.End = newStartEnd;
             }
 
-            Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd(container);
-            var skipFirstLineSpan = new LineSpan(start.Next, exclusiveEnd);
-            foreach (Line lineAfterFirst in skipFirstLineSpan)
+            if (container.Start != container.End)
             {
-                if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
+                var skipFirstLineSpan = new LineSpan(startLine.Next, container.End);
+                foreach (Line lineAfterFirst in skipFirstLineSpan)
                 {
-                    Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
-                    lineAfterFirst.End = newLineAfterStartEnd;
+                    if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
+                    {
+                        Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
+                        lineAfterFirst.End = newLineAfterStartEnd;
+                    }
                 }
             }
 
@@ -311,15 +313,19 @@ namespace Game.Lines.Editor
         private void ReadLinesIntoCorners()
         {
             _corners.Clear();
-            Line start = LineContainer.EditModeUtility.GetStart((LineContainer)target);
-            if (start != null)
+            var container = (LineContainer)target;
+            Line start = container.Start;
+            Line end = container.End;
+            if (start != null && end != null)
             {
                 _corners.Add(start.Start);
-                _corners.Add(start.End);
-                Line exclusiveEnd = LineContainer.EditModeUtility.GetExclusiveEnd((LineContainer)target);
-                // ReSharper disable once Unity.NoNullPropagation
-                List<Line> lineSpan = new LineSpan(start.Next, exclusiveEnd?.Previous).ToList();
-                _corners.AddRange(lineSpan.Select(line => line.End));
+                
+                // skip last line if container is looping (it'd be the same corner as the first one)
+                Line lastLine = container.Loop ? end.Previous : end;
+                
+                List<Vector2Int> endPositions = new LineSpan(start, lastLine).Select(line => line.End).ToList();
+                
+                _corners.AddRange(endPositions);
             }
         }
 
