@@ -1,4 +1,4 @@
-﻿using Game.Lines.Deprecated;
+﻿using Game.Lines;
 using Game.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +8,8 @@ namespace Game
     public class Simulation : MonoBehaviour
     {
         [SerializeField] private PlayerActor _playerActor;
-        [SerializeField] private DeprecatedLineLoop _shape;
-        [SerializeField] private DeprecatedLineChain _lineChain;
+        [SerializeField] private LineLoop _drawnShape;
+        [SerializeField] private LineChain _drawingLineChain;
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
 
@@ -20,7 +20,7 @@ namespace Game
 
         protected virtual void Awake()
         {
-            _playerDrawingSimulation = new PlayerDrawingSimulation(this, _playerActor, _shape, _lineChain);
+            _playerDrawingSimulation = new PlayerDrawingSimulation(this, _playerActor, _drawnShape, _drawingLineChain);
         }
 
         protected virtual void FixedUpdate()

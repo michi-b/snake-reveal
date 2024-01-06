@@ -34,5 +34,39 @@ namespace Game.Lines
                 ? new LineSpan(Start, End)
                 : AsSpan();
         }
+
+        public void Clear()
+        {
+            if (_start != null)
+            {
+                foreach (Line line in this)
+                {
+                    LineCache.Return(line);
+                }
+
+                _start = _end = null;
+            }
+        }
+
+        public void Set(Vector2Int start, Vector2Int end)
+        {
+            Clear();
+            Line line = GetNewLine(start, end);
+            _start = _end = line;
+        }
+
+        public void Extend(Vector2Int actorPosition)
+        {
+            if (!End.TryExtend(actorPosition))
+            {
+                Line newEnd = GetNewLine(End.End, actorPosition);
+
+                newEnd.Previous = _end;
+                End.Next = newEnd;
+
+                _end = newEnd;
+                End.Validate();
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Extensions;
 using Game.Enums;
@@ -7,6 +8,7 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using Utility;
+using Debug = UnityEngine.Debug;
 
 namespace Game.Lines
 {
@@ -75,6 +77,7 @@ namespace Game.Lines
         public AxisOrientation Orientation => _line.Direction.GetOrientation();
 
         public Vector3 StartWorldPosition => transform.position;
+
         public Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
 
         [CanBeNull]
@@ -91,7 +94,7 @@ namespace Game.Lines
             set => _next = value;
         }
 
-        public LineData DataStruct => _line;
+        public LineData Data => _line;
 
         protected void Reset()
         {
@@ -100,7 +103,7 @@ namespace Game.Lines
 
         protected void OnDrawGizmosSelected()
         {
-            if (Selection.Contains(gameObject))
+            if (Selection.Contains(gameObject) && _grid != null)
             {
                 Color originalGizmoColor = Gizmos.color;
                 Gizmos.color = Color.black;
@@ -114,6 +117,21 @@ namespace Game.Lines
 
                 Gizmos.color = originalGizmoColor;
             }
+        }
+
+        public void Initialize(SimulationGrid grid, LineData lineData)
+        {
+            _grid = grid;
+            _line = lineData;
+            ApplyPositions();
+        }
+
+        public void Initialize()
+        {
+            _previous = null;
+            _next = null;
+            _line = new LineData(Vector2Int.zero, Vector2Int.right);
+            ApplyPositions();
         }
 
         private void ApplyPositions()
@@ -163,18 +181,113 @@ namespace Game.Lines
             next._previous = this;
         }
 
-        public void Initialize()
-        {
-            _previous = null;
-            _next = null;
-            _line = new LineData(Vector2Int.zero, Vector2Int.right);
-            ApplyPositions();
-        }
-
         public void Set(LineData lineData)
         {
             _line = lineData;
             ApplyPositions();
+        }
+
+        public bool Contains(Vector2Int position)
+        {
+            return Direction switch
+            {
+                GridDirection.None => false,
+                GridDirection.Right => IsSameY() && position.x >= Start.x && position.x <= End.x,
+                GridDirection.Up => IsSameX() && position.y >= Start.y && position.y <= End.y,
+                GridDirection.Left => IsSameY() && position.x <= Start.x && position.x >= End.x,
+                GridDirection.Down => IsSameX() && position.y <= Start.y && position.y >= End.y,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            bool IsSameY()
+            {
+                return position.y == Start.y;
+            }
+
+            bool IsSameX()
+            {
+                return position.x == Start.x;
+            }
+        }
+
+        public GridDirection GetDirection(bool startToEnd = true)
+        {
+            return startToEnd ? _line.Direction : _line.Direction.Reverse();
+        }
+
+        public Vector2Int GetEnd(bool startToEnd = true)
+        {
+            return startToEnd ? _line.End : _line.Start;
+        }
+
+        public Line GetNext(bool startToEnd = true)
+        {
+            return startToEnd ? Next : Previous;
+        }
+
+        public bool TryExtend(Vector2Int targetPosition)
+        {
+            return Direction switch
+            {
+                GridDirection.None => throw new ArgumentOutOfRangeException(),
+                GridDirection.Right => TryExtendRight(),
+                GridDirection.Up => TryExtendUp(),
+                GridDirection.Left => TryExtendLeft(),
+                GridDirection.Down => TryExtendDown(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            bool TryExtendRight()
+            {
+                if (targetPosition.y != Start.y || targetPosition.x < End.x)
+                {
+                    return false;
+                }
+
+                End = targetPosition;
+                return true;
+            }
+
+            bool TryExtendDown()
+            {
+                if (targetPosition.x != Start.x || targetPosition.y > End.y)
+                {
+                    return false;
+                }
+
+                End = targetPosition;
+                return true;
+            }
+
+            bool TryExtendLeft()
+            {
+                if (targetPosition.y != Start.y || targetPosition.x > End.x)
+                {
+                    return false;
+                }
+
+                End = targetPosition;
+                return true;
+            }
+
+            bool TryExtendUp()
+            {
+                if (targetPosition.x != Start.x || targetPosition.y < End.y)
+                {
+                    return false;
+                }
+
+                End = targetPosition;
+                return true;
+            }
+        }
+
+        [Conditional("DEBUG")]
+        public void Validate()
+        {
+            Debug.Assert(Start != End
+                         && Direction != GridDirection.None
+                         && Direction == Start.GetDirection(End));
         }
     }
 }

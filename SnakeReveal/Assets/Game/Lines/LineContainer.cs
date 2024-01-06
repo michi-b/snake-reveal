@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Extensions;
+using Game.Enums;
 using Game.Grid;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using Utility;
@@ -14,8 +17,9 @@ namespace Game.Lines
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private LineCache _lineCache;
         [SerializeField, HideInInspector] protected Line _start;
-        [SerializeField, HideInInspector] private bool _displayLinesInHierarchy;
+        [SerializeField, HideInInspector] private bool _displayLinesInHierarchy = true;
         [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
+        private readonly Collider2D[] _findLinesBuffer = new Collider2D[2];
 
         protected abstract Color GizmosColor { get; }
         public abstract bool Loop { get; }
@@ -29,7 +33,6 @@ namespace Game.Lines
         public SimulationGrid Grid => _grid;
         public LineCache LineCache => _lineCache;
         public abstract Line End { get; }
-        protected int LayerMask => 1 << gameObject.layer;
         protected int ClockwiseTurnWeight => _clockwiseTurnWeight;
 
         protected void Reset()
@@ -50,10 +53,10 @@ namespace Game.Lines
 
             Vector3 startArrowStart = _start.StartWorldPosition;
             float cellDiameter = _grid.SceneCellSize.magnitude;
-            Gizmos.DrawSphere(startArrowStart, cellDiameter * 0.2f);
+            Gizmos.DrawSphere(startArrowStart, cellDiameter);
             if (_start.Start != _start.End)
             {
-                GizmosUtility.DrawArrow(startArrowStart, _start.EndWorldPosition, cellDiameter * 0.25f, 25f);
+                GizmosUtility.DrawArrow(startArrowStart, _start.EndWorldPosition, cellDiameter * 2, 25f);
             }
 
             Gizmos.color = originalGizmoColor;
@@ -100,6 +103,7 @@ namespace Game.Lines
             return new ReverseLineSpan(_start, End);
         }
 
+        //todo: move to edit mode utility class
         public Line EditModeInstantiateLine(Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
         {
             Line result = Instantiate(_lineCache.Prefab, transform);
@@ -120,10 +124,97 @@ namespace Game.Lines
 
             resultGameObject.layer = gameObject.layer;
 
-
             EditModeUtility.ApplyHideLineInSceneView(this, result);
 
             return result;
+        }
+
+        public bool ContainsLineAt(Vector2Int position)
+        {
+            return GetSingleColliderAt(position) != null;
+        }
+
+        public bool TryGetFirstLineAt(Vector2Int position, out Line line)
+        {
+            line = GetFirstLineAt(position);
+            return line != null;
+        }
+
+        [CanBeNull]
+        public Line GetFirstLineAt(Vector2Int position)
+        {
+            Collider2D lineCollider = GetSingleColliderAt(position);
+            if (lineCollider == null)
+            {
+                return null;
+            }
+
+            return lineCollider.TryGetComponent(out Line line) ? line : null;
+        }
+
+        public bool ContainsLineAt(Vector2Int position, GridDirection direction)
+        {
+            return GetLineAt(position, direction) != null;
+        }
+
+        public bool TryGetLineAt(Vector2Int position, GridDirection loopLineDirection, out Line line)
+        {
+            line = GetLineAt(position, loopLineDirection);
+            return line != null;
+        }
+
+        [CanBeNull]
+        public Line GetLineAt(Vector2Int position, GridDirection direction)
+        {
+            foreach (Collider2D lineCollider in GetUpToTwoCollidersAt(position))
+            {
+                if (lineCollider.TryGetComponent(out Line line))
+                {
+                    if (line.Direction == direction)
+                    {
+                        return line;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Collider2D GetSingleColliderAt(Vector2Int position)
+        {
+            return Physics2D.OverlapPoint(position.GetScenePosition(Grid), 1 << gameObject.layer);
+        }
+
+        private Span<Collider2D> GetUpToTwoCollidersAt(Vector2Int position)
+        {
+            int count = Physics2D.OverlapPoint(position.GetScenePosition(Grid), GetContactFilter(), _findLinesBuffer);
+#if DEBUG
+            Debug.Assert(count <= _findLinesBuffer.Length, $"Overlap point count {count} is larger than collider buffer size {_findLinesBuffer.Length}, " +
+                                                           " which should not be possible by design (usage of layers and avoiding overlapping lines).");
+#endif
+            return new Span<Collider2D>(_findLinesBuffer, 0, count);
+        }
+
+        private ContactFilter2D GetContactFilter()
+        {
+            return new ContactFilter2D
+            {
+                useLayerMask = true,
+                layerMask = 1 << gameObject.layer
+            };
+        }
+
+        protected Line GetNewLine(Vector2Int start, Vector2Int end)
+        {
+            return GetNewLine(new LineData(start, end));
+        }
+
+        protected Line GetNewLine(LineData lineData)
+        {
+            Line line = LineCache.Get();
+            line.transform.parent = transform;
+            line.Initialize(Grid, lineData);
+            return line;
         }
 
         public static class EditModeUtility

@@ -13,7 +13,9 @@ namespace Game.Lines.Editor
         private const string IsInsertExpandedKey = "LineLoopEditor.IsInsertionExpanded";
         private const string DeactivateTargetOnInsertKey = "LineLoopEditor.DeactivateTargetOnInsert";
         private const string InsertTargetIdKey = "LineLoopEditor.InsertTargetId";
+        private const string InitializationSizeKey = "LineLoopEditor.InitializationSize";
         private bool _deactivateTargetOnInsert;
+        private int _initializationSize;
 
         private LineChain _insertTarget;
         private int _insertTargetId;
@@ -38,9 +40,8 @@ namespace Game.Lines.Editor
             _turnProperty = serializedObject.FindDirectChild(LineLoop.TurnFieldName);
 
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
-
             _deactivateTargetOnInsert = EditorPrefs.GetBool(DeactivateTargetOnInsertKey, false);
-
+            _initializationSize = EditorPrefs.GetInt(InitializationSizeKey, 10);
             _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
             if (_insertTargetId != 0)
             {
@@ -70,9 +71,21 @@ namespace Game.Lines.Editor
             DrawInsert(loop);
         }
 
+        protected override void DrawInitializeCornersButton(LineContainer container)
+        {
+            EditorGUI.BeginChangeCheck();
+            _initializationSize = EditorGUILayout.IntField("Rectangle Size", _initializationSize);
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorPrefs.SetInt(InitializationSizeKey, _initializationSize);
+            }
+
+            base.DrawInitializeCornersButton(container);
+        }
+
         protected override void InitializeCorners(List<Vector2Int> corners)
         {
-            const int size = 3;
+            int size = _initializationSize;
             var container = (LineLoop)target;
             Vector2Int center = container.Grid.CenterPosition;
             corners.Add(center + new Vector2Int(-size, size));

@@ -1,6 +1,6 @@
 ﻿using System;
 using Game.Enums;
-using Game.Lines.Deprecated;
+using Game.Lines;
 using Game.Player;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -12,9 +12,9 @@ namespace Game
         private readonly PlayerActor _actor;
         private readonly PlayerActorControls _controls;
 
-        private readonly DeprecatedLineChain _drawingLineChain;
+        private readonly LineChain _drawingLineChain;
 
-        private readonly DeprecatedLineLoop _shape;
+        private readonly LineLoop _shape;
         private readonly Simulation _simulation;
 
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
@@ -25,23 +25,20 @@ namespace Game
         private PlayerMovementMode _movementMode;
 
         private Vector2Int _shapeTravelBreakoutPosition;
-        [NotNull] private DeprecatedLine _shapeTravelLine;
+        
+        [NotNull] private Line _shapeTravelLine;
 
 
-        public PlayerDrawingSimulation(Simulation simulation, PlayerActor actor, DeprecatedLineLoop shape, DeprecatedLineChain drawingLineChain)
+        public PlayerDrawingSimulation(Simulation simulation, PlayerActor actor, LineLoop shape, LineChain drawingLineChain)
         {
             _simulation = simulation;
             _actor = actor;
             _shape = shape;
             _drawingLineChain = drawingLineChain;
             _controls = new PlayerActorControls(RequestDirectionChange);
-            _shapeTravelLine = _shape.FindLineAt(actor.Position, line => line.Direction.IsSameOrOpposite(actor.Direction));
-            if (_shapeTravelLine == null)
-            {
-                throw new InvalidOperationException("Actor is not on shape");
-            }
-
-            _isTravelingInShapeDirection = _actor.Direction == _shapeTravelLine.Direction;
+            _shapeTravelLine = _shape.TryGetFirstLineAt(_actor.Position, out Line line) ? line : throw new InvalidOperationException("Actor is not on shape");
+            _actor.Direction = _shapeTravelLine.Direction;
+            _isTravelingInShapeDirection = true;
         }
 
         public bool ControlsEnabled
@@ -77,8 +74,7 @@ namespace Game
                         throw new ArgumentOutOfRangeException();
                 }
             }
-
-            // todo: apply grid position only once per frame instead (and extrapolated)
+            // todo: apply grid position only once per frame instead (and extrapolate)
             _actor.ApplyPosition();
         }
 
@@ -134,7 +130,9 @@ namespace Game
 
         private void EvaluateShapeTraveling()
         {
+#if DEBUG
             Debug.Assert(_shapeTravelLine.Contains(_actor.Position));
+#endif
 
             if (_actor.Direction == _shapeTravelLine.GetDirection(_isTravelingInShapeDirection))
             {
@@ -154,12 +152,7 @@ namespace Game
             // if at line end, switch to next line and adjust direction
             if (isAtLineEnd)
             {
-                DeprecatedLine newLine = _shapeTravelLine.GetNext(_isTravelingInShapeDirection);
-                if (newLine == null)
-                {
-                    throw new InvalidOperationException("Line loop is not closed");
-                }
-
+                Line newLine = _shapeTravelLine.GetNext(_isTravelingInShapeDirection);
                 _shapeTravelLine = newLine;
                 Debug.Assert(_shapeTravelLine != null, nameof(_shapeTravelLine) + " != null");
                 GridDirection currentLineDirection = _shapeTravelLine.GetDirection(_isTravelingInShapeDirection);
@@ -189,7 +182,8 @@ namespace Game
         {
             _actor.Step();
 
-            if (_drawingLineChain.Contains(_actor.Position, line => line.Direction.GetOrientation() != _actor.Direction.GetOrientation()))
+            // todo: can't I just check the current shape travel line?
+            if (_drawingLineChain.ContainsLineAt(_actor.Position, _actor.Direction))
             {
                 // reset drawing
                 Breakout(_shapeTravelBreakoutPosition);
@@ -200,22 +194,23 @@ namespace Game
 
             // lines the player can collide with must be directed like the player direction, but turned left/right opposite of the shape turn
             GridDirection collisionLinesDirection = _actor.Direction.Turn(_shape.Turn.Reverse());
-
-            DeprecatedLine shapeCollisionLine = _shape.FindLineAt(_actor.Position, line => line.Direction == collisionLinesDirection);
+            Line shapeCollisionLine = _shape.GetLineAt(_actor.Position, collisionLinesDirection);
             if (shapeCollisionLine)
             {
                 DiscontinueDrawing(shapeCollisionLine);
             }
         }
 
-        private void DiscontinueDrawing(DeprecatedLine shapeCollisionLine)
+        private void DiscontinueDrawing(Line shapeCollisionLine)
         {
-            DeprecatedLine newShapeTravelLine = _drawingLineChain.End;
-            _isTravelingInShapeDirection = _shape.Incorporate(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
+            _isTravelingInShapeDirection = _shape.Insert(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
+            
+            _drawingLineChain.Clear();
+
+            _shapeTravelLine = _shape.Start;
 #if DEBUG
-            Debug.Assert(_shape.OutlineContains(newShapeTravelLine));
+            Debug.Assert(_shape.Start.Contains(_actor.Position));
 #endif
-            _shapeTravelLine = newShapeTravelLine;
             _actor.Direction = _shapeTravelLine.GetDirection(_isTravelingInShapeDirection);
             _movementMode = PlayerMovementMode.ShapeTravel;
         }

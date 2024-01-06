@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3446050810679532582}
   - component: {fileID: 3830899397263375926}
   - component: {fileID: 3619397922682057890}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: TwoPixelLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,9 +49,10 @@ MonoBehaviour:
   _grid: {fileID: 0}
   _renderer: {fileID: 3830899397263375926}
   _collider: {fileID: 3619397922682057890}
-  _start: {x: 0, y: 0}
-  _end: {x: 1, y: 0}
-  _direction: 0
+  _line:
+    Start: {x: 0, y: 0}
+    End: {x: 0, y: 0}
+    _direction: 0
   _previous: {fileID: 0}
   _next: {fileID: 0}
 --- !u!120 &3830899397263375926

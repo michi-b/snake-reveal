@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Extensions;
+﻿using System.Collections.Generic;
 using Game.Enums;
 using JetBrains.Annotations;
 using UnityEditor;
@@ -17,13 +14,13 @@ namespace Game.Lines
 
         [SerializeField, HideInInspector] private Turn _turn;
 
-        private readonly ChainInsertionData _chainInsertionData = new(ChainInsertionLineCapacity);
-
-        private readonly Collider2D[] _findLinesBuffer = new Collider2D[2];
+        private ChainInsertionEvaluation _chainInsertionEvaluation = new(ChainInsertionLineCapacity);
 
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
         public override bool Loop => true;
-        public override Line End => Start.Previous;
+
+        // ReSharper disable once Unity.NoNullPropagation
+        public override Line End => Start?.Previous;
         public Turn Turn => _turn;
 
         protected override void PostProcessEditModeLineChanges()
@@ -43,68 +40,78 @@ namespace Game.Lines
             return base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
         }
 
-        public void Insert(LineChain target)
+        /// <summary>
+        ///     Inserts the target line chain into this loop, without altering the target line chain.
+        ///     Also shifts the <see cref="LineLoop.Start" /> to contain the break-in position.
+        /// </summary>
+        /// <param name="lineChain">The line chain to insert</param>
+        /// <param name="beforeChain">The line on this loop that the line chain originates at</param>
+        /// <param name="afterChain">The lin on this loop that the lin chain ends at</param>
+        /// <returns>Whether the chain reconnects to this loop in the turn of this loop</returns>
+        public bool Insert(LineChain lineChain, [NotNull] Line beforeChain, [NotNull] Line afterChain)
         {
-            EvaluateInsertion(target, _chainInsertionData);
+            _chainInsertionEvaluation.Evaluate(_turn, lineChain, beforeChain, afterChain);
+            beforeChain = _chainInsertionEvaluation.BreakoutLine;
+            afterChain = _chainInsertionEvaluation.BreakInLine;
+            List<LineData> linesToInsert = _chainInsertionEvaluation.LinesToInsert;
 
-            Line breakoutLine = _chainInsertionData.BreakoutLine;
-            Line breakInLine = _chainInsertionData.BreakInLine;
-            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
-
-            if (breakoutLine == breakInLine)
+            if (beforeChain == afterChain)
             {
-                // split breakout line into separate breakout and break-in line
-                breakInLine = GetNewLine(new LineData(linesToInsert[^1].End, breakoutLine.End, breakoutLine.Direction));
-
-                breakInLine.Next = breakoutLine.Next;
-                breakoutLine.Next!.Previous = breakInLine;
-
-                breakoutLine.End = linesToInsert[0].Start;
-                breakoutLine.Next = null;
+                // crate new line after chain
+                afterChain = GetNewLine(afterChain.Data);
+                afterChain.Next = beforeChain.Next;
+                beforeChain.Next!.Previous = afterChain;
             }
             else
             {
-                if (breakoutLine.Next != breakInLine)
+                if (beforeChain.Next != afterChain)
                 {
                     //remove in-between lines
-                    foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, breakInLine.Previous))
+                    foreach (Line inBetweenLine in new LineSpan(beforeChain.Next, afterChain.Previous))
                     {
                         LineCache.Return(inBetweenLine);
                     }
                 }
-
-                breakoutLine.Next = null;
-                breakInLine.Previous = null;
             }
 
+            beforeChain.Next = null;
+            beforeChain.End = linesToInsert[0].Start;
+            afterChain.Previous = null;
+            afterChain.Start = linesToInsert[^1].End;
+
             // last inserted line to connect next inserted line to
-            Line lastLine = breakoutLine;
+            Line lastLine = beforeChain;
             // create in-between lines and stitch it all together
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             // no LINQ to avoid allocations
             foreach (LineData lineData in linesToInsert)
             {
                 Line line = GetNewLine(lineData);
+
                 lastLine.Next = line;
                 line.Previous = lastLine;
+
+                lastLine = line;
             }
 
-            lastLine.Next = breakoutLine;
-            breakoutLine.Previous = lastLine;
+            lastLine.Next = afterChain;
+            afterChain.Previous = lastLine;
 
             // remove superfluous connection lines that can happen when connecting exactly to loop corners
-            if (breakoutLine.Start == breakoutLine.End)
+            if (beforeChain.Start == beforeChain.End)
             {
-                DissolveZeroLengthLine(breakoutLine);
+                DissolveZeroLengthLine(beforeChain);
+                beforeChain = beforeChain.Previous!;
             }
 
-            if (breakInLine.Start == breakInLine.End)
+            if (afterChain.Start == afterChain.End)
             {
-                DissolveZeroLengthLine(breakInLine);
-                breakInLine = breakInLine.Previous!;
+                DissolveZeroLengthLine(afterChain);
+                afterChain = afterChain.Previous!;
             }
 
-            _start = breakInLine;
+            Start = _chainInsertionEvaluation.ReconnectsInTurn ? afterChain : beforeChain;
+            return _chainInsertionEvaluation.ReconnectsInTurn;
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction
             // -> merge the three lines into one
@@ -115,7 +122,7 @@ namespace Game.Lines
                 Line previous = line.Previous;
 #if DEBUG
                 Debug.Assert(Start == End);
-                Debug.Assert(previous != null && line.Next != null && line.Next.Next != null);
+                Debug.Assert(previous != null && next != null);
                 Debug.Assert(line.Next!.Direction == previous.Direction);
 #endif
                 Destroy(gameObject);
@@ -126,116 +133,6 @@ namespace Game.Lines
                 Debug.Assert(newNext != null);
 #endif
                 previous.Next = newNext;
-            }
-
-            Start = breakInLine;
-        }
-
-        private Line GetNewLine(LineData lineData)
-        {
-            Line line = LineCache.Get();
-            line.Set(lineData);
-            return line;
-        }
-
-        private void EvaluateInsertion(LineChain insertTarget, ChainInsertionData result)
-        {
-            Line chainStart = insertTarget.Start;
-            GridDirection breakoutDirection = chainStart.Direction.Turn(_turn);
-            result.BreakoutPosition = chainStart.Start;
-            result.BreakoutLine = FindLine(result.BreakoutPosition, breakoutDirection);
-            Debug.Assert(result.BreakoutLine != null, "No suitable breakout line on loop.");
-
-            Line chainEnd = insertTarget.Last();
-            GridDirection breakInDirection = chainEnd.Direction.Turn(_turn.Reverse());
-            result.BreakInPosition = chainEnd.End;
-            result.BreakInLine = FindLine(result.BreakInPosition, breakInDirection);
-            Debug.Assert(result.BreakInLine != null, "No suitable break-in on loop.");
-
-            int loopTurnClockwiseWeight = new LineSpan(result.BreakoutLine, result.BreakInLine).SumClockwiseTurnWeight();
-            int chainTurnClockwiseWeight = insertTarget.AsSpan(true).SumClockwiseTurnWeight();
-            int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
-
-            bool reconnectsInTurn = Turn switch
-            {
-                Turn.None => throw new ArgumentOutOfRangeException(),
-                Turn.Right => deltaClockwiseWeight > 0,
-                Turn.Left => deltaClockwiseWeight < 0,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-#if DEBUG
-            Debug.Log(reconnectsInTurn ? "Chain reconnects IN turn" : "Chain reconnects COUNTER turn");
-#endif
-
-            result.LinesToInsert.Clear();
-
-            if (reconnectsInTurn)
-            {
-                foreach (Line line in insertTarget)
-                {
-                    result.LinesToInsert.Add(line.DataStruct);
-                }
-            }
-            else
-            {
-                (result.BreakoutLine, result.BreakInLine) = (result.BreakInLine, result.BreakoutLine);
-                foreach (Line line in insertTarget.AsReverseSpan())
-                {
-                    result.LinesToInsert.Add(line.DataStruct.Reverse());
-                }
-            }
-        }
-
-        [CanBeNull]
-        private Line FindLine(Vector2Int position, GridDirection direction)
-        {
-            foreach (Collider2D lineCollider in FindColliders(position))
-            {
-                if (lineCollider.TryGetComponent(out Line line))
-                {
-                    if (line.Direction == direction)
-                    {
-                        return line;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private Span<Collider2D> FindColliders(Vector2Int position)
-        {
-            var contactFilter = new ContactFilter2D
-            {
-                useLayerMask = true,
-                layerMask = LayerMask
-            };
-
-            int count = Physics2D.OverlapPoint(position.GetScenePosition(Grid), contactFilter, _findLinesBuffer);
-
-#if DEBUG
-            Debug.Assert(count <= _findLinesBuffer.Length, $"Overlap point count {count} is larger than collider buffer size {_findLinesBuffer.Length}, " +
-                                                           " which should not be possible by design (usage of layers and avoiding overlapping lines).");
-#endif
-
-            return new Span<Collider2D>(_findLinesBuffer, 0, count);
-        }
-
-        private class ChainInsertionData
-        {
-            // sorted lines to insert into loop between breakout line and break-in line
-            // be wary of that the breakout line and break-in line might be the same
-            public readonly List<LineData> LinesToInsert;
-            public Line BreakInLine; // break-in line on loop
-            public Vector2Int BreakInPosition;
-
-            public Line BreakoutLine; // breakout line on loop
-            public Vector2Int BreakoutPosition;
-
-            public ChainInsertionData(int chainInsertionInitialCapacity)
-            {
-                LinesToInsert = new List<LineData>(chainInsertionInitialCapacity);
             }
         }
 
@@ -248,11 +145,27 @@ namespace Game.Lines
 
             Undo.RegisterFullObjectHierarchyUndo(gameObject, nameof(EditModeInsert));
 
-            EvaluateInsertion(insertTarget, _chainInsertionData);
+            Line chainStart = insertTarget.Start;
+            GridDirection breakoutDirection = chainStart.Direction.Turn(_turn);
+            Vector2Int breakoutPosition = chainStart.Start;
+            if (!TryGetLineAt(breakoutPosition, breakoutDirection, out Line breakoutLine))
+            {
+                Debug.LogWarning("breakout position not on loop");
+                return;
+            }
 
-            Line breakoutLine = _chainInsertionData.BreakoutLine;
-            Line breakInLine = _chainInsertionData.BreakInLine;
+            Line chainEnd = insertTarget.End;
+            GridDirection breakInDirection = chainEnd.Direction.Turn(_turn.Reverse());
+            Vector2Int breakInPosition = chainEnd.End;
+            if (!TryGetLineAt(breakInPosition, breakInDirection, out Line breakInLine))
+            {
+                Debug.LogWarning("break-in position not on loop");
+                return;
+            }
 
+            _chainInsertionEvaluation.Evaluate(_turn, insertTarget, breakoutLine, breakInLine);
+            breakoutLine = _chainInsertionEvaluation.BreakoutLine;
+            breakInLine = _chainInsertionEvaluation.BreakInLine;
 
             if (breakoutLine == breakInLine)
             {
@@ -275,7 +188,7 @@ namespace Game.Lines
             breakInLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect break-in line previous");
             breakInLine.Previous = null;
 
-            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
+            List<LineData> linesToInsert = _chainInsertionEvaluation.LinesToInsert;
 
             // adjust breakout and break-in line positions
             breakInLine.Start = linesToInsert[^1].End;

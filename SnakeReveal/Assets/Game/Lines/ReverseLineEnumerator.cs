@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
@@ -24,6 +25,16 @@ namespace Game.Lines
         /// <remarks>Skips Unity lifecycle checks and also other general null checks for performance reasons.</remarks>
         public ReverseLineEnumerator(Line start, [CanBeNull] Line end)
         {
+            if (start == null)
+            {
+                throw new ArgumentNullException(nameof(start));
+            }
+
+            if (end == null)
+            {
+                throw new ArgumentNullException(nameof(end));
+            }
+
             _start = start;
             _end = end;
             Current = null;

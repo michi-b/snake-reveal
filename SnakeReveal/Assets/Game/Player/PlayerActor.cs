@@ -1,23 +1,24 @@
 using Extensions;
 using Game.Enums;
 using Game.Grid;
-using Game.Lines.Deprecated;
+using Game.Lines;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Game.Player
 {
+    [RequireComponent(typeof(SimulationGridTransform))]
     public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
+        [SerializeField] private SimulationGridTransform _transform;
         [SerializeField] private PlayerActorRenderer _renderer;
-        [SerializeField] private Vector2Int _position;
         [SerializeField] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
 
         private PlayerActorControls _controls;
 
-        [CanBeNull] private DeprecatedLine _currentLine;
+        [CanBeNull] private Line _currentLine;
 
         public GridDirection Direction
         {
@@ -33,8 +34,13 @@ namespace Game.Player
 
         public Vector2Int Position
         {
-            get => _position;
-            set => _position = value;
+            get => _transform.Position;
+            set => _transform.Position = value;
+        }
+
+        protected void Reset()
+        {
+            _transform = GetComponent<SimulationGridTransform>();
         }
 
         protected void OnValidate()

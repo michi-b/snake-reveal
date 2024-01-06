@@ -33,6 +33,10 @@ namespace Game.Lines
             // first iteration case
             if (ReferenceEquals(Current, null))
             {
+                if (_start == null || _end == null)
+                {
+                    return false;
+                }
                 Current = _start;
                 return true;
             }

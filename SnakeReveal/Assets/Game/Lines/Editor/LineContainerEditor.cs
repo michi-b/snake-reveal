@@ -157,13 +157,7 @@ namespace Game.Lines.Editor
 
             if (_corners.Count < 2)
             {
-                if (GUILayout.Button(InitializeCornersLabel))
-                {
-                    //ensure we got at least 2 positions
-                    _corners.Clear();
-                    InitializeCorners(_corners);
-                    ApplyCorners(container);
-                }
+                DrawInitializeCornersButton(container);
             }
             else
             {
@@ -203,6 +197,17 @@ namespace Game.Lines.Editor
 
                 ApplyCorners(container);
                 _move = Vector2Int.zero;
+            }
+        }
+
+        protected virtual void DrawInitializeCornersButton(LineContainer container)
+        {
+            if (GUILayout.Button(InitializeCornersLabel))
+            {
+                //ensure we got at least 2 positions
+                _corners.Clear();
+                InitializeCorners(_corners);
+                ApplyCorners(container);
             }
         }
 
