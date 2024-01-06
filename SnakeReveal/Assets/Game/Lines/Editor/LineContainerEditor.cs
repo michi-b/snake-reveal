@@ -35,14 +35,14 @@ namespace Game.Lines.Editor
         private SerializedProperty _hideLinesInSceneViewProperty;
 
         private Vector2Int _move;
-        private SerializedProperty _startProperty;
+        protected SerializedProperty StartProperty;
 
 
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
 
         protected virtual void OnEnable()
         {
-            _startProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.StartPropertyName);
+            StartProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.StartPropertyName);
             _hideLinesInSceneViewProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.DisplayLinesInHierarchyPropertyName);
             _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
 
@@ -222,7 +222,7 @@ namespace Game.Lines.Editor
         {
             using (new EditorGUI.DisabledScope(true))
             {
-                EditorGUILayout.PropertyField(_startProperty);
+                EditorGUILayout.PropertyField(StartProperty);
                 EditorGUILayout.PropertyField(_clockwiseTurnWeightProperty);
             }
         }

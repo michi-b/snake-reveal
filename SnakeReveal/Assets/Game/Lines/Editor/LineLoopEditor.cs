@@ -148,7 +148,7 @@ namespace Game.Lines.Editor
                         return;
                     }
 
-                    loop.EditModeInsert(_insertTarget);
+                    Insert(loop, _insertTarget);
                     ReadLinesIntoCorners();
 
                     if (_deactivateTargetOnInsert)
@@ -157,6 +157,109 @@ namespace Game.Lines.Editor
                         _insertTarget.gameObject.SetActive(false);
                     }
                 }
+            }
+        }
+
+        private void Insert(LineLoop loop, LineChain insertTarget)
+        {
+            Undo.IncrementCurrentGroup();
+            int insertionUndoGroup = Undo.GetCurrentGroup();
+
+            Undo.RegisterFullObjectHierarchyUndo(loop.gameObject, "EditModeInsert");
+
+            Line chainStart = insertTarget.Start;
+            GridDirection breakoutDirection = chainStart.Direction.Turn(loop.Turn);
+            Vector2Int breakoutPosition = chainStart.Start;
+            if (!loop.TryGetLineAt(breakoutPosition, breakoutDirection, out Line breakoutLine))
+            {
+                Debug.LogWarning("breakout position not on loop");
+                return;
+            }
+
+            Line chainEnd = insertTarget.End;
+            GridDirection breakInDirection = chainEnd.Direction.Turn(loop.Turn.Reverse());
+            Vector2Int breakInPosition = chainEnd.End;
+            if (!loop.TryGetLineAt(breakInPosition, breakInDirection, out Line breakInLine))
+            {
+                Debug.LogWarning("break-in position not on loop");
+                return;
+            }
+
+            var insertionEvaluation = new ChainInsertionEvaluation();
+            insertionEvaluation.Evaluate(loop.Turn, insertTarget, breakoutLine, breakInLine);
+            breakoutLine = insertionEvaluation.BreakoutLine;
+            breakInLine = insertionEvaluation.BreakInLine;
+
+            if (breakoutLine == breakInLine)
+            {
+                // split breakout line in two to get a separate break in line, which is necessary to insert the chain in between
+                breakInLine = LineContainer.EditModeUtility.Instantiate(loop, breakoutLine.Start, breakoutLine.End, true);
+                Undo.IncrementCurrentGroup();
+                breakInLine.EditModeStitchToNext(breakoutLine.Next);
+            }
+            else if (breakoutLine.Next != breakInLine)
+            {
+                foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, breakInLine.Previous))
+                {
+                    Undo.DestroyObjectImmediate(inBetweenLine.gameObject);
+                }
+            }
+
+            breakoutLine.RegisterUndo("EditModeInsert - disconnect breakout line next");
+            breakoutLine.Next = null;
+
+            breakInLine.RegisterUndo("EditModeInsert - disconnect break-in line previous");
+            breakInLine.Previous = null;
+
+            List<LineData> linesToInsert = insertionEvaluation.LinesToInsert;
+
+            // adjust breakout and break-in line positions
+            breakInLine.Start = linesToInsert[^1].End;
+
+            // insert lines
+            Line lastLine = breakoutLine;
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            // no LINQ to avoid allocations
+            foreach (LineData line in linesToInsert)
+            {
+                Line newLine = LineContainer.EditModeUtility.Instantiate(loop, line.Start, line.End, true);
+                Undo.IncrementCurrentGroup();
+                lastLine.EditModeStitchToNext(newLine);
+                lastLine = lastLine.Next!;
+            }
+
+            lastLine.EditModeStitchToNext(breakInLine);
+
+            // remove superfluous connection lines that can happen when connecting exactly to loop corners
+            if (breakoutLine.Start == breakoutLine.End)
+            {
+                Dissolve(breakoutLine);
+            }
+
+            if (breakInLine.Start == breakInLine.End)
+            {
+                Line dissolvingBreakInLine = breakInLine;
+                breakInLine = dissolvingBreakInLine!.Previous;
+                Dissolve(dissolvingBreakInLine);
+            }
+
+            // start may have been deleted, so it is re-assigned
+            Undo.RecordObject(loop, "EditModeInsert - assign new start");
+
+            serializedObject.Update();
+            StartProperty.objectReferenceValue = breakInLine;
+            serializedObject.ApplyModifiedProperties();
+
+            Undo.CollapseUndoOperations(insertionUndoGroup);
+
+            void Dissolve(Line line)
+            {
+                Line previous = line.Previous;
+                Line next = line.Next!;
+                Line nextNext = next.Next;
+                Undo.DestroyObjectImmediate(line.gameObject);
+                Undo.DestroyObjectImmediate(next.gameObject);
+                previous!.EditModeStitchToNext(nextNext);
             }
         }
     }

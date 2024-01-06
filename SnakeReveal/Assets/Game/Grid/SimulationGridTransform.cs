@@ -38,6 +38,7 @@ namespace Game.Grid
                 Transform thisTransform = transform;
                 _position = _grid.Round(thisTransform.position);
             }
+
             Apply();
         }
 

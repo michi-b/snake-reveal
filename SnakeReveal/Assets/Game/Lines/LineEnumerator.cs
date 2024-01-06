@@ -37,6 +37,7 @@ namespace Game.Lines
                 {
                     return false;
                 }
+
                 Current = _start;
                 return true;
             }

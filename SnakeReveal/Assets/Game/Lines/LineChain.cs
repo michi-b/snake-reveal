@@ -28,13 +28,6 @@ namespace Game.Lines
             base.PostProcessEditModeLineChanges();
         }
 
-        public LineSpan AsSpan(bool excludeLast)
-        {
-            return excludeLast
-                ? new LineSpan(Start, End)
-                : AsSpan();
-        }
-
         public void Clear()
         {
             if (_start != null)

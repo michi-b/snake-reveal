@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    public struct ChainInsertionEvaluation
+    public class ChainInsertionEvaluation
     {
+        public const int DefaultInsertionLineCapacity = 1000;
+
         // sorted lines to insert into loop between breakout line and break-in line
         // be wary of that the breakout line and break-in line might be the same
         public readonly List<LineData> LinesToInsert;
@@ -14,14 +16,14 @@ namespace Game.Lines
         public Line BreakoutLine { get; private set; } // breakout line on loop
         public bool ReconnectsInTurn { get; private set; }
 
-        public ChainInsertionEvaluation(int chainInsertionInitialCapacity)
+        public ChainInsertionEvaluation(int chainInsertionInitialCapacity = DefaultInsertionLineCapacity)
         {
             LinesToInsert = new List<LineData>(chainInsertionInitialCapacity);
             BreakoutLine = default;
             BreakInLine = default;
             ReconnectsInTurn = default;
         }
-
+        
         public void Evaluate(Turn loopTurn, LineChain insertTarget, Line loopBreakoutLine, Line loopBreakInLine)
         {
 #if DEBUG
@@ -32,7 +34,7 @@ namespace Game.Lines
             BreakoutLine = loopBreakoutLine;
 
             int loopTurnClockwiseWeight = new LineSpan(loopBreakoutLine, loopBreakInLine).SumClockwiseTurnWeight();
-            int chainTurnClockwiseWeight = insertTarget.AsSpan(true).SumClockwiseTurnWeight();
+            int chainTurnClockwiseWeight = insertTarget.AsSpan().SumClockwiseTurnWeight();
             int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
 
             ReconnectsInTurn = loopTurn switch

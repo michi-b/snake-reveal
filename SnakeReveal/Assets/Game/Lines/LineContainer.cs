@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 using Utility;
+using Object = UnityEngine.Object;
 
 namespace Game.Lines
 {
@@ -90,43 +91,17 @@ namespace Game.Lines
 
         public LineEnumerator GetEnumerator()
         {
-            return new LineEnumerator(_start, End);
+            return new LineEnumerator(Start, End);
         }
 
         public LineSpan AsSpan()
         {
-            return new LineSpan(_start, End);
+            return new LineSpan(Start, End);
         }
 
         public ReverseLineSpan AsReverseSpan()
         {
-            return new ReverseLineSpan(_start, End);
-        }
-
-        //todo: move to edit mode utility class
-        public Line EditModeInstantiateLine(Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
-        {
-            Line result = Instantiate(_lineCache.Prefab, transform);
-            if (registerUndo)
-            {
-                Undo.RegisterCreatedObjectUndo(result.gameObject, nameof(EditModeInstantiateLine));
-            }
-
-            result.Grid = _grid;
-            result.Start = startPosition;
-            result.End = endPosition;
-
-            GameObject resultGameObject = result.gameObject;
-            if (registerUndo)
-            {
-                Undo.RecordObject(resultGameObject, nameof(EditModeInstantiateLine) + " - Set Layer");
-            }
-
-            resultGameObject.layer = gameObject.layer;
-
-            EditModeUtility.ApplyHideLineInSceneView(this, result);
-
-            return result;
+            return new ReverseLineSpan(Start, End);
         }
 
         public bool ContainsLineAt(Vector2Int position)
@@ -141,7 +116,7 @@ namespace Game.Lines
         }
 
         [CanBeNull]
-        public Line GetFirstLineAt(Vector2Int position)
+        private Line GetFirstLineAt(Vector2Int position)
         {
             Collider2D lineCollider = GetSingleColliderAt(position);
             if (lineCollider == null)
@@ -150,11 +125,6 @@ namespace Game.Lines
             }
 
             return lineCollider.TryGetComponent(out Line line) ? line : null;
-        }
-
-        public bool ContainsLineAt(Vector2Int position, GridDirection direction)
-        {
-            return GetLineAt(position, direction) != null;
         }
 
         public bool TryGetLineAt(Vector2Int position, GridDirection loopLineDirection, out Line line)
@@ -231,12 +201,12 @@ namespace Game.Lines
                 ClearLines(container);
 
                 Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild));
-                Line start = container.EditModeInstantiateLine(positions[0], positions[1], true);
+                Line start = Instantiate(container, positions[0], positions[1], true);
                 Line last = start;
                 for (int i = 2; i < positions.Count; i++)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line line = container.EditModeInstantiateLine(last.End, positions[i], true);
+                    Line line = Instantiate(container, last.End, positions[i], true);
                     Undo.RecordObject(line, nameof(Rebuild) + " - patch created line");
                     line.Previous = last;
 
@@ -248,7 +218,7 @@ namespace Game.Lines
                 if (container.Loop)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line loopConnection = container.EditModeInstantiateLine(last.End, start.Start, true);
+                    Line loopConnection = Instantiate(container, last.End, start.Start, true);
                     Undo.RecordObject(loopConnection, nameof(Rebuild) + " - patch loop connection");
                     loopConnection.Previous = last;
                     loopConnection.Next = start;
@@ -301,6 +271,30 @@ namespace Game.Lines
                 }
 
                 container.PostProcessEditModeLineChanges();
+            }
+            public static Line Instantiate(LineContainer container, Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
+            {
+                Line result = Object.Instantiate(container._lineCache.Prefab, container.transform);
+                if (registerUndo)
+                {
+                    Undo.RegisterCreatedObjectUndo(result.gameObject, "EditModeInstantiateLine");
+                }
+
+                result.Grid = container._grid;
+                result.Start = startPosition;
+                result.End = endPosition;
+
+                GameObject resultGameObject = result.gameObject;
+                if (registerUndo)
+                {
+                    Undo.RecordObject(resultGameObject, "EditModeInstantiateLine - Set Layer");
+                }
+
+                resultGameObject.layer = container.gameObject.layer;
+
+                EditModeUtility.ApplyHideLineInSceneView(container, result);
+
+                return result;
             }
         }
     }

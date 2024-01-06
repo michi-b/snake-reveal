@@ -25,7 +25,7 @@ namespace Game
         private PlayerMovementMode _movementMode;
 
         private Vector2Int _shapeTravelBreakoutPosition;
-        
+
         [NotNull] private Line _shapeTravelLine;
 
 
@@ -74,6 +74,7 @@ namespace Game
                         throw new ArgumentOutOfRangeException();
                 }
             }
+
             // todo: apply grid position only once per frame instead (and extrapolate)
             _actor.ApplyPosition();
         }
@@ -183,7 +184,7 @@ namespace Game
             _actor.Step();
 
             // todo: can't I just check the current shape travel line?
-            if (_drawingLineChain.ContainsLineAt(_actor.Position, _actor.Direction))
+            if (_drawingLineChain.ContainsLineAt(_actor.Position))
             {
                 // reset drawing
                 Breakout(_shapeTravelBreakoutPosition);
@@ -204,7 +205,7 @@ namespace Game
         private void DiscontinueDrawing(Line shapeCollisionLine)
         {
             _isTravelingInShapeDirection = _shape.Insert(_drawingLineChain, _shapeTravelLine, shapeCollisionLine);
-            
+
             _drawingLineChain.Clear();
 
             _shapeTravelLine = _shape.Start;
