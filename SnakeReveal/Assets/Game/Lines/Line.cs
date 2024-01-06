@@ -45,10 +45,10 @@ namespace Game.Lines
             get => _line.Start;
             set
             {
-                _line = _line.WithStart(value);
+                _line.Start = value;
                 if (_previous != null)
                 {
-                    _previous._line = _previous._line.WithEnd(value);
+                    _previous._line.End = value;
                     _previous.ApplyPositions();
                 }
 
@@ -61,10 +61,10 @@ namespace Game.Lines
             get => _line.End;
             set
             {
-                _line = _line.WithEnd(value);
+                _line.End = value;
                 if (_next != null)
                 {
-                    _next._line = _next._line.WithStart(value);
+                    _next._line.Start = value;
                     _next.ApplyPositions();
                 }
 
@@ -118,7 +118,7 @@ namespace Game.Lines
 
         private void ApplyPositions()
         {
-            _line.ReevaluateDirection();
+            _line.Direction = _line.Start.GetDirection(_line.End);
 
             transform.SetLocalPositionXY(_grid.GetScenePosition(Start));
 
@@ -161,6 +161,20 @@ namespace Game.Lines
 
             _next!.RegisterUndo(nameof(EditModeStitchToNext) + " - next");
             next._previous = this;
+        }
+
+        public void Initialize()
+        {
+            _previous = null;
+            _next = null;
+            _line = new LineData(Vector2Int.zero, Vector2Int.right);
+            ApplyPositions();
+        }
+
+        public void Set(LineData lineData)
+        {
+            _line = lineData;
+            ApplyPositions();
         }
     }
 }

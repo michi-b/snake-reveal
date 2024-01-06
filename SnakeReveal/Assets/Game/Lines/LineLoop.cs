@@ -43,7 +43,102 @@ namespace Game.Lines
             return base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
         }
 
-        private void EvaluateChainInsertion(LineChain insertTarget, ChainInsertionData result)
+        public void Insert(LineChain target)
+        {
+            EvaluateInsertion(target, _chainInsertionData);
+
+            Line breakoutLine = _chainInsertionData.BreakoutLine;
+            Line breakInLine = _chainInsertionData.BreakInLine;
+            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
+
+            if (breakoutLine == breakInLine)
+            {
+                // split breakout line into separate breakout and break-in line
+                breakInLine = GetNewLine(new LineData(linesToInsert[^1].End, breakoutLine.End, breakoutLine.Direction));
+
+                breakInLine.Next = breakoutLine.Next;
+                breakoutLine.Next!.Previous = breakInLine;
+
+                breakoutLine.End = linesToInsert[0].Start;
+                breakoutLine.Next = null;
+            }
+            else
+            {
+                if (breakoutLine.Next != breakInLine)
+                {
+                    //remove in-between lines
+                    foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, breakInLine.Previous))
+                    {
+                        LineCache.Return(inBetweenLine);
+                    }
+                }
+
+                breakoutLine.Next = null;
+                breakInLine.Previous = null;
+            }
+
+            // last inserted line to connect next inserted line to
+            Line lastLine = breakoutLine;
+            // create in-between lines and stitch it all together
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            // no LINQ to avoid allocations
+            foreach (LineData lineData in linesToInsert)
+            {
+                Line line = GetNewLine(lineData);
+                lastLine.Next = line;
+                line.Previous = lastLine;
+            }
+
+            lastLine.Next = breakoutLine;
+            breakoutLine.Previous = lastLine;
+
+            // remove superfluous connection lines that can happen when connecting exactly to loop corners
+            if (breakoutLine.Start == breakoutLine.End)
+            {
+                DissolveZeroLengthLine(breakoutLine);
+            }
+
+            if (breakInLine.Start == breakInLine.End)
+            {
+                DissolveZeroLengthLine(breakInLine);
+                breakInLine = breakInLine.Previous!;
+            }
+
+            _start = breakInLine;
+
+            // assumes the given line has zero lenght, and that the line before and after have the same direction
+            // -> merge the three lines into one
+            // by removing the given line and the line after, and connecting the line before to the line after the (formerly) three lines
+            void DissolveZeroLengthLine(Line line)
+            {
+                Line next = line.Next;
+                Line previous = line.Previous;
+#if DEBUG
+                Debug.Assert(Start == End);
+                Debug.Assert(previous != null && line.Next != null && line.Next.Next != null);
+                Debug.Assert(line.Next!.Direction == previous.Direction);
+#endif
+                Destroy(gameObject);
+                Destroy(line.Next.gameObject);
+                previous.End = line.Next.Start;
+                Line newNext = next.Next;
+#if DEBUG
+                Debug.Assert(newNext != null);
+#endif
+                previous.Next = newNext;
+            }
+
+            Start = breakInLine;
+        }
+
+        private Line GetNewLine(LineData lineData)
+        {
+            Line line = LineCache.Get();
+            line.Set(lineData);
+            return line;
+        }
+
+        private void EvaluateInsertion(LineChain insertTarget, ChainInsertionData result)
         {
             Line chainStart = insertTarget.Start;
             GridDirection breakoutDirection = chainStart.Direction.Turn(_turn);
@@ -69,7 +164,9 @@ namespace Game.Lines
                 _ => throw new ArgumentOutOfRangeException()
             };
 
+#if DEBUG
             Debug.Log(reconnectsInTurn ? "Chain reconnects IN turn" : "Chain reconnects COUNTER turn");
+#endif
 
             result.LinesToInsert.Clear();
 
@@ -151,12 +248,11 @@ namespace Game.Lines
 
             Undo.RegisterFullObjectHierarchyUndo(gameObject, nameof(EditModeInsert));
 
-            EvaluateChainInsertion(insertTarget, _chainInsertionData);
+            EvaluateInsertion(insertTarget, _chainInsertionData);
 
             Line breakoutLine = _chainInsertionData.BreakoutLine;
             Line breakInLine = _chainInsertionData.BreakInLine;
 
-            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
 
             if (breakoutLine == breakInLine)
             {
@@ -179,14 +275,16 @@ namespace Game.Lines
             breakInLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect break-in line previous");
             breakInLine.Previous = null;
 
+            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
+
             // adjust breakout and break-in line positions
             breakInLine.Start = linesToInsert[^1].End;
 
             // insert lines
             Line lastLine = breakoutLine;
-            for (int i = 0; i < linesToInsert.Count; i++)
+            foreach (LineData line in linesToInsert)
             {
-                Line newLine = EditModeInstantiateLine(linesToInsert[i].Start, linesToInsert[i].End, true);
+                Line newLine = EditModeInstantiateLine(line.Start, line.End, true);
                 Undo.IncrementCurrentGroup();
                 lastLine.EditModeStitchToNext(newLine);
                 lastLine = lastLine.Next!;

@@ -20,7 +20,7 @@ namespace Game.Lines
         {
         }
 
-        private LineData(Vector2Int start, Vector2Int end, GridDirection direction)
+        public LineData(Vector2Int start, Vector2Int end, GridDirection direction)
         {
             Start = start;
             End = end;
@@ -29,21 +29,10 @@ namespace Game.Lines
 
         public string DebuggerDisplay => $"{Start} -> {End}({Direction})";
 
-        public GridDirection Direction => _direction;
-
-        public LineData WithStart(Vector2Int start)
+        public GridDirection Direction
         {
-            return new LineData(start, End, start.GetDirection(End));
-        }
-
-        public LineData WithEnd(Vector2Int end)
-        {
-            return new LineData(Start, end, Start.GetDirection(end));
-        }
-
-        public void ReevaluateDirection()
-        {
-            _direction = Start.GetDirection(End);
+            get => _direction;
+            set => _direction = value;
         }
 
         public LineData Reverse()

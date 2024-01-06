@@ -19,7 +19,13 @@ namespace Game.Lines
 
         protected abstract Color GizmosColor { get; }
         public abstract bool Loop { get; }
-        public Line Start => _start;
+
+        public Line Start
+        {
+            get => _start;
+            protected set => _start = value;
+        }
+
         public SimulationGrid Grid => _grid;
         public LineCache LineCache => _lineCache;
         public abstract Line End { get; }
