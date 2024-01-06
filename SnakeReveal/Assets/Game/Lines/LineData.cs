@@ -31,6 +31,16 @@ namespace Game.Lines
 
         public GridDirection Direction => _direction;
 
+        public LineData WithStart(Vector2Int start)
+        {
+            return new LineData(start, End, start.GetDirection(End));
+        }
+
+        public LineData WithEnd(Vector2Int end)
+        {
+            return new LineData(Start, end, Start.GetDirection(end));
+        }
+
         public void ReevaluateDirection()
         {
             _direction = Start.GetDirection(End);

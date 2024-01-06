@@ -23,6 +23,7 @@ namespace Game.Lines
             {
                 current = current.Next;
             }
+
             _end = current;
             base.PostProcessEditModeLineChanges();
         }

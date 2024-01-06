@@ -10,8 +10,9 @@ namespace Game.Lines
         private Line _end;
 
         /// <summary>
-        ///     Enumerates the lines from <see cref="start"/> to <see cref="end"/>, yielding both and all lines in between.
-        ///     It is imperative that the end line can be reached from the start line by following the <see cref="Line.Next"/> property.
+        ///     Enumerates the lines from <see cref="start" /> to <see cref="end" />, yielding both and all lines in between.
+        ///     It is imperative that the end line can be reached from the start line by following the <see cref="Line.Next" />
+        ///     property.
         /// </summary>
         /// <param name="start">
         ///     The first Line this enumerator should yield
@@ -36,11 +37,11 @@ namespace Game.Lines
                 return true;
             }
 
-            if(ReferenceEquals(Current, _end))
+            if (ReferenceEquals(Current, _end))
             {
                 return false;
             }
-            
+
             Current = Current.Next;
             return true;
         }

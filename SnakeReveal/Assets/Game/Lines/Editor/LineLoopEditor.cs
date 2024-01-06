@@ -10,8 +10,10 @@ namespace Game.Lines.Editor
     [CustomEditor(typeof(LineLoop))]
     public class LineLoopEditor : LineContainerEditor
     {
-        private const string IsInsertExpandedKey = "LinkedLineListEditor.IsInsertionExpanded";
-        private const string InsertTargetIdKey = "LinkedLineListEditor.InsertTargetId";
+        private const string IsInsertExpandedKey = "LineLoopEditor.IsInsertionExpanded";
+        private const string DeactivateTargetOnInsertKey = "LineLoopEditor.DeactivateTargetOnInsert";
+        private const string InsertTargetIdKey = "LineLoopEditor.InsertTargetId";
+        private bool _deactivateTargetOnInsert;
 
         private LineChain _insertTarget;
         private int _insertTargetId;
@@ -22,7 +24,7 @@ namespace Game.Lines.Editor
         {
             get
             {
-                if (_insertTarget != null && _isInsertExpanded)
+                if (_insertTarget != null && _isInsertExpanded && _insertTarget.gameObject.activeInHierarchy)
                 {
                     yield return _insertTarget;
                 }
@@ -36,6 +38,8 @@ namespace Game.Lines.Editor
             _turnProperty = serializedObject.FindDirectChild(LineLoop.TurnFieldName);
 
             _isInsertExpanded = EditorPrefs.GetBool(IsInsertExpandedKey, false);
+
+            _deactivateTargetOnInsert = EditorPrefs.GetBool(DeactivateTargetOnInsertKey, false);
 
             _insertTargetId = EditorPrefs.GetInt(InsertTargetIdKey, 0);
             if (_insertTargetId != 0)
@@ -107,6 +111,13 @@ namespace Game.Lines.Editor
                 EditorPrefs.SetInt(InsertTargetIdKey, _insertTargetId);
             }
 
+            EditorGUI.BeginChangeCheck();
+            _deactivateTargetOnInsert = EditorGUILayout.ToggleLeft("Deactivate Target On Insert", _deactivateTargetOnInsert);
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorPrefs.SetBool(DeactivateTargetOnInsertKey, _deactivateTargetOnInsert);
+            }
+
             using (new EditorGUI.DisabledScope(_insertTarget == null || loop.Turn == Turn.None))
             {
                 if (GUILayout.Button("Insert"))
@@ -126,6 +137,12 @@ namespace Game.Lines.Editor
 
                     loop.EditModeInsert(_insertTarget);
                     ReadLinesIntoCorners();
+
+                    if (_deactivateTargetOnInsert)
+                    {
+                        Undo.RegisterFullObjectHierarchyUndo(_insertTarget.gameObject, "Deactivate Insert Target");
+                        _insertTarget.gameObject.SetActive(false);
+                    }
                 }
             }
         }

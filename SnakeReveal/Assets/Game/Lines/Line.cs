@@ -45,10 +45,10 @@ namespace Game.Lines
             get => _line.Start;
             set
             {
-                _line.Start = value;
+                _line = _line.WithStart(value);
                 if (_previous != null)
                 {
-                    _previous._line.End = value;
+                    _previous._line = _previous._line.WithEnd(value);
                     _previous.ApplyPositions();
                 }
 
@@ -61,10 +61,10 @@ namespace Game.Lines
             get => _line.End;
             set
             {
-                _line.End = value;
+                _line = _line.WithEnd(value);
                 if (_next != null)
                 {
-                    _next._line.Start = value;
+                    _next._line = _next._line.WithStart(value);
                     _next.ApplyPositions();
                 }
 
@@ -153,23 +153,13 @@ namespace Game.Lines
             Undo.RegisterFullObjectHierarchyUndo(this, operationName);
         }
 
-        public void Stitch(Line previous, Line next)
+        public void EditModeStitchToNext(Line next)
         {
-            StitchToPrevious(previous);
-            StitchToNext(next);
-        }
-
-        public void StitchToPrevious(Line previous)
-        {
-            Start = previous.End;
-            _previous = previous;
-            previous._next = this;
-        }
-
-        public void StitchToNext(Line next)
-        {
+            RegisterUndo(nameof(EditModeStitchToNext) + " - current");
             End = next.Start;
             _next = next;
+
+            _next!.RegisterUndo(nameof(EditModeStitchToNext) + " - next");
             next._previous = this;
         }
     }

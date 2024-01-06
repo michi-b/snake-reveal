@@ -112,13 +112,6 @@ namespace Game.Lines.Editor
 
         private void OnUndoRedo(in UndoRedoInfo undo)
         {
-            if (undo.isRedo)
-            {
-                var container = (LineContainer)target;
-                Debug.Log($"Redo undo with name {undo.undoName} on container {container.gameObject.name} " +
-                          $"with start {container.Start.DebuggerDisplay} with previous {container.Start.Previous.DebuggerDisplay}");
-            }
-
             ReadLinesIntoCorners();
 
             // ensure that the selected index is not out of bounds

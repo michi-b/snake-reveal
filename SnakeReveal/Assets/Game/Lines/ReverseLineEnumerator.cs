@@ -10,8 +10,10 @@ namespace Game.Lines
         private Line _end;
 
         /// <summary>
-        ///     Enumerates the lines from <see cref="start"/> to <see cref="end"/> in reverse order, yielding both and all lines in between.
-        ///     It is imperative that the <see cref="start"/> can be reached from the <see cref="end"/> by following the <see cref="Line.Next"/> property.
+        ///     Enumerates the lines from <see cref="start" /> to <see cref="end" /> in reverse order, yielding both and all lines
+        ///     in between.
+        ///     It is imperative that the <see cref="start" /> can be reached from the <see cref="end" /> by following the
+        ///     <see cref="Line.Next" /> property.
         /// </summary>
         /// <param name="start">
         ///     The last Line this enumerator should yield
@@ -36,11 +38,11 @@ namespace Game.Lines
                 return true;
             }
 
-            if(ReferenceEquals(Current, _start))
+            if (ReferenceEquals(Current, _start))
             {
                 return false;
             }
-            
+
             Current = Current.Previous;
             return true;
         }

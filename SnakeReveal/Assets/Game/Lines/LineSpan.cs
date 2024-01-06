@@ -32,14 +32,14 @@ namespace Game.Lines
         {
             return GetEnumerator();
         }
-        
+
         public int SumClockwiseTurnWeight()
         {
             if (_start == _end)
             {
                 return 0;
             }
-            
+
             int result = 0;
 
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator

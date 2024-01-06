@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Game.Enums;
 using JetBrains.Annotations;
 
 namespace Game.Lines
@@ -9,7 +8,7 @@ namespace Game.Lines
     {
         private readonly Line _start;
         private readonly Line _end;
-        
+
         /// <inheritdoc cref="ReverseLineEnumerator(Line, Line)" />
         public ReverseLineSpan(Line start, [CanBeNull] Line end)
         {

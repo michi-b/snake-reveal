@@ -43,70 +43,6 @@ namespace Game.Lines
             return base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
         }
 
-        public void EditModeInsert(LineChain insertTarget)
-        {
-            Undo.IncrementCurrentGroup();
-            int insertionUndoGroup = Undo.GetCurrentGroup();
-
-            Undo.RegisterFullObjectHierarchyUndo(gameObject, nameof(EditModeInsert));
-
-            EvaluateChainInsertion(insertTarget, _chainInsertionData);
-
-            Line breakoutLine = _chainInsertionData.BreakoutLine;
-            Line breakInLine = _chainInsertionData.BreakInLine;
-
-            
-            if (breakoutLine == breakInLine)
-            {
-                // split breakout line in two to get a separate break in line, which is necessary to insert the chain in between
-                breakInLine = EditModeInstantiateLine(breakoutLine.Start, breakoutLine.End, true);
-                Undo.IncrementCurrentGroup();
-                
-                breakInLine.RegisterUndo(nameof(EditModeInsert) + " - connect break-in line to next");
-                breakoutLine.Next!.RegisterUndo(nameof(EditModeInsert) + " - connect line after break-in to previous");
-                breakInLine.StitchToNext(breakoutLine.Next);
-            }
-            else if (breakoutLine.Next != breakInLine)
-            {
-                foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, breakInLine.Previous))
-                {
-                    Undo.DestroyObjectImmediate(inBetweenLine.gameObject);
-                }
-            }
-
-            breakoutLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect breakout line next");
-            breakoutLine.Next = null;
-            
-            breakInLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect break-in line previous");
-            breakInLine.Previous = null;
-
-            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
-
-            // adjust breakout and break-in line positions
-            breakInLine.Start = linesToInsert[^1].End;
-
-            // insert lines
-            Line lastLine = breakoutLine;
-            for (int i = 0; i < linesToInsert.Count; i++)
-            {
-                Line newLine = EditModeInstantiateLine(linesToInsert[i].Start, linesToInsert[i].End, true);
-                Undo.IncrementCurrentGroup();
-                lastLine!.RegisterUndo(nameof(EditModeInsert) + " - connect previous line to inserted");
-                newLine!.RegisterUndo(nameof(EditModeInsert) + " - connect inserted line to previous");
-                lastLine!.StitchToNext(newLine);
-                lastLine = lastLine.Next;
-            }
-
-            lastLine!.RegisterUndo(nameof(EditModeInsert) + " - connect last inserted to break-in line");
-            breakInLine!.RegisterUndo(nameof(EditModeInsert) + " - connect break-in line to last inserted");
-            lastLine!.StitchToNext(breakInLine);
-            // start may have been deleted, so it is re-assigned
-            Undo.RecordObject(this, nameof(EditModeInsert) + " - assign new start");
-            _start = breakInLine;
-
-            Undo.CollapseUndoOperations(insertionUndoGroup);
-        }
-
         private void EvaluateChainInsertion(LineChain insertTarget, ChainInsertionData result)
         {
             Line chainStart = insertTarget.Start;
@@ -183,7 +119,7 @@ namespace Game.Lines
 
 #if DEBUG
             Debug.Assert(count <= _findLinesBuffer.Length, $"Overlap point count {count} is larger than collider buffer size {_findLinesBuffer.Length}, " +
-                                                          " which should not be possible by design (usage of layers and avoiding overlapping lines).");
+                                                           " which should not be possible by design (usage of layers and avoiding overlapping lines).");
 #endif
 
             return new Span<Collider2D>(_findLinesBuffer, 0, count);
@@ -205,5 +141,89 @@ namespace Game.Lines
                 LinesToInsert = new List<LineData>(chainInsertionInitialCapacity);
             }
         }
+
+        #region Edit Mode Utility
+
+        public void EditModeInsert(LineChain insertTarget)
+        {
+            Undo.IncrementCurrentGroup();
+            int insertionUndoGroup = Undo.GetCurrentGroup();
+
+            Undo.RegisterFullObjectHierarchyUndo(gameObject, nameof(EditModeInsert));
+
+            EvaluateChainInsertion(insertTarget, _chainInsertionData);
+
+            Line breakoutLine = _chainInsertionData.BreakoutLine;
+            Line breakInLine = _chainInsertionData.BreakInLine;
+
+            List<LineData> linesToInsert = _chainInsertionData.LinesToInsert;
+
+            if (breakoutLine == breakInLine)
+            {
+                // split breakout line in two to get a separate break in line, which is necessary to insert the chain in between
+                breakInLine = EditModeInstantiateLine(breakoutLine.Start, breakoutLine.End, true);
+                Undo.IncrementCurrentGroup();
+                breakInLine.EditModeStitchToNext(breakoutLine.Next);
+            }
+            else if (breakoutLine.Next != breakInLine)
+            {
+                foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, breakInLine.Previous))
+                {
+                    Undo.DestroyObjectImmediate(inBetweenLine.gameObject);
+                }
+            }
+
+            breakoutLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect breakout line next");
+            breakoutLine.Next = null;
+
+            breakInLine.RegisterUndo(nameof(EditModeInsert) + " - disconnect break-in line previous");
+            breakInLine.Previous = null;
+
+            // adjust breakout and break-in line positions
+            breakInLine.Start = linesToInsert[^1].End;
+
+            // insert lines
+            Line lastLine = breakoutLine;
+            for (int i = 0; i < linesToInsert.Count; i++)
+            {
+                Line newLine = EditModeInstantiateLine(linesToInsert[i].Start, linesToInsert[i].End, true);
+                Undo.IncrementCurrentGroup();
+                lastLine.EditModeStitchToNext(newLine);
+                lastLine = lastLine.Next!;
+            }
+
+            lastLine.EditModeStitchToNext(breakInLine);
+
+            // remove superfluous connection lines that can happen when connecting exactly to loop corners
+            if (breakoutLine.Start == breakoutLine.End)
+            {
+                EditModeDissolve(breakoutLine);
+            }
+
+            if (breakInLine.Start == breakInLine.End)
+            {
+                Line dissolvingBreakInLine = breakInLine;
+                breakInLine = dissolvingBreakInLine!.Previous;
+                EditModeDissolve(dissolvingBreakInLine);
+            }
+
+            // start may have been deleted, so it is re-assigned
+            Undo.RecordObject(this, nameof(EditModeInsert) + " - assign new start");
+            _start = breakInLine;
+
+            Undo.CollapseUndoOperations(insertionUndoGroup);
+        }
+
+        private static void EditModeDissolve(Line line)
+        {
+            Line previous = line.Previous;
+            Line next = line.Next!;
+            Line nextNext = next.Next;
+            Undo.DestroyObjectImmediate(line.gameObject);
+            Undo.DestroyObjectImmediate(next.gameObject);
+            previous!.EditModeStitchToNext(nextNext);
+        }
+
+        #endregion
     }
 }
