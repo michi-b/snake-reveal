@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Extensions;
 using Game.Enums;
 using Game.Grid;
@@ -12,8 +13,8 @@ namespace Game.Lines
     /// <summary>
     ///     minimal immutable struct to cache information of line container lines
     /// </summary>
-    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D))]
-    public partial class Line : MonoBehaviour
+    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D)), DebuggerDisplay("{DebuggerDisplay,nq}")]
+    public class Line : MonoBehaviour
     {
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
 
@@ -30,15 +31,14 @@ namespace Game.Lines
             _line = new LineData(start, end);
         }
 
+        public string DebuggerDisplay => $"{_line.DebuggerDisplay})";
+
         public SimulationGrid Grid
         {
             set => _grid = value;
         }
 
-        public GridDirection Direction
-        {
-            get => _line.Direction;
-        }
+        public GridDirection Direction => _line.Direction;
 
         public Vector2Int Start
         {
@@ -67,6 +67,7 @@ namespace Game.Lines
                     _next._line.Start = value;
                     _next.ApplyPositions();
                 }
+
                 ApplyPositions();
             }
         }
@@ -89,6 +90,8 @@ namespace Game.Lines
             get => _next;
             set => _next = value;
         }
+
+        public LineData DataStruct => _line;
 
         protected void Reset()
         {
@@ -116,7 +119,7 @@ namespace Game.Lines
         private void ApplyPositions()
         {
             _line.ReevaluateDirection();
-            
+
             transform.SetLocalPositionXY(_grid.GetScenePosition(Start));
 
             Vector2Int delta = End - Start;
@@ -129,6 +132,45 @@ namespace Game.Lines
             // first element in collider points update buffer must always be Vector2.zero
             ColliderPointsUpdateBuffer[1] = sceneDelta;
             _collider.SetPoints(ColliderPointsUpdateBuffer);
+        }
+
+        public void RegisterUndoWithNeighbors(string operationName)
+        {
+            if (_previous != null)
+            {
+                _previous.RegisterUndo(operationName);
+            }
+
+            RegisterUndo(operationName);
+            if (_next != null)
+            {
+                _next.RegisterUndo(operationName);
+            }
+        }
+
+        public void RegisterUndo(string operationName)
+        {
+            Undo.RegisterFullObjectHierarchyUndo(this, operationName);
+        }
+
+        public void Stitch(Line previous, Line next)
+        {
+            StitchToPrevious(previous);
+            StitchToNext(next);
+        }
+
+        public void StitchToPrevious(Line previous)
+        {
+            Start = previous.End;
+            _previous = previous;
+            previous._next = this;
+        }
+
+        public void StitchToNext(Line next)
+        {
+            End = next.Start;
+            _next = next;
+            next._previous = this;
         }
     }
 }

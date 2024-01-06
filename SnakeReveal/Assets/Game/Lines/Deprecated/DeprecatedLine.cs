@@ -128,7 +128,7 @@ namespace Game.Lines.Deprecated
 
         public GridDirection GetDirection(bool followLineDirection)
         {
-            return followLineDirection ? Direction : Direction.GetOpposite();
+            return followLineDirection ? Direction : Direction.Reverse();
         }
 
         public GridDirection GetDirection(Vector2Int position)
@@ -175,7 +175,7 @@ namespace Game.Lines.Deprecated
         {
             (Start, End) = (End, Start);
             (Previous, Next) = (Next, Previous);
-            _direction = _direction.GetOpposite();
+            _direction = _direction.Reverse();
         }
     }
 }

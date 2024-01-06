@@ -9,11 +9,11 @@ using Utility;
 
 namespace Game.Lines
 {
-    public abstract partial class LineContainer : MonoBehaviour, IEnumerable<Line>
+    public abstract class LineContainer : MonoBehaviour, IEnumerable<Line>
     {
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private LineCache _lineCache;
-        [SerializeField, HideInInspector] private Line _start;
+        [SerializeField, HideInInspector] protected Line _start;
         [SerializeField, HideInInspector] private bool _displayLinesInHierarchy;
         [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
 
@@ -89,6 +89,37 @@ namespace Game.Lines
             return new LineSpan(_start, End);
         }
 
+        public ReverseLineSpan AsReverseSpan()
+        {
+            return new ReverseLineSpan(_start, End);
+        }
+
+        public Line EditModeInstantiateLine(Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
+        {
+            Line result = Instantiate(_lineCache.Prefab, transform);
+            if (registerUndo)
+            {
+                Undo.RegisterCreatedObjectUndo(result.gameObject, nameof(EditModeInstantiateLine));
+            }
+
+            result.Grid = _grid;
+            result.Start = startPosition;
+            result.End = endPosition;
+
+            GameObject resultGameObject = result.gameObject;
+            if (registerUndo)
+            {
+                Undo.RecordObject(resultGameObject, nameof(EditModeInstantiateLine) + " - Set Layer");
+            }
+
+            resultGameObject.layer = gameObject.layer;
+
+
+            EditModeUtility.ApplyHideLineInSceneView(this, result);
+
+            return result;
+        }
+
         public static class EditModeUtility
         {
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
@@ -103,12 +134,12 @@ namespace Game.Lines
                 ClearLines(container);
 
                 Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild));
-                Line start = InstantiateLine(container, positions[0], positions[1]);
+                Line start = container.EditModeInstantiateLine(positions[0], positions[1], true);
                 Line last = start;
                 for (int i = 2; i < positions.Count; i++)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line line = InstantiateLine(container, last.End, positions[i]);
+                    Line line = container.EditModeInstantiateLine(last.End, positions[i], true);
                     Undo.RecordObject(line, nameof(Rebuild) + " - patch created line");
                     line.Previous = last;
 
@@ -120,7 +151,7 @@ namespace Game.Lines
                 if (container.Loop)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line loopConnection = InstantiateLine(container, last.End, start.Start);
+                    Line loopConnection = container.EditModeInstantiateLine(last.End, start.Start, true);
                     Undo.RecordObject(loopConnection, nameof(Rebuild) + " - patch loop connection");
                     loopConnection.Previous = last;
                     loopConnection.Next = start;
@@ -135,32 +166,15 @@ namespace Game.Lines
                 container._start = start;
             }
 
-            public static Line InstantiateLine(LineContainer container, Vector2Int startPosition, Vector2Int endPosition)
-            {
-                Line result = Instantiate(container._lineCache.Prefab, container.transform);
-                Undo.RecordObject(result, nameof(InstantiateLine) + " - Initialization");
-                result.Grid = container._grid;
-                result.Start = startPosition;
-                result.End = endPosition;
-
-                GameObject resultGameObject = result.gameObject;
-                Undo.RecordObject(resultGameObject, nameof(InstantiateLine) + " - Set Layer");
-                resultGameObject.layer = container.gameObject.layer;
-                Undo.RegisterCreatedObjectUndo(resultGameObject, nameof(InstantiateLine));
-
-                ApplyHideLineInSceneView(container, result);
-
-                return result;
-            }
-
             private static void ClearLines(LineContainer container)
             {
                 Line current = container._start;
                 while (current != null)
                 {
-                    Object.DestroyImmediate(current.gameObject);
+                    DestroyImmediate(current.gameObject);
                     current = current.Next;
                 }
+
                 container._start = null;
             }
 
@@ -172,16 +186,23 @@ namespace Game.Lines
                 }
             }
 
-            private static void ApplyHideLineInSceneView(LineContainer container, Line line)
+            public static void ApplyHideLineInSceneView(LineContainer container, Line line)
             {
-                Undo.RegisterFullObjectHierarchyUndo(line.gameObject, nameof(ApplyHideLineInSceneView));
+                if (!Application.isPlaying)
+                {
+                    Undo.RegisterFullObjectHierarchyUndo(line.gameObject, nameof(ApplyHideLineInSceneView));
+                }
+
                 line.gameObject.SetVisibleInSceneView(container._displayLinesInHierarchy);
             }
 
-
             public static void PostProcessLineChanges(LineContainer container)
             {
-                Undo.RecordObject(container, nameof(PostProcessLineChanges));
+                if (!Application.isPlaying)
+                {
+                    Undo.RecordObject(container, nameof(PostProcessLineChanges));
+                }
+
                 container.PostProcessEditModeLineChanges();
             }
         }

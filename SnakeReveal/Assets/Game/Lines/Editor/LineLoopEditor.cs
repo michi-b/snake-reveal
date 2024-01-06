@@ -12,7 +12,7 @@ namespace Game.Lines.Editor
     {
         private const string IsInsertExpandedKey = "LinkedLineListEditor.IsInsertionExpanded";
         private const string InsertTargetIdKey = "LinkedLineListEditor.InsertTargetId";
-        
+
         private LineChain _insertTarget;
         private int _insertTargetId;
         private bool _isInsertExpanded;
@@ -52,7 +52,7 @@ namespace Game.Lines.Editor
         protected override void DrawProperties()
         {
             base.DrawProperties();
-            
+
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.PropertyField(_turnProperty);
@@ -64,6 +64,17 @@ namespace Game.Lines.Editor
             base.OnInspectorGUI();
             var loop = (LineLoop)target;
             DrawInsert(loop);
+        }
+
+        protected override void InitializeCorners(List<Vector2Int> corners)
+        {
+            const int size = 3;
+            var container = (LineLoop)target;
+            Vector2Int center = container.Grid.CenterPosition;
+            corners.Add(center + new Vector2Int(-size, size));
+            corners.Add(center + new Vector2Int(size, size));
+            corners.Add(center + new Vector2Int(size, -size));
+            corners.Add(center + new Vector2Int(-size, -size));
         }
 
         private void DrawInsert(LineLoop loop)
@@ -114,6 +125,7 @@ namespace Game.Lines.Editor
                     }
 
                     loop.EditModeInsert(_insertTarget);
+                    ReadLinesIntoCorners();
                 }
             }
         }

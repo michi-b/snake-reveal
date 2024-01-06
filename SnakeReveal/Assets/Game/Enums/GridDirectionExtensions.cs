@@ -108,7 +108,7 @@ namespace Game.Enums
             };
         }
 
-        public static GridDirection GetOpposite(this GridDirection target)
+        public static GridDirection Reverse(this GridDirection target)
         {
             return target switch
             {
@@ -123,7 +123,7 @@ namespace Game.Enums
 
         public static bool IsOpposite(this GridDirection target, GridDirection other)
         {
-            return target.GetOpposite() == other;
+            return target.Reverse() == other;
         }
 
         public static bool IsSameOrOpposite(this GridDirection target, GridDirection other)

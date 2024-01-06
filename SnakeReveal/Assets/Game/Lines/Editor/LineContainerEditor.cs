@@ -27,15 +27,15 @@ namespace Game.Lines.Editor
         private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
         private static readonly GUIContent MoveLabel = new("Move", "Move all corners by modifying this vector.");
-        
-        private SerializedProperty _hideLinesInSceneViewProperty;
-        private SerializedProperty _clockwiseTurnWeightProperty;
-        private SerializedProperty _startProperty;
 
         private readonly List<Vector2Int> _corners = new();
+        private SerializedProperty _clockwiseTurnWeightProperty;
         private ReorderableList _cornersList;
 
+        private SerializedProperty _hideLinesInSceneViewProperty;
+
         private Vector2Int _move;
+        private SerializedProperty _startProperty;
 
 
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
@@ -112,6 +112,13 @@ namespace Game.Lines.Editor
 
         private void OnUndoRedo(in UndoRedoInfo undo)
         {
+            if (undo.isRedo)
+            {
+                var container = (LineContainer)target;
+                Debug.Log($"Redo undo with name {undo.undoName} on container {container.gameObject.name} " +
+                          $"with start {container.Start.DebuggerDisplay} with previous {container.Start.Previous.DebuggerDisplay}");
+            }
+
             ReadLinesIntoCorners();
 
             // ensure that the selected index is not out of bounds
@@ -160,16 +167,8 @@ namespace Game.Lines.Editor
                 if (GUILayout.Button(InitializeCornersLabel))
                 {
                     //ensure we got at least 2 positions
-                    if (_corners.Count == 0)
-                    {
-                        _corners.Add(container.Grid.CenterPosition);
-                    }
-
-                    if (_corners.Count == 1)
-                    {
-                        _corners.Add(_corners[0] + Vector2Int.right);
-                    }
-
+                    _corners.Clear();
+                    InitializeCorners(_corners);
                     ApplyCorners(container);
                 }
             }
@@ -214,6 +213,13 @@ namespace Game.Lines.Editor
             }
         }
 
+        protected virtual void InitializeCorners(List<Vector2Int> corners)
+        {
+            var container = (LineContainer)target;
+            corners.Add(container.Grid.CenterPosition);
+            corners.Add(_corners[0] + Vector2Int.right);
+        }
+
         protected virtual void DrawProperties()
         {
             using (new EditorGUI.DisabledScope(true))
@@ -232,7 +238,7 @@ namespace Game.Lines.Editor
             }
 
             Line startLine = container.Start;
-            
+
             if (startLine == null || container.End == null)
             {
                 return;
@@ -243,13 +249,13 @@ namespace Game.Lines.Editor
 
             if (PositionHandle(startLine.Start, out Vector2Int newStartStart))
             {
-                Line.EditModeUtility.RecordUndoWithNeighbors(startLine, LinePositionHandleMoveOperationName);
+                startLine.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                 startLine.Start = newStartStart;
             }
 
             if (PositionHandle(startLine.End, out Vector2Int newStartEnd))
             {
-                Line.EditModeUtility.RecordUndoWithNeighbors(startLine, LinePositionHandleMoveOperationName);
+                startLine.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                 startLine.End = newStartEnd;
             }
 
@@ -260,7 +266,7 @@ namespace Game.Lines.Editor
                 {
                     if (PositionHandle(lineAfterFirst.End, out Vector2Int newLineAfterStartEnd))
                     {
-                        Line.EditModeUtility.RecordUndoWithNeighbors(lineAfterFirst, LinePositionHandleMoveOperationName);
+                        lineAfterFirst.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                         lineAfterFirst.End = newLineAfterStartEnd;
                     }
                 }
@@ -272,7 +278,6 @@ namespace Game.Lines.Editor
                 if (drawThisContainer)
                 {
                     ReadLinesIntoCorners();
-                    Repaint();
                 }
             }
 
@@ -310,7 +315,7 @@ namespace Game.Lines.Editor
             }
         }
 
-        private void ReadLinesIntoCorners()
+        protected void ReadLinesIntoCorners()
         {
             _corners.Clear();
             var container = (LineContainer)target;
@@ -319,14 +324,16 @@ namespace Game.Lines.Editor
             if (start != null && end != null)
             {
                 _corners.Add(start.Start);
-                
+
                 // skip last line if container is looping (it'd be the same corner as the first one)
                 Line lastLine = container.Loop ? end.Previous : end;
-                
+
                 List<Vector2Int> endPositions = new LineSpan(start, lastLine).Select(line => line.End).ToList();
-                
+
                 _corners.AddRange(endPositions);
             }
+
+            Repaint();
         }
 
         private void DrawCorner(Rect rect, int index, bool isActive, bool isFocused)
