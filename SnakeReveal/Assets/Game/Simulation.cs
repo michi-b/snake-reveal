@@ -1,5 +1,4 @@
-﻿using Game.Lines;
-using Game.Player;
+﻿using Game.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +7,8 @@ namespace Game
     public class Simulation : MonoBehaviour
     {
         [SerializeField] private PlayerActor _playerActor;
-        [SerializeField] private LineLoop _drawnShape;
-        [SerializeField] private LineChain _drawingLineChain;
+        [SerializeField] private DrawnShape _drawnShape;
+        [SerializeField] private DrawingChain _drawingLineChain;
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
 

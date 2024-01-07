@@ -41,10 +41,10 @@ namespace Game.Lines
             }
         }
 
-        public void Set(Vector2Int start, Vector2Int end)
+        public void Set(LineData lineData)
         {
             Clear();
-            Line line = GetNewLine(start, end);
+            Line line = GetNewLine(lineData);
             _start = _end = line;
         }
 

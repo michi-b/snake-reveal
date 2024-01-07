@@ -5,36 +5,37 @@ using UnityEngine;
 
 namespace Game.Lines
 {
-    public class ChainInsertionEvaluation
+    public class InsertionEvaluation
     {
-        public const int DefaultInsertionLineCapacity = 1000;
+        private const int DefaultInsertionLineCapacity = 1000;
 
         // sorted lines to insert into loop between breakout line and break-in line
         // be wary of that the breakout line and break-in line might be the same
         public readonly List<LineData> LinesToInsert;
-        public Line BreakInLine { get; private set; } // break-in line on loop
-        public Line BreakoutLine { get; private set; } // breakout line on loop
-        public bool ReconnectsInTurn { get; private set; }
 
-        public ChainInsertionEvaluation(int chainInsertionInitialCapacity = DefaultInsertionLineCapacity)
+        public InsertionEvaluation(int chainInsertionInitialCapacity = DefaultInsertionLineCapacity)
         {
             LinesToInsert = new List<LineData>(chainInsertionInitialCapacity);
             BreakoutLine = default;
-            BreakInLine = default;
+            ReInsertionLine = default;
             ReconnectsInTurn = default;
         }
-        
-        public void Evaluate(Turn loopTurn, LineChain insertTarget, Line loopBreakoutLine, Line loopBreakInLine)
+
+        public Line ReInsertionLine { get; private set; } // break-in line on loop
+        public Line BreakoutLine { get; private set; } // breakout line on loop
+        public bool ReconnectsInTurn { get; private set; }
+
+        public void Evaluate(Turn loopTurn, LineChain chain, Line loopBreakoutLine, Line loopReinsertionLine)
         {
 #if DEBUG
-            Debug.Assert(loopBreakoutLine.Contains(insertTarget.Start.Start));
-            Debug.Assert(loopBreakInLine.Contains(insertTarget.End.End));
+            Debug.Assert(loopBreakoutLine.Contains(chain.Start.Start));
+            Debug.Assert(loopReinsertionLine.Contains(chain.End.End));
 #endif
-            BreakInLine = loopBreakInLine;
+            ReInsertionLine = loopReinsertionLine;
             BreakoutLine = loopBreakoutLine;
 
-            int loopTurnClockwiseWeight = new LineSpan(loopBreakoutLine, loopBreakInLine).SumClockwiseTurnWeight();
-            int chainTurnClockwiseWeight = insertTarget.AsSpan().SumClockwiseTurnWeight();
+            int loopTurnClockwiseWeight = new LineSpan(loopBreakoutLine, loopReinsertionLine).SumClockwiseTurnWeight();
+            int chainTurnClockwiseWeight = chain.AsSpan().SumClockwiseTurnWeight();
             int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
 
             ReconnectsInTurn = loopTurn switch
@@ -49,17 +50,17 @@ namespace Game.Lines
 
             if (ReconnectsInTurn)
             {
-                foreach (Line line in insertTarget)
+                foreach (Line line in chain)
                 {
                     LinesToInsert.Add(line.Data);
                 }
             }
             else
             {
-                (BreakoutLine, BreakInLine) = (BreakInLine, BreakoutLine);
+                (BreakoutLine, ReInsertionLine) = (ReInsertionLine, BreakoutLine);
                 // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
                 // no LINQ to avoid allocations
-                foreach (Line line in insertTarget.AsReverseSpan())
+                foreach (Line line in chain.AsReverseSpan())
                 {
                     LinesToInsert.Add(line.Data.Reverse());
                 }

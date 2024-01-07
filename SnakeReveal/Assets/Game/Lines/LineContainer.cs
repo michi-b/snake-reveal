@@ -272,6 +272,7 @@ namespace Game.Lines
 
                 container.PostProcessEditModeLineChanges();
             }
+
             public static Line Instantiate(LineContainer container, Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
             {
                 Line result = Object.Instantiate(container._lineCache.Prefab, container.transform);
@@ -292,7 +293,7 @@ namespace Game.Lines
 
                 resultGameObject.layer = container.gameObject.layer;
 
-                EditModeUtility.ApplyHideLineInSceneView(container, result);
+                ApplyHideLineInSceneView(container, result);
 
                 return result;
             }

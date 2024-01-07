@@ -185,10 +185,10 @@ namespace Game.Lines.Editor
                 return;
             }
 
-            var insertionEvaluation = new ChainInsertionEvaluation();
+            var insertionEvaluation = new InsertionEvaluation();
             insertionEvaluation.Evaluate(loop.Turn, insertTarget, breakoutLine, breakInLine);
             breakoutLine = insertionEvaluation.BreakoutLine;
-            breakInLine = insertionEvaluation.BreakInLine;
+            breakInLine = insertionEvaluation.ReInsertionLine;
 
             if (breakoutLine == breakInLine)
             {

@@ -11,7 +11,7 @@ namespace Game.Lines
 
         [SerializeField, HideInInspector] private Turn _turn;
 
-        private readonly ChainInsertionEvaluation _chainInsertionEvaluation = new ChainInsertionEvaluation();
+        private readonly InsertionEvaluation _insertionEvaluation = new();
 
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
         public override bool Loop => true;
@@ -19,6 +19,11 @@ namespace Game.Lines
         // ReSharper disable once Unity.NoNullPropagation
         public override Line End => Start?.Previous;
         public Turn Turn => _turn;
+
+        public Turn GetTurn(bool startToEnd = true)
+        {
+            return startToEnd ? Turn : Turn.Reverse();
+        }
 
         protected override void PostProcessEditModeLineChanges()
         {
@@ -42,42 +47,42 @@ namespace Game.Lines
         ///     Also shifts the <see cref="LineLoop.Start" /> to contain the break-in position.
         /// </summary>
         /// <param name="lineChain">The line chain to insert</param>
-        /// <param name="beforeChain">The line on this loop that the line chain originates at</param>
-        /// <param name="afterChain">The lin on this loop that the lin chain ends at</param>
+        /// <param name="breakoutLine">The line on this loop that the line chain originates at</param>
+        /// <param name="reinsertionLine">The lin on this loop that the lin chain ends at</param>
         /// <returns>Whether the chain reconnects to this loop in the turn of this loop</returns>
-        public bool Insert(LineChain lineChain, [NotNull] Line beforeChain, [NotNull] Line afterChain)
+        public InsertionResult Insert(LineChain lineChain, [NotNull] Line breakoutLine, [NotNull] Line reinsertionLine)
         {
-            _chainInsertionEvaluation.Evaluate(_turn, lineChain, beforeChain, afterChain);
-            beforeChain = _chainInsertionEvaluation.BreakoutLine;
-            afterChain = _chainInsertionEvaluation.BreakInLine;
-            List<LineData> linesToInsert = _chainInsertionEvaluation.LinesToInsert;
+            _insertionEvaluation.Evaluate(_turn, lineChain, breakoutLine, reinsertionLine);
+            breakoutLine = _insertionEvaluation.BreakoutLine;
+            reinsertionLine = _insertionEvaluation.ReInsertionLine;
+            List<LineData> linesToInsert = _insertionEvaluation.LinesToInsert;
 
-            if (beforeChain == afterChain)
+            if (breakoutLine == reinsertionLine)
             {
                 // crate new line after chain
-                afterChain = GetNewLine(afterChain.Data);
-                afterChain.Next = beforeChain.Next;
-                beforeChain.Next!.Previous = afterChain;
+                reinsertionLine = GetNewLine(reinsertionLine.Data);
+                reinsertionLine.Next = breakoutLine.Next;
+                breakoutLine.Next!.Previous = reinsertionLine;
             }
             else
             {
-                if (beforeChain.Next != afterChain)
+                if (breakoutLine.Next != reinsertionLine)
                 {
                     //remove in-between lines
-                    foreach (Line inBetweenLine in new LineSpan(beforeChain.Next, afterChain.Previous))
+                    foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, reinsertionLine.Previous))
                     {
                         LineCache.Return(inBetweenLine);
                     }
                 }
             }
 
-            beforeChain.Next = null;
-            beforeChain.End = linesToInsert[0].Start;
-            afterChain.Previous = null;
-            afterChain.Start = linesToInsert[^1].End;
+            breakoutLine.Next = null;
+            breakoutLine.End = linesToInsert[0].Start;
+            reinsertionLine.Previous = null;
+            reinsertionLine.Start = linesToInsert[^1].End;
 
             // last inserted line to connect next inserted line to
-            Line lastLine = beforeChain;
+            Line lastLine = breakoutLine;
             // create in-between lines and stitch it all together
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             // no LINQ to avoid allocations
@@ -91,24 +96,26 @@ namespace Game.Lines
                 lastLine = line;
             }
 
-            lastLine.Next = afterChain;
-            afterChain.Previous = lastLine;
+            lastLine.Next = reinsertionLine;
+            reinsertionLine.Previous = lastLine;
 
             // remove superfluous connection lines that can happen when connecting exactly to loop corners
-            if (beforeChain.Start == beforeChain.End)
+            if (breakoutLine.Start == breakoutLine.End)
             {
-                DissolveZeroLengthLine(beforeChain);
-                beforeChain = beforeChain.Previous!;
+                DissolveZeroLengthLine(breakoutLine);
+                breakoutLine = breakoutLine.Previous!;
             }
 
-            if (afterChain.Start == afterChain.End)
+            if (reinsertionLine.Start == reinsertionLine.End)
             {
-                DissolveZeroLengthLine(afterChain);
-                afterChain = afterChain.Previous!;
+                DissolveZeroLengthLine(reinsertionLine);
+                reinsertionLine = reinsertionLine.Previous!;
             }
 
-            Start = _chainInsertionEvaluation.ReconnectsInTurn ? afterChain : beforeChain;
-            return _chainInsertionEvaluation.ReconnectsInTurn;
+            // start line may have been eliminated -> just set it to the line the chain "flows" into
+            Line continuation = _insertionEvaluation.ReconnectsInTurn ? reinsertionLine : breakoutLine;
+            Start = continuation;
+            return new InsertionResult(continuation, _insertionEvaluation.ReconnectsInTurn);
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction
             // -> merge the three lines into one

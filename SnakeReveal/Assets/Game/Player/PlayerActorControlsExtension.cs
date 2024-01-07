@@ -1,41 +1,70 @@
 ﻿using System;
+using System.Collections.Generic;
 using Game.Enums;
 using UnityEngine.InputSystem;
 
 namespace Game.Player
 {
-    public partial class PlayerActorControls
+    public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions
     {
+        private const float Threshold = 0.5f;
+        private readonly List<GridDirection> _directionRequests = new(4);
         private readonly Action<GridDirection> _requestDirectionChange;
 
         public PlayerActorControls(Action<GridDirection> requestDirectionChange) : this()
         {
             _requestDirectionChange = requestDirectionChange;
-            PlayerActor.Down.performed += OnDownPerformed;
-            PlayerActor.Up.performed += OnUpPerformed;
-            PlayerActor.Left.performed += OnLeftPerformed;
-            PlayerActor.Right.performed += OnRightPerformed;
-            PlayerActor.Enable();
+            PlayerActor.SetCallbacks(this);
         }
 
-        private void OnDownPerformed(InputAction.CallbackContext ctx)
+        public void EvaluateDirectionRequests()
         {
-            _requestDirectionChange(GridDirection.Down);
+            if(_directionRequests.Count == 0)
+            {
+                return;
+            }
+
+            _requestDirectionChange(_directionRequests[^1]);
         }
 
-        private void OnUpPerformed(InputAction.CallbackContext ctx)
+        public void OnRight(InputAction.CallbackContext context)
         {
-            _requestDirectionChange(GridDirection.Up);
+            RegisterDirectionInput(context, GridDirection.Right);
         }
 
-        private void OnLeftPerformed(InputAction.CallbackContext ctx)
+        public void OnUp(InputAction.CallbackContext context)
         {
-            _requestDirectionChange(GridDirection.Left);
+            RegisterDirectionInput(context, GridDirection.Up);
         }
 
-        private void OnRightPerformed(InputAction.CallbackContext ctx)
+        public void OnLeft(InputAction.CallbackContext context)
         {
-            _requestDirectionChange(GridDirection.Right);
+            RegisterDirectionInput(context, GridDirection.Left);
+        }
+
+        public void OnDown(InputAction.CallbackContext context)
+        {
+            RegisterDirectionInput(context, GridDirection.Down);
+        }
+
+        private void RegisterDirectionInput(InputAction.CallbackContext context, GridDirection direction)
+        {
+            if (context.performed)
+            {
+                _directionRequests.Add(direction);
+            }
+            else if (context.canceled)
+            {
+                _directionRequests.Remove(direction);
+            }
+        }
+
+        private enum DirectionRequest
+        {
+            Up,
+            Right,
+            Down,
+            Left
         }
     }
 }

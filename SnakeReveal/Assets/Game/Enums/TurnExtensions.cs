@@ -34,7 +34,7 @@ namespace Game.Enums
         {
             return turn switch
             {
-                Turn.None => Turn.None,
+                Turn.None => throw new ArgumentOutOfRangeException(nameof(turn), turn, null),
                 Turn.Right => Turn.Left,
                 Turn.Left => Turn.Right,
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
