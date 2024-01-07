@@ -8,46 +8,76 @@ namespace Game.Player
     public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions
     {
         private const float Threshold = 0.5f;
-        private readonly List<GridDirection> _directionRequests = new(4);
-        private readonly Action<GridDirection> _requestDirectionChange;
+        private readonly List<DirectionRequest> _directionRequests = new(4);
 
-        public PlayerActorControls(Action<GridDirection> requestDirectionChange) : this()
+        public static PlayerActorControls Create()
         {
-            _requestDirectionChange = requestDirectionChange;
-            PlayerActor.SetCallbacks(this);
+            var instance = new PlayerActorControls();
+            instance.PlayerActor.SetCallbacks(instance);
+            return instance;
         }
 
-        public void EvaluateDirectionRequests()
+        public void Activate()
         {
-            if(_directionRequests.Count == 0)
+            Enable();
+            
+            foreach (DirectionRequest directionRequest in DirectionRequestOptions)
             {
-                return;
+                if (GetIsDirectionRequestActive(directionRequest))
+                {
+                    _directionRequests.Add(directionRequest);
+                }
             }
+        }
 
-            _requestDirectionChange(_directionRequests[^1]);
+        public void Deactivate()
+        {
+            Disable();
+            
+            _directionRequests.Clear();
         }
 
         public void OnRight(InputAction.CallbackContext context)
         {
-            RegisterDirectionInput(context, GridDirection.Right);
+            RegisterDirectionRequest(context, DirectionRequest.KeyRight);
         }
 
         public void OnUp(InputAction.CallbackContext context)
         {
-            RegisterDirectionInput(context, GridDirection.Up);
+            RegisterDirectionRequest(context, DirectionRequest.KeyUp);
         }
 
         public void OnLeft(InputAction.CallbackContext context)
         {
-            RegisterDirectionInput(context, GridDirection.Left);
+            RegisterDirectionRequest(context, DirectionRequest.KeyLeft);
         }
 
         public void OnDown(InputAction.CallbackContext context)
         {
-            RegisterDirectionInput(context, GridDirection.Down);
+            RegisterDirectionRequest(context, DirectionRequest.KeyDown);
         }
 
-        private void RegisterDirectionInput(InputAction.CallbackContext context, GridDirection direction)
+        public bool TryGetRequestedDirection(out GridDirection direction)
+        {
+            if (_directionRequests.Count == 0)
+            {
+                direction = GridDirection.None;
+                return false;
+            }
+
+            DirectionRequest latestDirectionRequest = _directionRequests[^1];
+            direction = latestDirectionRequest switch
+            {
+                DirectionRequest.KeyUp => GridDirection.Up,
+                DirectionRequest.KeyRight => GridDirection.Right,
+                DirectionRequest.KeyDown => GridDirection.Down,
+                DirectionRequest.KeyLeft => GridDirection.Left,
+                _ => throw new ArgumentOutOfRangeException(nameof(latestDirectionRequest), latestDirectionRequest, null)
+            };
+            return true;
+        }
+
+        private void RegisterDirectionRequest(InputAction.CallbackContext context, DirectionRequest direction)
         {
             if (context.performed)
             {
@@ -61,10 +91,35 @@ namespace Game.Player
 
         private enum DirectionRequest
         {
-            Up,
-            Right,
-            Down,
-            Left
+            KeyUp,
+            KeyRight,
+            KeyDown,
+            KeyLeft
+        }
+        
+        private static readonly DirectionRequest[] DirectionRequestOptions = new[]
+        {
+            DirectionRequest.KeyUp,
+            DirectionRequest.KeyRight,
+            DirectionRequest.KeyDown,
+            DirectionRequest.KeyLeft
+        };
+        
+        private InputAction GetInputAction(DirectionRequest directionRequest)
+        {
+            return directionRequest switch
+            {
+                DirectionRequest.KeyUp => m_PlayerActor_Up,
+                DirectionRequest.KeyRight => m_PlayerActor_Right,
+                DirectionRequest.KeyDown => m_PlayerActor_Down,
+                DirectionRequest.KeyLeft => m_PlayerActor_Left,
+                _ => throw new ArgumentOutOfRangeException(nameof(directionRequest), directionRequest, null)
+            };
+        }
+        
+        private bool GetIsDirectionRequestActive(DirectionRequest directionRequest)
+        {
+            return GetInputAction(directionRequest).ReadValue<float>() > Threshold;
         }
     }
 }

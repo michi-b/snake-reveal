@@ -12,14 +12,14 @@ namespace Game
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
 
-        private PlayerDrawingSimulation _playerDrawingSimulation;
+        private PlayerActorMovement _playerActorMovement;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
         public int Ticks { get; private set; }
 
         protected virtual void Awake()
         {
-            _playerDrawingSimulation = new PlayerDrawingSimulation(this, _playerActor, _drawnShape, _drawingLineChain);
+            _playerActorMovement = new PlayerActorMovement(this, _playerActor, _drawnShape, _drawingLineChain);
         }
 
         protected virtual void FixedUpdate()
@@ -27,17 +27,17 @@ namespace Game
             Ticks++;
             _tickCounter.text = Ticks.ToString();
             _timeCounter.text = (Ticks * 0.0083).ToString("F2");
-            _playerDrawingSimulation.Tick();
+            _playerActorMovement.Move();
         }
 
         protected virtual void OnEnable()
         {
-            _playerDrawingSimulation.ControlsEnabled = true;
+            _playerActorMovement.ControlsEnabled = true;
         }
 
         protected virtual void OnDisable()
         {
-            _playerDrawingSimulation.ControlsEnabled = false;
+            _playerActorMovement.ControlsEnabled = false;
         }
     }
 }

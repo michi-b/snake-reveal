@@ -289,5 +289,21 @@ namespace Game.Lines
                          && Direction != GridDirection.None
                          && Direction == Start.GetDirection(End));
         }
+
+        /// <returns>
+        ///     A <see cref="LineSpan" /> including line itself, and optionally also the next line in
+        ///     <see cref="startToEnd" /> direction if <see cref="atLineEnd" /> is true
+        /// </returns>
+        public LineSpan GetLines(bool atLineEnd, bool startToEnd)
+        {
+            if (atLineEnd)
+            {
+                return startToEnd
+                    ? new LineSpan(this, Next)
+                    : new LineSpan(Previous, this);
+            }
+
+            return new LineSpan(this, this);
+        }
     }
 }

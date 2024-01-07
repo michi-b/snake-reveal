@@ -58,9 +58,11 @@ namespace Game.Player
             _renderer.ApplyDirection(Direction);
         }
 
-        public void Step()
+        public void Move()
         {
             Position += Direction.ToVector2Int();
+            
+            // todo: no need for clamping once grid edge travelling is implemented
             Position = _grid.Clamp(Position);
 
             // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering

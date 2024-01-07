@@ -59,5 +59,25 @@ namespace Game
                 _spriteShapeController.spline.InsertPointAt(currentIndex++, line.Start.GetScenePosition(_lineLoop.Grid));
             }
         }
+
+        public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtLineEnd, bool isTravelingStartToEnd, out Line breakoutLine)
+        {
+            foreach (Line line in activeLine.GetLines(isAtLineEnd, isTravelingStartToEnd))
+            {
+                if (IsBreakoutDirection(direction, line))
+                {
+                    breakoutLine = line;
+                    return true;
+                }
+            }
+
+            breakoutLine = null;
+            return false;
+        }
+
+        private bool IsBreakoutDirection(GridDirection direction, Line line)
+        {
+            return direction == line.Direction.Turn(Turn.Reverse());
+        }
     }
 }

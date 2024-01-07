@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Game.Enums;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -100,16 +101,14 @@ namespace Game.Lines
             reinsertionLine.Previous = lastLine;
 
             // remove superfluous connection lines that can happen when connecting exactly to loop corners
-            if (breakoutLine.Start == breakoutLine.End)
+            if (breakoutLine.Direction == GridDirection.None)
             {
-                DissolveZeroLengthLine(breakoutLine);
-                breakoutLine = breakoutLine.Previous!;
+                breakoutLine = DissolveZeroLengthLine(breakoutLine);
             }
 
-            if (reinsertionLine.Start == reinsertionLine.End)
+            if (reinsertionLine.Direction == GridDirection.None)
             {
-                DissolveZeroLengthLine(reinsertionLine);
-                reinsertionLine = reinsertionLine.Previous!;
+                reinsertionLine = DissolveZeroLengthLine(reinsertionLine);
             }
 
             // start line may have been eliminated -> just set it to the line the chain "flows" into
@@ -118,25 +117,30 @@ namespace Game.Lines
             return new InsertionResult(continuation, _insertionEvaluation.ReconnectsInTurn);
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction
-            // -> merge the three lines into one
+            // -> merge the three lines into one and return the merged line
             // by removing the given line and the line after, and connecting the line before to the line after the (formerly) three lines
-            void DissolveZeroLengthLine(Line line)
+            Line DissolveZeroLengthLine(Line line)
             {
-                Line next = line.Next;
                 Line previous = line.Previous;
+                Line next = line.Next!;
+                Line newNext = next.Next!;
 #if DEBUG
-                Debug.Assert(Start == End);
-                Debug.Assert(previous != null && next != null);
-                Debug.Assert(line.Next!.Direction == previous.Direction);
+                if (line.Direction != GridDirection.None
+                    || previous == null
+                    || next == null
+                    || line.Next!.Direction != previous.Direction)
+                {
+                    throw new ArgumentException(nameof(line), nameof(line));
+                }
 #endif
-                Destroy(gameObject);
-                Destroy(line.Next.gameObject);
-                previous.End = line.Next.Start;
-                Line newNext = next.Next;
-#if DEBUG
-                Debug.Assert(newNext != null);
-#endif
+                Destroy(line.gameObject);
+                Destroy(next.gameObject);
+
+                previous.End = newNext.Start;
                 previous.Next = newNext;
+                newNext.Previous = previous;
+
+                return previous;
             }
         }
     }
