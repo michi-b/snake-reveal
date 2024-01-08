@@ -1,4 +1,5 @@
 ﻿using Game.Player;
+using Game.Player.Simulation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,14 +13,14 @@ namespace Game
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
 
-        private PlayerActorMovement _playerActorMovement;
+        private PlayerSimulation _playerSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
         public int Ticks { get; private set; }
 
         protected virtual void Awake()
         {
-            _playerActorMovement = new PlayerActorMovement(this, _playerActor, _drawnShape, _drawingLineChain);
+            _playerSimulation = new PlayerSimulation(_playerActor, _drawnShape, _drawingLineChain);
         }
 
         protected virtual void FixedUpdate()
@@ -27,17 +28,17 @@ namespace Game
             Ticks++;
             _tickCounter.text = Ticks.ToString();
             _timeCounter.text = (Ticks * 0.0083).ToString("F2");
-            _playerActorMovement.Move();
+            _playerSimulation.Move();
         }
 
         protected virtual void OnEnable()
         {
-            _playerActorMovement.ControlsEnabled = true;
+            _playerSimulation.ControlsEnabled = true;
         }
 
         protected virtual void OnDisable()
         {
-            _playerActorMovement.ControlsEnabled = false;
+            _playerSimulation.ControlsEnabled = false;
         }
     }
 }

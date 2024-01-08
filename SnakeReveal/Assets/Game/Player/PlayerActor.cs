@@ -2,6 +2,7 @@ using Extensions;
 using Game.Enums;
 using Game.Grid;
 using Game.Lines;
+using Game.Player.Controls;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -61,7 +62,7 @@ namespace Game.Player
         public void Move()
         {
             Position += Direction.ToVector2Int();
-            
+
             // todo: no need for clamping once grid edge travelling is implemented
             Position = _grid.Clamp(Position);
 
