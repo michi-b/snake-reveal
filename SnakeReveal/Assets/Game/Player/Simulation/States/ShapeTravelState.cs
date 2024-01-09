@@ -26,16 +26,17 @@ namespace Game.Player.Simulation.States
             Debug.Assert(_currentLine != null);
             Debug.Assert(_currentLine.Contains(_actor.Position));
 #endif
-            bool isAtLineEnd = _actor.Position == _currentLine.GetEnd(_isTravelingStartToEnd);
+            bool isAtEndCorner = _actor.Position == _currentLine.GetEnd(_isTravelingStartToEnd);
 
             if (requestedDirection != GridDirection.None
-                && _shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtLineEnd, _isTravelingStartToEnd, out Line breakoutLine))
+                && _shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isTravelingStartToEnd, out Line breakoutLine))
             {
+                // note: drawing state instantly moves and might return this state again on instant reconnection
                 return EnterDrawingAndMove(breakoutLine, _actor.Position, requestedDirection);
             }
 
             // if at line end, switch to next line and adjust direction
-            if (isAtLineEnd)
+            if (isAtEndCorner)
             {
                 _currentLine = _currentLine.GetNext(_isTravelingStartToEnd);
                 GridDirection currentLineDirection = _currentLine.GetDirection(_isTravelingStartToEnd);
@@ -50,18 +51,18 @@ namespace Game.Player.Simulation.States
         public ShapeTravelState Initialize(DrawingState drawingState)
         {
             _drawingState = drawingState;
-            return Enter(_shape.GetLine(_actor.Position), true);
+            return Enter(new InsertionResult(_shape.GetLine(_actor.Position), true));
         }
 
-        public ShapeTravelState Enter(Line line, bool inShapeDirection)
+        public ShapeTravelState Enter(InsertionResult insertion)
         {
-            _currentLine = line;
-            _isTravelingStartToEnd = inShapeDirection;
+            _currentLine = insertion.Continuation;
+            _isTravelingStartToEnd = insertion.IsStartToEnd;
             _actor.Direction = _currentLine.GetDirection(_isTravelingStartToEnd);
             return this;
         }
 
-        private DrawingState EnterDrawingAndMove(Line breakoutLine, Vector2Int actorPosition, GridDirection breakoutDirection)
+        private IPlayerSimulationState EnterDrawingAndMove(Line breakoutLine, Vector2Int actorPosition, GridDirection breakoutDirection)
         {
             ClearState();
             return _drawingState.EnterDrawingAndMove(breakoutLine, actorPosition, breakoutDirection);

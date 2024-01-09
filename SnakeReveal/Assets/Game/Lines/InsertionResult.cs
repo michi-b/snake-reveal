@@ -10,12 +10,12 @@
         /// <summary>
         ///     Whether the line chain reconnected to this loop in the turn of this loop
         /// </summary>
-        public readonly bool IsInTurn;
+        public readonly bool IsStartToEnd;
 
-        public InsertionResult(Line continuation, bool isInTurn)
+        public InsertionResult(Line continuation, bool isStartToEnd)
         {
             Continuation = continuation;
-            IsInTurn = isInTurn;
+            IsStartToEnd = isStartToEnd;
         }
     }
 }

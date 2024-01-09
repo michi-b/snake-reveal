@@ -15,14 +15,17 @@ namespace Utility
 
         public static void DrawArrowHead(Vector3 end, Vector3 direction, float size = DefaultArrowHeadSize, float angle = DefaultArrowAngle)
         {
-            Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(angle, 0, 0) * Vector3.back;
-            Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(-angle, 0, 0) * Vector3.back;
-            Vector3 up = Quaternion.LookRotation(direction) * Quaternion.Euler(0, angle, 0) * Vector3.back;
-            Vector3 down = Quaternion.LookRotation(direction) * Quaternion.Euler(0, -angle, 0) * Vector3.back;
-            Gizmos.DrawLine(end, end + right * size);
-            Gizmos.DrawLine(end, end + left * size);
-            Gizmos.DrawLine(end, end + up * size);
-            Gizmos.DrawLine(end, end + down * size);
+            if (direction != Vector3.zero)
+            {
+                Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(angle, 0, 0) * Vector3.back;
+                Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(-angle, 0, 0) * Vector3.back;
+                Vector3 up = Quaternion.LookRotation(direction) * Quaternion.Euler(0, angle, 0) * Vector3.back;
+                Vector3 down = Quaternion.LookRotation(direction) * Quaternion.Euler(0, -angle, 0) * Vector3.back;
+                Gizmos.DrawLine(end, end + right * size);
+                Gizmos.DrawLine(end, end + left * size);
+                Gizmos.DrawLine(end, end + up * size);
+                Gizmos.DrawLine(end, end + down * size);
+            }
         }
     }
 }

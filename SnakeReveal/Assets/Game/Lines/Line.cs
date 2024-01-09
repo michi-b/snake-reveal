@@ -37,6 +37,7 @@ namespace Game.Lines
 
         public SimulationGrid Grid
         {
+            get => _grid;
             set => _grid = value;
         }
 
@@ -225,61 +226,28 @@ namespace Game.Lines
             return startToEnd ? Next : Previous;
         }
 
+        public Line GetPrevious(bool startToEnd = true)
+        {
+            return startToEnd ? Previous : Next;
+        }
+
         public bool TryExtend(Vector2Int targetPosition)
         {
-            return Direction switch
-            {
-                GridDirection.None => throw new ArgumentOutOfRangeException(),
-                GridDirection.Right => TryExtendRight(),
-                GridDirection.Up => TryExtendUp(),
-                GridDirection.Left => TryExtendLeft(),
-                GridDirection.Down => TryExtendDown(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-            bool TryExtendRight()
-            {
-                if (targetPosition.y != Start.y || targetPosition.x < End.x)
+            if (Direction switch
                 {
-                    return false;
-                }
-
+                    GridDirection.None => Start == End && (targetPosition.x == Start.x || targetPosition.y == Start.y),
+                    GridDirection.Right => targetPosition.y == Start.y && targetPosition.x >= End.x,
+                    GridDirection.Up => targetPosition.x == Start.x && targetPosition.y >= End.y,
+                    GridDirection.Left => targetPosition.y == Start.y && targetPosition.x <= End.x,
+                    GridDirection.Down => targetPosition.x == Start.x && targetPosition.y <= End.y,
+                    _ => throw new ArgumentOutOfRangeException()
+                })
+            {
                 End = targetPosition;
                 return true;
             }
 
-            bool TryExtendDown()
-            {
-                if (targetPosition.x != Start.x || targetPosition.y > End.y)
-                {
-                    return false;
-                }
-
-                End = targetPosition;
-                return true;
-            }
-
-            bool TryExtendLeft()
-            {
-                if (targetPosition.y != Start.y || targetPosition.x > End.x)
-                {
-                    return false;
-                }
-
-                End = targetPosition;
-                return true;
-            }
-
-            bool TryExtendUp()
-            {
-                if (targetPosition.x != Start.x || targetPosition.y < End.y)
-                {
-                    return false;
-                }
-
-                End = targetPosition;
-                return true;
-            }
+            return false;
         }
 
         [Conditional("DEBUG")]
@@ -287,23 +255,8 @@ namespace Game.Lines
         {
             Debug.Assert(Start != End
                          && Direction != GridDirection.None
-                         && Direction == Start.GetDirection(End));
-        }
-
-        /// <returns>
-        ///     A <see cref="LineSpan" /> including line itself, and optionally also the next line in
-        ///     <see cref="startToEnd" /> direction if <see cref="atLineEnd" /> is true
-        /// </returns>
-        public LineSpan GetLines(bool atLineEnd, bool startToEnd)
-        {
-            if (atLineEnd)
-            {
-                return startToEnd
-                    ? new LineSpan(this, Next)
-                    : new LineSpan(Previous, this);
-            }
-
-            return new LineSpan(this, this);
+                         && Direction == Start.GetDirection(End),
+                $"Invalid line: {DebuggerDisplay}", this);
         }
     }
 }

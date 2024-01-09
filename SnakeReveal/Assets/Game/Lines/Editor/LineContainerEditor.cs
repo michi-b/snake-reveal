@@ -26,17 +26,13 @@ namespace Game.Lines.Editor
 
         private static readonly GUIContent ApplyCornersLabel = new("Apply Corners", "Clear and rebuild all line GameObjects from the corners list.");
 
-        private static readonly GUIContent MoveLabel = new("Move", "Move all corners by modifying this vector.");
-
         private readonly List<Vector2Int> _corners = new();
         private SerializedProperty _clockwiseTurnWeightProperty;
         private ReorderableList _cornersList;
 
         private SerializedProperty _hideLinesInSceneViewProperty;
 
-        private Vector2Int _move;
         protected SerializedProperty StartProperty;
-
 
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
 
@@ -185,19 +181,6 @@ namespace Game.Lines.Editor
                     ApplyCorners(container);
                 }
             }
-
-            EditorGUI.BeginChangeCheck();
-            _move = EditorGUILayout.Vector2IntField(MoveLabel, _move);
-            if (EditorGUI.EndChangeCheck() && _move != Vector2Int.zero)
-            {
-                for (int i = 0; i < _corners.Count; i++)
-                {
-                    _corners[i] = _corners[i] + _move;
-                }
-
-                ApplyCorners(container);
-                _move = Vector2Int.zero;
-            }
         }
 
         protected virtual void DrawInitializeCornersButton(LineContainer container)
@@ -256,6 +239,9 @@ namespace Game.Lines.Editor
                 startLine.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                 startLine.End = newStartEnd;
             }
+            
+            Vector2Int positionsSum = startLine.Start + startLine.End;
+            int positionsCount = 2;
 
             if (container.Start != container.End)
             {
@@ -267,7 +253,22 @@ namespace Game.Lines.Editor
                         lineAfterFirst.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                         lineAfterFirst.End = newLineAfterStartEnd;
                     }
+                    positionsSum += lineAfterFirst.End;
+                    positionsCount++;
                 }
+            }
+            
+            Vector2Int centerPosition = positionsSum / (positionsCount);
+            
+            if(HandlesUtility.TryGridHandleMove(centerPosition, container.transform.position.z, grid, out Vector2Int newCenter))
+            {
+                Vector2Int delta = newCenter - centerPosition;
+                foreach (Line line in container)
+                {
+                    Undo.RegisterFullObjectHierarchyUndo(line.gameObject, "Move Line Container Center Grid Handle");
+                    line.Start += delta;
+                }
+                anyPositionHandleChanged = true;
             }
 
             if (anyPositionHandleChanged)

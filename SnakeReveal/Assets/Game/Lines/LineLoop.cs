@@ -101,20 +101,34 @@ namespace Game.Lines
             reinsertionLine.Previous = lastLine;
 
             // remove superfluous connection lines that can happen when connecting exactly to loop corners
-            if (breakoutLine.Direction == GridDirection.None)
+            bool brokeOutOnCorner = breakoutLine.Direction == GridDirection.None;
+            if (brokeOutOnCorner)
             {
                 breakoutLine = DissolveZeroLengthLine(breakoutLine);
             }
 
-            if (reinsertionLine.Direction == GridDirection.None)
+            bool reconnectedOnCorner = reinsertionLine.Direction == GridDirection.None;
+            if (reconnectedOnCorner)
             {
                 reinsertionLine = DissolveZeroLengthLine(reinsertionLine);
             }
 
             // start line may have been eliminated -> just set it to the line the chain "flows" into
-            Line continuation = _insertionEvaluation.ReconnectsInTurn ? reinsertionLine : breakoutLine;
-            Start = continuation;
-            return new InsertionResult(continuation, _insertionEvaluation.ReconnectsInTurn);
+            Line nextLineAfterInsertion = _insertionEvaluation.IsStartToEnd
+                ? reinsertionLine
+                : breakoutLine;
+            
+            Start = nextLineAfterInsertion;
+            
+            Line continuation = _insertionEvaluation.IsStartToEnd
+                ? reconnectedOnCorner
+                    ? nextLineAfterInsertion
+                    : nextLineAfterInsertion.Previous
+                : brokeOutOnCorner
+                    ? nextLineAfterInsertion
+                    : nextLineAfterInsertion.Next;
+            
+            return new InsertionResult(continuation, _insertionEvaluation.IsStartToEnd);
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction
             // -> merge the three lines into one and return the merged line

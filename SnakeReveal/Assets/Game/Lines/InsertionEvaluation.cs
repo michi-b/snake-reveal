@@ -18,12 +18,12 @@ namespace Game.Lines
             LinesToInsert = new List<LineData>(chainInsertionInitialCapacity);
             BreakoutLine = default;
             ReInsertionLine = default;
-            ReconnectsInTurn = default;
+            IsStartToEnd = default;
         }
 
         public Line ReInsertionLine { get; private set; } // break-in line on loop
         public Line BreakoutLine { get; private set; } // breakout line on loop
-        public bool ReconnectsInTurn { get; private set; }
+        public bool IsStartToEnd { get; private set; }
 
         public void Evaluate(Turn loopTurn, LineChain chain, Line loopBreakoutLine, Line loopReinsertionLine)
         {
@@ -38,7 +38,7 @@ namespace Game.Lines
             int chainTurnClockwiseWeight = chain.AsSpan().SumClockwiseTurnWeight();
             int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
 
-            ReconnectsInTurn = loopTurn switch
+            IsStartToEnd = loopTurn switch
             {
                 Turn.None => throw new ArgumentOutOfRangeException(),
                 Turn.Right => deltaClockwiseWeight > 0,
@@ -48,7 +48,7 @@ namespace Game.Lines
 
             LinesToInsert.Clear();
 
-            if (ReconnectsInTurn)
+            if (IsStartToEnd)
             {
                 foreach (Line line in chain)
                 {

@@ -1,35 +1,32 @@
 using System;
-using Extensions;
 using Game.Enums;
 using Game.Lines;
 using Game.Player;
+using Game.Polygon;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.U2D;
 
 namespace Game
 {
     public class DrawnShape : MonoBehaviour
     {
         [SerializeField] private LineLoop _lineLoop;
-        [SerializeField] private SpriteShapeController _spriteShapeController;
+        [SerializeField] private DrawnShapePolygon _polygon;
 
-        public Turn Turn => _lineLoop.Turn;
+        private Turn GetTravelTurn(bool startToEnd)
+        {
+            return _lineLoop.GetTurn(startToEnd);
+        }
 
         public Line GetLine(Vector2Int position)
         {
             return _lineLoop.TryGetFirstLineAt(position, out Line line) ? line : throw new InvalidOperationException("Actor is not on shape");
         }
 
-        public Turn GetTurn(bool startToEnd = true)
-        {
-            return _lineLoop.GetTurn(startToEnd);
-        }
-
         public bool TryGetReconnectionLine(PlayerActor actor, out Line line)
         {
             // lines the player can collide with must be directed like the player direction, but turned left/right opposite of the shape turn
-            GridDirection collisionLinesDirection = actor.Direction.Turn(Turn.Reverse());
+            GridDirection collisionLinesDirection = actor.Direction.Turn(_lineLoop.Turn.Reverse());
             return _lineLoop.TryGetLineAt(actor.Position, collisionLinesDirection, out line);
         }
 
@@ -45,30 +42,47 @@ namespace Game
         [ContextMenu(nameof(Apply))]
         private void EditModeApply()
         {
-            Undo.RegisterCompleteObjectUndo(_spriteShapeController.gameObject, "Apply drawn shape");
+            Undo.RegisterCompleteObjectUndo(_polygon.gameObject, "Apply drawn shape");
             Apply();
         }
 
         private void Apply()
         {
-            _spriteShapeController.spline.Clear();
-
-            int currentIndex = 0;
-            foreach (Line line in _lineLoop)
-            {
-                _spriteShapeController.spline.InsertPointAt(currentIndex++, line.Start.GetScenePosition(_lineLoop.Grid));
-            }
+            _polygon.Apply(_lineLoop.Grid, _lineLoop.AsSpan());
         }
 
-        public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtLineEnd, bool isTravelingStartToEnd, out Line breakoutLine)
+        public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtEndCorner, bool startToEnd, out Line breakoutLine)
         {
-            foreach (Line line in activeLine.GetLines(isAtLineEnd, isTravelingStartToEnd))
+            if (isAtEndCorner)
             {
-                if (IsBreakoutDirection(direction, line))
+                Line next = startToEnd ? activeLine.Next! : activeLine.Previous!;
+                GridDirection currentDirection = activeLine.GetDirection(startToEnd);
+                GridDirection nextDirection = next.GetDirection(startToEnd);
+                Turn cornerTurn = currentDirection.GetTurn(nextDirection);
+                Turn travelTurn = GetTravelTurn(startToEnd);
+                if (cornerTurn == travelTurn) // open corner
                 {
-                    breakoutLine = line;
-                    return true;
+                    if (IsBreakoutDirection(direction, activeLine))
+                    {
+                        breakoutLine = activeLine;
+                        return true;
+                    }
+
+                    if (IsBreakoutDirection(direction, next))
+                    {
+                        breakoutLine = next;
+                        return true;
+                    }
                 }
+                // closed corner
+                breakoutLine = null;
+                return false;
+            }
+            
+            if (IsBreakoutDirection(direction, activeLine))
+            {
+                breakoutLine = activeLine;
+                return true;
             }
 
             breakoutLine = null;
@@ -77,7 +91,7 @@ namespace Game
 
         private bool IsBreakoutDirection(GridDirection direction, Line line)
         {
-            return direction == line.Direction.Turn(Turn.Reverse());
+            return direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
         }
     }
 }

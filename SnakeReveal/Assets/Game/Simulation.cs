@@ -1,5 +1,7 @@
-﻿using Game.Player;
+﻿using CustomPropertyDrawers;
+using Game.Player;
 using Game.Player.Simulation;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +14,8 @@ namespace Game
         [SerializeField] private DrawingChain _drawingLineChain;
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
-
+        [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
+        
         private PlayerSimulation _playerSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
@@ -20,7 +23,7 @@ namespace Game
 
         protected virtual void Awake()
         {
-            _playerSimulation = new PlayerSimulation(_playerActor, _drawnShape, _drawingLineChain);
+            _playerSimulation = new PlayerSimulation(_playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
         }
 
         protected virtual void FixedUpdate()

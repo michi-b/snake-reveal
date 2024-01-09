@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace Game.Player.Controls
 {
-    public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions
+    public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions, IPlayerActorControls
     {
         private const float Threshold = 0.5f;
 

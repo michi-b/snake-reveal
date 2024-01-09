@@ -40,17 +40,10 @@ namespace Game.Player.Simulation.States
 
             _drawing.Extend(_actor.Position);
 
-            if (_shape.TryGetReconnectionLine(_actor, out Line shapeCollisionLine))
-            {
-                // insert drawing into shape and switch to shape travel
-                InsertionResult insertionResult = _shape.Insert(_drawing, _shapeBreakoutLine, shapeCollisionLine);
-                return EnterShapeTravel(insertionResult.Continuation, insertionResult.IsInTurn);
-            }
-
-            return this;
+            return TryReconnect();
         }
 
-        public DrawingState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
+        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
         {
             _shapeBreakoutLine = shapeBreakoutLine;
             _actor.Position = _shapeBreakoutPosition = breakoutPosition;
@@ -59,13 +52,21 @@ namespace Game.Player.Simulation.States
             _actor.Move();
 
             _drawing.Activate(_shapeBreakoutPosition, _actor.Position);
-            return this;
+            
+            // reconnection in drawing enter is possible in case of exactly adjacent drawn shape line
+            return TryReconnect();
         }
 
-        private ShapeTravelState EnterShapeTravel(Line insertionResultContinuation, bool insertionResultIsInTurn)
+        private IPlayerSimulationState TryReconnect()
         {
-            ClearState();
-            return _shapeTravelState.Enter(insertionResultContinuation, insertionResultIsInTurn);
+            if (_shape.TryGetReconnectionLine(_actor, out Line shapeCollisionLine))
+            {
+                // insert drawing into shape and switch to shape travel
+                InsertionResult insertionResult = _shape.Insert(_drawing, _shapeBreakoutLine, shapeCollisionLine);
+                ClearState();
+                return _shapeTravelState.Enter(insertionResult);
+            }
+            return this;
         }
 
         private void ClearState()
