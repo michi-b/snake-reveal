@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace Game.Player
 {
-    [RequireComponent(typeof(GridTransform))]
+    [RequireComponent(typeof(GridPlacement))]
     public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
-        [SerializeField] private GridTransform _transform;
+        [SerializeField] private GridPlacement _placement;
         [SerializeField] private PlayerActorRenderer _renderer;
         [SerializeField] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
@@ -35,13 +35,13 @@ namespace Game.Player
 
         public Vector2Int Position
         {
-            get => _transform.Position;
-            set => _transform.Position = value;
+            get => _placement.Position;
+            set => _placement.Position = value;
         }
 
         protected void Reset()
         {
-            _transform = GetComponent<GridTransform>();
+            _placement = GetComponent<GridPlacement>();
         }
 
         protected void OnValidate()

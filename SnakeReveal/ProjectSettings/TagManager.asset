@@ -15,9 +15,9 @@ TagManager:
   - 
   - 
   - 
-  - Drawn Shape Polygon
-  - Drawn Shape Lines
-  - Drawing Chain Lines
+  - ShapeQuads
+  - ShapeLines
+  - ChainLines
   - 
   - 
   - 

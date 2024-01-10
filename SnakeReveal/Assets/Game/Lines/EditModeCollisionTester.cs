@@ -20,7 +20,7 @@ namespace Game.Lines
 
         private void Reset()
         {
-            GetComponent<GridTransform>();
+            GetComponent<GridPlacement>();
         }
 
         [PublicAPI("Targeted by UnityEvents")]

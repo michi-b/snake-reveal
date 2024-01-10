@@ -27,5 +27,20 @@ namespace Utility
                 Gizmos.DrawLine(end, end + down * size);
             }
         }
+
+        public static void DrawRect(Vector2 bottomLeft, Vector2 topRight, float z, Color color)
+        {
+            Color gizmosColor = Gizmos.color;
+            Gizmos.color = color;
+            {
+                var topLeft = new Vector2(bottomLeft.x, topRight.y);
+                var bottomRight = new Vector2(topRight.x, bottomLeft.y);
+                Gizmos.DrawLine(bottomLeft, topLeft);
+                Gizmos.DrawLine(topLeft, topRight);
+                Gizmos.DrawLine(topRight, bottomRight);
+                Gizmos.DrawLine(bottomRight, bottomLeft);
+            }
+            Gizmos.color = gizmosColor;
+        }
     }
 }

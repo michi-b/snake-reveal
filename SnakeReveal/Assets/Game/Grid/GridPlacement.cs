@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Game.Grid
 {
-    public class GridTransform : MonoBehaviour
+    public class GridPlacement : MonoBehaviour
     {
         public const string PositionPropertyName = nameof(_position);
 
@@ -35,11 +35,8 @@ namespace Game.Grid
             _grid = SimulationGrid.EditModeFind();
             if (_grid != null)
             {
-                Transform thisTransform = transform;
-                _position = _grid.Round(thisTransform.position);
+                Position = _grid.Round(transform.position);
             }
-
-            Apply();
         }
 
         public void Apply()

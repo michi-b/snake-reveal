@@ -5,35 +5,35 @@ using UnityEngine;
 
 namespace Game.Grid.Editor
 {
-    [CustomEditor(typeof(GridTransform))]
+    [CustomEditor(typeof(GridPlacement))]
     public class SimulationGridTransformEditor : UnityEditor.Editor
     {
         private SerializedProperty _positionProperty;
 
         protected virtual void OnEnable()
         {
-            _positionProperty = serializedObject.FindDirectChild(GridTransform.PositionPropertyName);
+            _positionProperty = serializedObject.FindDirectChild(GridPlacement.PositionPropertyName);
             Tools.hidden = true;
         }
 
-        protected void OnDisable()
+        protected virtual void OnDisable()
         {
             Tools.hidden = false;
         }
 
         protected virtual void OnSceneGUI()
         {
-            var transform = (GridTransform)target;
-            SimulationGrid grid = transform.Grid;
+            var placement = (GridPlacement)target;
+            SimulationGrid grid = placement.Grid;
             if (grid == null)
             {
                 return;
             }
 
-            if(HandlesUtility.TryGridHandleMove(transform.Position, transform.transform.position.z, grid, out Vector2Int newGridPosition))
+            if(HandlesUtility.TryGridHandleMove(placement.Position, placement.transform.position.z, grid, out Vector2Int newGridPosition))
             {
-                transform.RecordUndo("Move Grid Transform Handle");
-                transform.Position = newGridPosition;
+                placement.RecordUndo("Move Grid Transform Handle");
+                placement.Position = newGridPosition;
             }
            
         }
@@ -44,7 +44,7 @@ namespace Game.Grid.Editor
             base.OnInspectorGUI();
             bool defaultEditorChanged = EditorGUI.EndChangeCheck();
 
-            var transform = (GridTransform)target;
+            var transform = (GridPlacement)target;
 
             if (defaultEditorChanged)
             {
