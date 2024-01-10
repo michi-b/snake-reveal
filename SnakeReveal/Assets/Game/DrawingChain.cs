@@ -24,16 +24,16 @@ namespace Game
 
         public GridDirection StartDirection => _lineChain.Start.Direction;
 
-        public void Deactivate()
-        {
-            _lineChain.Clear();
-            IsActive = false;
-        }
-
         public void Activate(Vector2Int start, Vector2Int end)
         {
             _lineChain.Set(new LineData(start, end));
             IsActive = true;
+        }
+
+        public void Deactivate()
+        {
+            _lineChain.Clear();
+            IsActive = false;
         }
 
         public bool Contains(Vector2Int position)

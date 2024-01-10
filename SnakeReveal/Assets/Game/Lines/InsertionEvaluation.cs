@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
-using UnityEngine;
 
 namespace Game.Lines
 {
@@ -28,8 +27,15 @@ namespace Game.Lines
         public void Evaluate(Turn loopTurn, LineChain chain, Line loopBreakoutLine, Line loopReinsertionLine)
         {
 #if DEBUG
-            Debug.Assert(loopBreakoutLine.Contains(chain.Start.Start));
-            Debug.Assert(loopReinsertionLine.Contains(chain.End.End));
+            if (!loopBreakoutLine.Contains(chain.Start.Start))
+            {
+                throw new ArgumentException("Breakout line does not contain chain start");
+            }
+
+            if (!loopReinsertionLine.Contains(chain.End.End))
+            {
+                throw new ArgumentException("Reinsertion line does not contain chain end");
+            }
 #endif
             ReInsertionLine = loopReinsertionLine;
             BreakoutLine = loopBreakoutLine;

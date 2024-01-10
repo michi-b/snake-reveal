@@ -1,4 +1,6 @@
-﻿using Game.Enums;
+﻿using System;
+using System.Diagnostics;
+using Game.Enums;
 using Game.Lines;
 using UnityEngine;
 
@@ -22,10 +24,8 @@ namespace Game.Player.Simulation.States
 
         public IPlayerSimulationState Move(GridDirection requestedDirection)
         {
-#if DEBUG
-            Debug.Assert(_currentLine != null);
-            Debug.Assert(_currentLine.Contains(_actor.Position));
-#endif
+            AssertActorIsOnShape();
+
             bool isAtEndCorner = _actor.Position == _currentLine.GetEnd(_isTravelingStartToEnd);
 
             if (requestedDirection != GridDirection.None
@@ -44,8 +44,19 @@ namespace Game.Player.Simulation.States
             }
 
             _actor.Move();
-
+            AssertActorIsOnShape();
             return this;
+        }
+
+        [Conditional("DEBUG")]
+        private void AssertActorIsOnShape()
+        {
+#if DEBUG
+            if (!_currentLine.Contains(_actor.Position))
+            {
+                throw new InvalidOperationException("Actor is not on shape");
+            }
+#endif
         }
 
         public ShapeTravelState Initialize(DrawingState drawingState)

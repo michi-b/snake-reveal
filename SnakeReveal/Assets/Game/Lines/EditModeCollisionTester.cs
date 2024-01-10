@@ -20,7 +20,7 @@ namespace Game.Lines
 
         private void Reset()
         {
-            GetComponent<SimulationGridTransform>();
+            GetComponent<GridTransform>();
         }
 
         [PublicAPI("Targeted by UnityEvents")]

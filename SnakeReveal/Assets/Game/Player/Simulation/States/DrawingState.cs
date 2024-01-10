@@ -31,6 +31,30 @@ namespace Game.Player.Simulation.States
                 _actor.Direction = requestedDirection;
             }
 
+            return Move();
+        }
+
+        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
+        {
+            _shapeBreakoutLine = shapeBreakoutLine;
+            _actor.Position = _shapeBreakoutPosition = breakoutPosition;
+            _actor.Direction = breakoutDirection;
+
+            _drawing.Activate(_shapeBreakoutPosition, _actor.Position);
+
+            _actor.Move();
+
+#if DEBUG
+            Debug.Assert(!_drawing.Contains(_actor.Position));
+#endif
+
+            _drawing.Extend(_actor.Position);
+
+            return TryReconnect();
+        }
+
+        private IPlayerSimulationState Move()
+        {
             _actor.Move();
 
             if (_drawing.Contains(_actor.Position))
@@ -43,20 +67,6 @@ namespace Game.Player.Simulation.States
             return TryReconnect();
         }
 
-        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
-        {
-            _shapeBreakoutLine = shapeBreakoutLine;
-            _actor.Position = _shapeBreakoutPosition = breakoutPosition;
-            _actor.Direction = breakoutDirection;
-
-            _actor.Move();
-
-            _drawing.Activate(_shapeBreakoutPosition, _actor.Position);
-            
-            // reconnection in drawing enter is possible in case of exactly adjacent drawn shape line
-            return TryReconnect();
-        }
-
         private IPlayerSimulationState TryReconnect()
         {
             if (_shape.TryGetReconnectionLine(_actor, out Line shapeCollisionLine))
@@ -66,11 +76,13 @@ namespace Game.Player.Simulation.States
                 ClearState();
                 return _shapeTravelState.Enter(insertionResult);
             }
+
             return this;
         }
 
         private void ClearState()
         {
+            _drawing.Deactivate();
             _shapeBreakoutLine = null;
             _shapeBreakoutPosition = new Vector2Int(-1, -1);
         }

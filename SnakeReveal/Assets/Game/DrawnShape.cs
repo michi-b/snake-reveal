@@ -12,6 +12,7 @@ namespace Game
     {
         [SerializeField] private LineLoop _lineLoop;
         [SerializeField] private DrawnShapePolygon _polygon;
+        public Line Start => _lineLoop.Start;
 
         private Turn GetTravelTurn(bool startToEnd)
         {
@@ -34,7 +35,6 @@ namespace Game
         {
             InsertionResult insertionResult = _lineLoop.Insert(drawing.Lines, breakoutLine, reinsertionLine);
             Apply();
-            drawing.Deactivate();
             return insertionResult;
         }
 

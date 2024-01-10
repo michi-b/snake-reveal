@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Game.Grid
 {
-    public class SimulationGridTransform : MonoBehaviour
+    public class GridTransform : MonoBehaviour
     {
         public const string PositionPropertyName = nameof(_position);
 

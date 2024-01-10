@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Game.Enums;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -117,9 +118,9 @@ namespace Game.Lines
             Line nextLineAfterInsertion = _insertionEvaluation.IsStartToEnd
                 ? reinsertionLine
                 : breakoutLine;
-            
+
             Start = nextLineAfterInsertion;
-            
+
             Line continuation = _insertionEvaluation.IsStartToEnd
                 ? reconnectedOnCorner
                     ? nextLineAfterInsertion
@@ -127,7 +128,7 @@ namespace Game.Lines
                 : brokeOutOnCorner
                     ? nextLineAfterInsertion
                     : nextLineAfterInsertion.Next;
-            
+
             return new InsertionResult(continuation, _insertionEvaluation.IsStartToEnd);
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction

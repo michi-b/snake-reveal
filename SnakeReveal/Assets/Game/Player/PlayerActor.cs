@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace Game.Player
 {
-    [RequireComponent(typeof(SimulationGridTransform))]
+    [RequireComponent(typeof(GridTransform))]
     public class PlayerActor : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
-        [SerializeField] private SimulationGridTransform _transform;
+        [SerializeField] private GridTransform _transform;
         [SerializeField] private PlayerActorRenderer _renderer;
         [SerializeField] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
@@ -41,7 +41,7 @@ namespace Game.Player
 
         protected void Reset()
         {
-            _transform = GetComponent<SimulationGridTransform>();
+            _transform = GetComponent<GridTransform>();
         }
 
         protected void OnValidate()
