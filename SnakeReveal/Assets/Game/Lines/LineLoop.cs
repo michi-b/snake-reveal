@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Game.Enums;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -12,8 +11,6 @@ namespace Game.Lines
         public const string TurnFieldName = nameof(_turn);
 
         [SerializeField, HideInInspector] private Turn _turn;
-
-        private readonly InsertionEvaluation _insertionEvaluation = new();
 
         protected override Color GizmosColor => new(0f, 0.5f, 1f);
         public override bool Loop => true;
@@ -44,20 +41,27 @@ namespace Game.Lines
             return base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
         }
 
+
         /// <summary>
         ///     Inserts the target line chain into this loop, without altering the target line chain.
         ///     Also shifts the <see cref="LineLoop.Start" /> to contain the break-in position.
         /// </summary>
         /// <param name="lineChain">The line chain to insert</param>
         /// <param name="breakoutLine">The line on this loop that the line chain originates at</param>
-        /// <param name="reinsertionLine">The lin on this loop that the lin chain ends at</param>
+        /// <param name="reinsertionLine">The line on this loop that the line chain ends at</param>
         /// <returns>Whether the chain reconnects to this loop in the turn of this loop</returns>
         public InsertionResult Insert(LineChain lineChain, [NotNull] Line breakoutLine, [NotNull] Line reinsertionLine)
         {
-            _insertionEvaluation.Evaluate(_turn, lineChain, breakoutLine, reinsertionLine);
-            breakoutLine = _insertionEvaluation.BreakoutLine;
-            reinsertionLine = _insertionEvaluation.ReInsertionLine;
-            List<LineData> linesToInsert = _insertionEvaluation.LinesToInsert;
+            InsertionEvaluation evaluation = new InsertionEvaluation();
+            evaluation.Evaluate(_turn, lineChain, breakoutLine, reinsertionLine);
+            return Insert(evaluation);
+        }
+
+        public InsertionResult Insert(InsertionEvaluation insertion)
+        {
+            var breakoutLine = insertion.BreakoutLine;
+            var reinsertionLine = insertion.ReInsertionLine;
+            List<LineData> linesToInsert = insertion.LinesToInsert;
 
             if (breakoutLine == reinsertionLine)
             {
@@ -73,7 +77,7 @@ namespace Game.Lines
                     //remove in-between lines
                     foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, reinsertionLine.Previous))
                     {
-                        LineCache.Return(inBetweenLine);
+                        Cache.Return(inBetweenLine);
                     }
                 }
             }
@@ -115,13 +119,13 @@ namespace Game.Lines
             }
 
             // start line may have been eliminated -> just set it to the line the chain "flows" into
-            Line nextLineAfterInsertion = _insertionEvaluation.IsStartToEnd
+            Line nextLineAfterInsertion = insertion.IsStartToEnd
                 ? reinsertionLine
                 : breakoutLine;
 
             Start = nextLineAfterInsertion;
 
-            Line continuation = _insertionEvaluation.IsStartToEnd
+            Line continuation = insertion.IsStartToEnd
                 ? reconnectedOnCorner
                     ? nextLineAfterInsertion
                     : nextLineAfterInsertion.Previous
@@ -129,7 +133,7 @@ namespace Game.Lines
                     ? nextLineAfterInsertion
                     : nextLineAfterInsertion.Next;
 
-            return new InsertionResult(continuation, _insertionEvaluation.IsStartToEnd);
+            return new InsertionResult(continuation, insertion.IsStartToEnd);
 
             // assumes the given line has zero lenght, and that the line before and after have the same direction
             // -> merge the three lines into one and return the merged line

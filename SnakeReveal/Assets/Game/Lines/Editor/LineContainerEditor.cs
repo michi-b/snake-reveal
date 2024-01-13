@@ -138,7 +138,7 @@ namespace Game.Lines.Editor
                 LineContainer.EditModeUtility.ApplyHideLinesInSceneView(container);
             }
 
-            bool hasGridAndLineCache = container.Grid != null && container.LineCache != null;
+            bool hasGridAndLineCache = container.Grid != null && container.Cache != null;
             if (Application.isPlaying || !hasGridAndLineCache)
             {
                 return;
@@ -213,7 +213,7 @@ namespace Game.Lines.Editor
         private void DrawHandles(LineContainer container, bool drawThisContainer)
         {
             SimulationGrid grid = container.Grid;
-            if (grid == null || container.LineCache == null)
+            if (grid == null || container.Cache == null)
             {
                 return;
             }

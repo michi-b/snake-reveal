@@ -1,21 +1,17 @@
-using System;
 using Editor;
-using Game.Quads;
+using Game.Grid;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Grid.Editor
+namespace Game.Quads.Editor
 {
     [CustomEditor(typeof(Quad))]
     public class GridQuadEditor : UnityEditor.Editor
     {
-        private SerializedProperty _bottomLeftCornerProperty;
-        private SerializedProperty _sizeProperty;
-        
         protected virtual void OnEnable()
         {
-            _bottomLeftCornerProperty = serializedObject.FindDirectChild(nameof(Quad.BottomLeftCornerPropertyName));
-            _sizeProperty = serializedObject.FindDirectChild(nameof(Quad.SizePropertyName));
+            serializedObject.FindDirectChild(nameof(Quad.BottomLeftCornerPropertyName));
+            serializedObject.FindDirectChild(nameof(Quad.SizePropertyName));
             Tools.hidden = true;
         }
 

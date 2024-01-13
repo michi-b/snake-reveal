@@ -4,21 +4,21 @@ namespace Game.Player.Controls
 {
     public class MonkeyTestRandomInputPlayerActorControls : IPlayerActorControls
     {
-        bool enabled = false;
+        private bool _enabled;
         
         public void Activate()
         {
-            enabled = true;
+            _enabled = true;
         }
 
         public void Deactivate()
         {
-            enabled = false;
+            _enabled = false;
         }
 
         public GridDirection GetRequestedDirection()
         {
-            if (!enabled)
+            if (!_enabled)
             {
                 return GridDirection.None;
             }

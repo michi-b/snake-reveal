@@ -34,7 +34,7 @@ namespace Game.Lines
             {
                 foreach (Line line in this)
                 {
-                    LineCache.Return(line);
+                    Cache.Return(line);
                 }
 
                 _start = _end = null;

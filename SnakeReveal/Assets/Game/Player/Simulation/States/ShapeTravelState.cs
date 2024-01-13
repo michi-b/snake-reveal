@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Game.Enums;
 using Game.Lines;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Game.Player.Simulation.States
 {
@@ -62,7 +63,9 @@ namespace Game.Player.Simulation.States
         public ShapeTravelState Initialize(DrawingState drawingState)
         {
             _drawingState = drawingState;
-            return Enter(new InsertionResult(_shape.GetLine(_actor.Position), true));
+            Line continuation = _shape.GetLine(_actor.Position);
+            Debug.Assert(continuation != null, "Player actor is not on shape");
+            return Enter(new InsertionResult(continuation, true));
         }
 
         public ShapeTravelState Enter(InsertionResult insertion)

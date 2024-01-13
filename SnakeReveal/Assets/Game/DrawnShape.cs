@@ -2,8 +2,6 @@ using System;
 using Game.Enums;
 using Game.Lines;
 using Game.Player;
-using Game.Polygon;
-using UnityEditor;
 using UnityEngine;
 
 namespace Game
@@ -11,7 +9,6 @@ namespace Game
     public class DrawnShape : MonoBehaviour
     {
         [SerializeField] private LineLoop _lineLoop;
-        [SerializeField] private DrawnShapePolygon _polygon;
         public Line Start => _lineLoop.Start;
 
         private Turn GetTravelTurn(bool startToEnd)
@@ -42,13 +39,13 @@ namespace Game
         [ContextMenu(nameof(Apply))]
         private void EditModeApply()
         {
-            Undo.RegisterCompleteObjectUndo(_polygon.gameObject, "Apply drawn shape");
+            // Undo.RegisterCompleteObjectUndo(_polygon.gameObject, "Apply drawn shape");
             Apply();
         }
 
         private void Apply()
         {
-            _polygon.Apply(_lineLoop.Grid, _lineLoop.AsSpan());
+            // _polygon.Apply(_lineLoop.Grid, _lineLoop.AsSpan());
         }
 
         public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtEndCorner, bool startToEnd, out Line breakoutLine)

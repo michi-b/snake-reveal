@@ -1,5 +1,4 @@
 using Editor;
-using Extensions;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,11 +7,9 @@ namespace Game.Grid.Editor
     [CustomEditor(typeof(GridPlacement))]
     public class SimulationGridTransformEditor : UnityEditor.Editor
     {
-        private SerializedProperty _positionProperty;
-
         protected virtual void OnEnable()
         {
-            _positionProperty = serializedObject.FindDirectChild(GridPlacement.PositionPropertyName);
+            serializedObject.FindDirectChild(GridPlacement.PositionPropertyName);
             Tools.hidden = true;
         }
 

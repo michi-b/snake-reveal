@@ -16,7 +16,7 @@ namespace Game.Lines
     public abstract class LineContainer : MonoBehaviour, IEnumerable<Line>
     {
         [SerializeField] private SimulationGrid _grid;
-        [SerializeField] private LineCache _lineCache;
+        [SerializeField] private LineCache _cache;
         [SerializeField, HideInInspector] protected Line _start;
         [SerializeField, HideInInspector] private bool _displayLinesInHierarchy = true;
         [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
@@ -32,14 +32,14 @@ namespace Game.Lines
         }
 
         public SimulationGrid Grid => _grid;
-        public LineCache LineCache => _lineCache;
+        public LineCache Cache => _cache;
         public abstract Line End { get; }
         protected int ClockwiseTurnWeight => _clockwiseTurnWeight;
 
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
-            _lineCache = FindObjectsByType<LineCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
+            _cache = FindObjectsByType<LineCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
         }
 
         protected void OnDrawGizmos()
@@ -181,7 +181,7 @@ namespace Game.Lines
 
         protected Line GetNewLine(LineData lineData)
         {
-            Line line = LineCache.Get();
+            Line line = Cache.Get();
             line.transform.parent = transform;
             line.Initialize(Grid, lineData);
             return line;
@@ -275,7 +275,7 @@ namespace Game.Lines
 
             public static Line Instantiate(LineContainer container, Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
             {
-                Line result = Object.Instantiate(container._lineCache.Prefab, container.transform);
+                Line result = Object.Instantiate(container._cache.Prefab, container.transform);
                 if (registerUndo)
                 {
                     Undo.RegisterCreatedObjectUndo(result.gameObject, "EditModeInstantiateLine");
