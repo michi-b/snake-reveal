@@ -1,4 +1,4 @@
-﻿namespace Game.Lines
+﻿namespace Game.Lines.Insertion
 {
     public readonly struct InsertionResult
     {

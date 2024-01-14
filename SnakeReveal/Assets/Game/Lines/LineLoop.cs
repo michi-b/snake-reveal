@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
+using Game.Lines.Insertion;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -42,14 +43,7 @@ namespace Game.Lines
         }
 
 
-        /// <summary>
-        ///     Inserts the target line chain into this loop, without altering the target line chain.
-        ///     Also shifts the <see cref="LineLoop.Start" /> to contain the break-in position.
-        /// </summary>
-        /// <param name="lineChain">The line chain to insert</param>
-        /// <param name="breakoutLine">The line on this loop that the line chain originates at</param>
-        /// <param name="reinsertionLine">The line on this loop that the line chain ends at</param>
-        /// <returns>Whether the chain reconnects to this loop in the turn of this loop</returns>
+        [Obsolete("Use the overload with the pre-evaluated insertion evaluation instead, and cache it to avoid allocations")]
         public InsertionResult Insert(LineChain lineChain, [NotNull] Line breakoutLine, [NotNull] Line reinsertionLine)
         {
             InsertionEvaluation evaluation = new InsertionEvaluation();
@@ -57,11 +51,16 @@ namespace Game.Lines
             return Insert(evaluation);
         }
 
+        /// <summary>
+        ///     Inserts <see cref="InsertionEvaluation.LinesToInsert"/> from an insertion evaluation.
+        /// </summary>
+        /// <param name="insertion">Pre-evaluated insertion evaluation</param>
+        /// <returns>An insertion result object, containing e.g. the (new) line after the insertion, and whether the insertion was in turn of the loop</returns>
         public InsertionResult Insert(InsertionEvaluation insertion)
         {
-            var breakoutLine = insertion.BreakoutLine;
-            var reinsertionLine = insertion.ReInsertionLine;
-            List<LineData> linesToInsert = insertion.LinesToInsert;
+            Line breakoutLine = insertion.BreakoutLine;
+            Line reinsertionLine = insertion.ReInsertionLine;
+            IReadOnlyList<LineData> linesToInsert = insertion.LinesToInsert;
 
             if (breakoutLine == reinsertionLine)
             {

@@ -18,6 +18,7 @@ namespace Editor
                 newPosition = newGridPosition;
                 return true;
             }
+
             newPosition = position;
             return false;
         }

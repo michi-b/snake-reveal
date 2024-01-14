@@ -14,7 +14,7 @@ namespace Game
         [SerializeField] private Text _tickCounter;
         [SerializeField] private Text _timeCounter;
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
-        
+
         private PlayerSimulation _playerSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days

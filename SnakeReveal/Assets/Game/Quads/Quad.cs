@@ -57,8 +57,8 @@ namespace Game.Quads
 
         protected void OnDrawGizmos()
         {
-            GizmosUtility.DrawRect(_grid.GetScenePosition(_bottomLeftCorner), 
-                _grid.GetScenePosition(_bottomLeftCorner + _size), 
+            GizmosUtility.DrawRect(_grid.GetScenePosition(_bottomLeftCorner),
+                _grid.GetScenePosition(_bottomLeftCorner + _size),
                 transform.position.z,
                 Color.cyan);
         }

@@ -39,13 +39,6 @@ namespace Game.Player.Controls
             RegisterDirectionRequest(context, DirectionRequest.KeyDown);
         }
 
-        public static PlayerActorControls Create()
-        {
-            var instance = new PlayerActorControls();
-            instance.PlayerActor.SetCallbacks(instance);
-            return instance;
-        }
-
         public void Activate()
         {
             Enable();
@@ -82,6 +75,13 @@ namespace Game.Player.Controls
                 DirectionRequest.KeyLeft => GridDirection.Left,
                 _ => throw new ArgumentOutOfRangeException(nameof(latestDirectionRequest), latestDirectionRequest, null)
             };
+        }
+
+        public static PlayerActorControls Create()
+        {
+            var instance = new PlayerActorControls();
+            instance.PlayerActor.SetCallbacks(instance);
+            return instance;
         }
 
         private void RegisterDirectionRequest(InputAction.CallbackContext context, DirectionRequest direction)

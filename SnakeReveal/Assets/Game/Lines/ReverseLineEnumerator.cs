@@ -5,6 +5,14 @@ using JetBrains.Annotations;
 
 namespace Game.Lines
 {
+    /// <summary>
+    ///     Enumerates the lines from <see cref="_start" /> to <see cref="_end" /> in reverse order, yielding both and all
+    ///     lines
+    ///     in between.
+    ///     It is imperative that the <see cref="_start" /> can be reached from the <see cref="_end" /> by following the
+    ///     <see cref="Line.Next" /> property.
+    /// </summary>
+    /// <remarks>Skips Unity lifecycle checks and also other general null checks for performance reasons.</remarks>
     public struct ReverseLineEnumerator : IEnumerator<Line>
     {
         private Line _start;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Game.Enums;
 using UnityEngine;
@@ -7,7 +6,7 @@ using Utility;
 
 namespace Game.Lines
 {
-    [Serializable, SuppressMessage("ReSharper", "InconsistentNaming"), DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [Serializable, SuppressMessage("ReSharper", "InconsistentNaming")]
     // this is an unmanaged data struct separate from the line component ot allow for more efficient processing in some operations
     public struct LineData
     {
@@ -27,7 +26,10 @@ namespace Game.Lines
             _direction = direction;
         }
 
-        public string DebuggerDisplay => $"{Start} -> {End}({Direction})";
+        public override string ToString()
+        {
+            return $"{Start} -> {End}({Direction})";
+        }
 
         public GridDirection Direction
         {

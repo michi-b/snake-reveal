@@ -28,25 +28,25 @@ namespace Game.Quads.Editor
             {
                 return;
             }
-            
+
             Vector2Int bottomLeft = quad.BottomLeft;
             Vector2Int topRight = quad.TopRight;
             Vector2Int center = (bottomLeft + topRight) / 2;
 
             float z = quad.transform.position.z;
-            
+
             if (HandlesUtility.TryGridHandleMove(bottomLeft, z, grid, out Vector2Int newBottomLeft))
             {
                 Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Bottom Left Handle");
                 quad.BottomLeft = newBottomLeft;
             }
-            
+
             if (HandlesUtility.TryGridHandleMove(topRight, z, grid, out Vector2Int newTopRight))
             {
                 Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Top Right Handle");
                 quad.TopRight = newTopRight;
             }
-            
+
             if (HandlesUtility.TryGridHandleMove(center, z, grid, out Vector2Int newCenter))
             {
                 Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Center Handle");

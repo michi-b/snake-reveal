@@ -239,7 +239,7 @@ namespace Game.Lines.Editor
                 startLine.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                 startLine.End = newStartEnd;
             }
-            
+
             Vector2Int positionsSum = startLine.Start + startLine.End;
             int positionsCount = 2;
 
@@ -253,14 +253,15 @@ namespace Game.Lines.Editor
                         lineAfterFirst.RegisterUndoWithNeighbors(LinePositionHandleMoveOperationName);
                         lineAfterFirst.End = newLineAfterStartEnd;
                     }
+
                     positionsSum += lineAfterFirst.End;
                     positionsCount++;
                 }
             }
-            
-            Vector2Int centerPosition = positionsSum / (positionsCount);
-            
-            if(HandlesUtility.TryGridHandleMove(centerPosition, container.transform.position.z, grid, out Vector2Int newCenter))
+
+            Vector2Int centerPosition = positionsSum / positionsCount;
+
+            if (HandlesUtility.TryGridHandleMove(centerPosition, container.transform.position.z, grid, out Vector2Int newCenter))
             {
                 Vector2Int delta = newCenter - centerPosition;
                 foreach (Line line in container)
@@ -268,6 +269,7 @@ namespace Game.Lines.Editor
                     Undo.RegisterFullObjectHierarchyUndo(line.gameObject, "Move Line Container Center Grid Handle");
                     line.Start += delta;
                 }
+
                 anyPositionHandleChanged = true;
             }
 

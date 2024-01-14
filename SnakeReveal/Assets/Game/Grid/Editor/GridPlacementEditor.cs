@@ -27,12 +27,11 @@ namespace Game.Grid.Editor
                 return;
             }
 
-            if(HandlesUtility.TryGridHandleMove(placement.Position, placement.transform.position.z, grid, out Vector2Int newGridPosition))
+            if (HandlesUtility.TryGridHandleMove(placement.Position, placement.transform.position.z, grid, out Vector2Int newGridPosition))
             {
                 placement.RecordUndo("Move Grid Transform Handle");
                 placement.Position = newGridPosition;
             }
-           
         }
 
         public override void OnInspectorGUI()

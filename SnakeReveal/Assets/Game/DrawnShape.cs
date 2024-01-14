@@ -1,7 +1,9 @@
 using System;
 using Game.Enums;
 using Game.Lines;
+using Game.Lines.Insertion;
 using Game.Player;
+using Game.Quads;
 using UnityEngine;
 
 namespace Game
@@ -9,6 +11,10 @@ namespace Game
     public class DrawnShape : MonoBehaviour
     {
         [SerializeField] private LineLoop _lineLoop;
+        [SerializeField] private QuadContainer _quadContainer;
+
+        private readonly InsertionEvaluation _insertionEvaluation = new InsertionEvaluation();
+        
         public Line Start => _lineLoop.Start;
 
         private Turn GetTravelTurn(bool startToEnd)
@@ -30,7 +36,14 @@ namespace Game
 
         public InsertionResult Insert(DrawingChain drawing, Line breakoutLine, Line reinsertionLine)
         {
-            InsertionResult insertionResult = _lineLoop.Insert(drawing.Lines, breakoutLine, reinsertionLine);
+            _insertionEvaluation.Evaluate(_lineLoop.Turn, drawing.Lines, breakoutLine, reinsertionLine);
+
+            foreach (LineData loopLine in _insertionEvaluation.LoopView)
+            {
+                Debug.Log(loopLine);
+            }
+            
+            InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
             Apply();
             return insertionResult;
         }

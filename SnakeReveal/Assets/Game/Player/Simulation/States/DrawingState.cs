@@ -1,5 +1,6 @@
 ﻿using Game.Enums;
 using Game.Lines;
+using Game.Lines.Insertion;
 using UnityEngine;
 
 namespace Game.Player.Simulation.States

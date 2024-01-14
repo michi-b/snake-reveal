@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Game.Enums;
 using Game.Lines;
+using Game.Lines.Insertion;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 

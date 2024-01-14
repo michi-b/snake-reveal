@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 
 namespace Game.Lines
 {
+    /// <inheritdoc cref="LineEnumerator" />
     public readonly struct LineSpan : IEnumerable<Line>
     {
         private readonly Line _start;
@@ -17,6 +18,7 @@ namespace Game.Lines
             _end = end;
         }
 
+        /// <inheritdoc cref="LineEnumerator(Line, Line)" />
         public LineEnumerator GetEnumerator()
         {
             // ReSharper disable once Unity.NoNullPropagation

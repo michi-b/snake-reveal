@@ -15,7 +15,7 @@ namespace Game.Lines
     /// <summary>
     ///     minimal immutable struct to cache information of line container lines
     /// </summary>
-    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D)), DebuggerDisplay("{DebuggerDisplay,nq}")]
+    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D))]
     public class Line : MonoBehaviour
     {
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
@@ -32,8 +32,6 @@ namespace Game.Lines
         {
             _line = new LineData(start, end);
         }
-
-        public string DebuggerDisplay => $"{_line.DebuggerDisplay})";
 
         public SimulationGrid Grid
         {
@@ -118,6 +116,11 @@ namespace Game.Lines
 
                 Gizmos.color = originalGizmoColor;
             }
+        }
+
+        public override string ToString()
+        {
+            return _line.ToString();
         }
 
         public void Initialize(SimulationGrid grid, LineData lineData)
@@ -256,7 +259,7 @@ namespace Game.Lines
             Debug.Assert(Start != End
                          && Direction != GridDirection.None
                          && Direction == Start.GetDirection(End),
-                $"Invalid line: {DebuggerDisplay}", this);
+                $"Invalid line: {this}", this);
         }
     }
 }

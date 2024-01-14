@@ -6,6 +6,5 @@ namespace CustomPropertyDrawers
     [AttributeUsage(AttributeTargets.Field)]
     public class ToggleLeftAttribute : PropertyAttribute
     {
-        
     }
 }

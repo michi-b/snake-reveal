@@ -2,6 +2,7 @@
 using System.Linq;
 using Editor;
 using Game.Enums;
+using Game.Lines.Insertion;
 using UnityEditor;
 using UnityEngine;
 
@@ -211,7 +212,7 @@ namespace Game.Lines.Editor
             breakInLine.RegisterUndo("EditModeInsert - disconnect break-in line previous");
             breakInLine.Previous = null;
 
-            List<LineData> linesToInsert = insertionEvaluation.LinesToInsert;
+            IReadOnlyList<LineData> linesToInsert = insertionEvaluation.LinesToInsert;
 
             // adjust breakout and break-in line positions
             breakInLine.Start = linesToInsert[^1].End;

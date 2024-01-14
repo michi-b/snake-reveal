@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 
 namespace Game.Lines
 {
+    /// <inheritdoc cref="ReverseLineEnumerator" />
     public readonly struct ReverseLineSpan : IEnumerable<Line>
     {
         private readonly Line _start;
@@ -16,6 +17,7 @@ namespace Game.Lines
             _end = end;
         }
 
+        /// <inheritdoc cref="ReverseLineEnumerator(Line, Line)" />
         public ReverseLineEnumerator GetEnumerator()
         {
             // ReSharper disable once Unity.NoNullPropagation
