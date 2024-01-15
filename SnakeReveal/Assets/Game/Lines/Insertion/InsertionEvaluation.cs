@@ -32,6 +32,15 @@ namespace Game.Lines.Insertion
         public bool IsStartToEnd { get; private set; }
 
         /// <summary>
+        ///     Get an enumerable loops view that represents the insertion, reconnecting the inserted chain along the loop in
+        ///     reverse direction.
+        ///     Note that this is only a view of the insertion evaluation, and caches no additional data for performance reason.
+        ///     Therefore updating the insertion evaluation will also update this loop view.
+        /// </summary>
+        /// <value>A struct that can be enumerated to get the sorted line data of the loop</value>
+        public InsertionLoopView LoopView => new(this);
+
+        /// <summary>
         ///     Clear any previous results and regenerate all results from the input
         /// </summary>
         /// <param name="loopTurn">The turn of the loop</param>
@@ -119,23 +128,15 @@ namespace Game.Lines.Insertion
             }
         }
 
-        /// <summary>
-        /// Get an enumerable loops view that represents the insertion, reconnecting the inserted chain along the loop in reverse direction.
-        /// Note that this is only a view of the insertion evaluation, and caches no additional data for performance reason.
-        /// Therefore updating the insertion evaluation will also update this loop view.
-        /// </summary>
-        /// <value>A struct that can be enumerated to get the sorted line data of the loop</value>
-        public InsertionLoopView LoopView => new(this);
-
         public readonly struct InsertionLoopView
         {
             private readonly InsertionEvaluation _evaluation;
-            
+
             public InsertionLoopView(InsertionEvaluation evaluation)
             {
                 _evaluation = evaluation;
             }
-            
+
             public InsertionLoopEnumerator GetEnumerator()
             {
                 return new InsertionLoopEnumerator(_evaluation._linesToInsert, _evaluation._insertionConnection);

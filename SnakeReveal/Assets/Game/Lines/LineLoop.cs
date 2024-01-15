@@ -46,16 +46,19 @@ namespace Game.Lines
         [Obsolete("Use the overload with the pre-evaluated insertion evaluation instead, and cache it to avoid allocations")]
         public InsertionResult Insert(LineChain lineChain, [NotNull] Line breakoutLine, [NotNull] Line reinsertionLine)
         {
-            InsertionEvaluation evaluation = new InsertionEvaluation();
+            var evaluation = new InsertionEvaluation();
             evaluation.Evaluate(_turn, lineChain, breakoutLine, reinsertionLine);
             return Insert(evaluation);
         }
 
         /// <summary>
-        ///     Inserts <see cref="InsertionEvaluation.LinesToInsert"/> from an insertion evaluation.
+        ///     Inserts <see cref="InsertionEvaluation.LinesToInsert" /> from an insertion evaluation.
         /// </summary>
         /// <param name="insertion">Pre-evaluated insertion evaluation</param>
-        /// <returns>An insertion result object, containing e.g. the (new) line after the insertion, and whether the insertion was in turn of the loop</returns>
+        /// <returns>
+        ///     An insertion result object, containing e.g. the (new) line after the insertion, and whether the insertion was
+        ///     in turn of the loop
+        /// </returns>
         public InsertionResult Insert(InsertionEvaluation insertion)
         {
             Line breakoutLine = insertion.BreakoutLine;

@@ -10,8 +10,6 @@ namespace Game.Quads.Editor
     {
         protected virtual void OnEnable()
         {
-            serializedObject.FindDirectChild(nameof(Quad.BottomLeftCornerPropertyName));
-            serializedObject.FindDirectChild(nameof(Quad.SizePropertyName));
             Tools.hidden = true;
         }
 

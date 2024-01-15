@@ -3,78 +3,101 @@ using Game.Grid;
 using UnityEngine;
 using Utility;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Game.Quads
 {
     public class Quad : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private BoxCollider2D _collider;
-        [SerializeField] private Vector2Int _bottomLeftCorner;
-        [SerializeField] private Vector2Int _size = new(1, 1);
+        [SerializeField] private QuadData _data;
 
-        public string BottomLeftCornerPropertyName => nameof(_bottomLeftCorner);
-        public string SizePropertyName => nameof(_size);
         public SimulationGrid Grid => _grid;
-
 
         public Vector2Int TopRight
         {
             set
             {
-                Vector2Int size = value - _bottomLeftCorner;
-                if (size != _size)
+                if(value != TopRight)
                 {
-                    _size = size;
+                    _data.TopRight = value;
                     Apply();
                 }
             }
-            get => _bottomLeftCorner + _size;
+            get => _data.TopRight;
         }
 
         public Vector2Int BottomLeft
         {
             set
             {
-                if (value != _bottomLeftCorner)
+                if(value != BottomLeft)
                 {
-                    Vector2Int delta = value - _bottomLeftCorner;
-                    _size -= delta;
-                    _bottomLeftCorner = value;
+                    _data.BottomLeft = value;
                     Apply();
                 }
             }
-            get => _bottomLeftCorner;
+            get => _data.BottomLeft;
+        }
+
+        public Vector2Int Size
+        {
+            set
+            {
+                if(value != Size)
+                {
+                    _data.Size = value;
+                    Apply();
+                }
+            }
+            get => _data.Size;
         }
 
         protected virtual void Reset()
         {
             _grid = SimulationGrid.EditModeFind()!;
             _collider = gameObject.GetComponent<BoxCollider2D>();
-            _bottomLeftCorner = _grid.Round(transform.position);
-            _size = Vector2Int.one;
+            _data = new QuadData(_grid.Round(transform.position));
             Apply();
         }
 
-        protected void OnDrawGizmos()
+        public void Initialize(SimulationGrid grid, QuadData quadData)
         {
-            GizmosUtility.DrawRect(_grid.GetScenePosition(_bottomLeftCorner),
-                _grid.GetScenePosition(_bottomLeftCorner + _size),
-                transform.position.z,
-                Color.cyan);
+            _grid = grid;
+            _data = quadData;
+            Apply();
         }
 
         public void Apply()
         {
-            transform.position = _bottomLeftCorner.GetScenePosition(_grid).ToVector3(transform.position.z);
-            Vector2 sceneSize = _size * Grid.SceneCellSize;
+            transform.position = BottomLeft.GetScenePosition(_grid).ToVector3(transform.position.z);
+            Vector2 sceneSize = Size * Grid.SceneCellSize;
             _collider.offset = sceneSize * 0.5f;
             _collider.size = sceneSize;
         }
 
         public void Move(Vector2Int delta)
         {
-            _bottomLeftCorner += delta;
+            _data.Move(delta);
             Apply();
         }
+
+#if UNITY_EDITOR
+        protected void OnDrawGizmosSelected()
+        {
+            if (!Selection.Contains(gameObject) || _grid == null)
+            {
+                return;
+            }
+            
+            GizmosUtility.DrawRect(_grid.GetScenePosition(BottomLeft),
+                _grid.GetScenePosition(BottomLeft + Size),
+                transform.position.z,
+                Color.cyan);
+        }
+#endif
     }
 }

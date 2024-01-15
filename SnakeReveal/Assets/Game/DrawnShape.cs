@@ -13,8 +13,8 @@ namespace Game
         [SerializeField] private LineLoop _lineLoop;
         [SerializeField] private QuadContainer _quadContainer;
 
-        private readonly InsertionEvaluation _insertionEvaluation = new InsertionEvaluation();
-        
+        private readonly InsertionEvaluation _insertionEvaluation = new();
+
         public Line Start => _lineLoop.Start;
 
         private Turn GetTravelTurn(bool startToEnd)
@@ -42,7 +42,7 @@ namespace Game
             {
                 Debug.Log(loopLine);
             }
-            
+
             InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
             Apply();
             return insertionResult;
@@ -84,11 +84,12 @@ namespace Game
                         return true;
                     }
                 }
+
                 // closed corner
                 breakoutLine = null;
                 return false;
             }
-            
+
             if (IsBreakoutDirection(direction, activeLine))
             {
                 breakoutLine = activeLine;

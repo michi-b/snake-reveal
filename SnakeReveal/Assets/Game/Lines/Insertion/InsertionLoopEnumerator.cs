@@ -11,7 +11,7 @@ namespace Game.Lines.Insertion
             Chain,
             LoopConnection
         }
-        
+
         private IReadOnlyList<LineData> _chain;
         private IReadOnlyList<LineData> _loopConnection;
         private State _state;
@@ -47,7 +47,7 @@ namespace Game.Lines.Insertion
             _index = 0;
             return true;
         }
-        
+
         private bool TryInitializeLoop()
         {
             if (_loopConnection.Count <= 0)
@@ -59,7 +59,7 @@ namespace Game.Lines.Insertion
             _index = 0;
             return true;
         }
-        
+
         public void Reset()
         {
             _state = State.Initial;

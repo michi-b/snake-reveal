@@ -26,15 +26,15 @@ namespace Game.Lines
             _direction = direction;
         }
 
-        public override string ToString()
-        {
-            return $"{Start} -> {End}({Direction})";
-        }
-
         public GridDirection Direction
         {
             get => _direction;
             set => _direction = value;
+        }
+
+        public override string ToString()
+        {
+            return $"{Start} -> {End}({Direction})";
         }
 
         public LineData Reverse()

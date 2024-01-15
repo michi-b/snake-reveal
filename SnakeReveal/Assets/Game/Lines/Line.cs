@@ -5,10 +5,13 @@ using Extensions;
 using Game.Enums;
 using Game.Grid;
 using JetBrains.Annotations;
-using UnityEditor;
 using UnityEngine;
 using Utility;
 using Debug = UnityEngine.Debug;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Game.Lines
 {
@@ -50,10 +53,10 @@ namespace Game.Lines
                 if (_previous != null)
                 {
                     _previous._line.End = value;
-                    _previous.ApplyPositions();
+                    _previous.Apply();
                 }
 
-                ApplyPositions();
+                Apply();
             }
         }
 
@@ -66,10 +69,10 @@ namespace Game.Lines
                 if (_next != null)
                 {
                     _next._line.Start = value;
-                    _next.ApplyPositions();
+                    _next.Apply();
                 }
 
-                ApplyPositions();
+                Apply();
             }
         }
 
@@ -98,24 +101,9 @@ namespace Game.Lines
         protected void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
-        }
-
-        protected void OnDrawGizmosSelected()
-        {
-            if (Selection.Contains(gameObject) && _grid != null)
-            {
-                Color originalGizmoColor = Gizmos.color;
-                Gizmos.color = Color.black;
-
-                float diameter = _grid.SceneCellSize.magnitude * 0.25f;
-                Vector3 startWorldPosition = StartWorldPosition;
-                Vector3 endWorldPosition = EndWorldPosition;
-                Gizmos.DrawWireSphere(startWorldPosition, diameter);
-                Vector3 direction = endWorldPosition - startWorldPosition;
-                GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
-
-                Gizmos.color = originalGizmoColor;
-            }
+            _collider = GetComponent<EdgeCollider2D>();
+            _renderer = GetComponent<LineRenderer>();
+            Apply();
         }
 
         public override string ToString()
@@ -127,7 +115,7 @@ namespace Game.Lines
         {
             _grid = grid;
             _line = lineData;
-            ApplyPositions();
+            Apply();
         }
 
         public void Initialize()
@@ -135,10 +123,10 @@ namespace Game.Lines
             _previous = null;
             _next = null;
             _line = new LineData(Vector2Int.zero, Vector2Int.right);
-            ApplyPositions();
+            Apply();
         }
 
-        private void ApplyPositions()
+        private void Apply()
         {
             _line.Direction = _line.Start.GetDirection(_line.End);
 
@@ -188,7 +176,7 @@ namespace Game.Lines
         public void Set(LineData lineData)
         {
             _line = lineData;
-            ApplyPositions();
+            Apply();
         }
 
         public bool Contains(Vector2Int position)
@@ -261,5 +249,27 @@ namespace Game.Lines
                          && Direction == Start.GetDirection(End),
                 $"Invalid line: {this}", this);
         }
+        
+#if UNITY_EDITOR
+        protected void OnDrawGizmosSelected()
+        {
+            if (!Selection.Contains(gameObject) || _grid == null)
+            {
+                return;
+            }
+
+            Color originalGizmoColor = Gizmos.color;
+            Gizmos.color = Color.black;
+
+            float diameter = _grid.SceneCellSize.magnitude * 0.25f;
+            Vector3 startWorldPosition = StartWorldPosition;
+            Vector3 endWorldPosition = EndWorldPosition;
+            Gizmos.DrawWireSphere(startWorldPosition, diameter);
+            Vector3 direction = endWorldPosition - startWorldPosition;
+            GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
+
+            Gizmos.color = originalGizmoColor;
+        }
+#endif
     }
 }
