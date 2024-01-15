@@ -34,7 +34,7 @@ namespace Game.Lines
 
         public override string ToString()
         {
-            return $"{Start} -> {End}({Direction})";
+            return $"{Start} -> {End} ({Direction})";
         }
 
         public LineData Reverse()

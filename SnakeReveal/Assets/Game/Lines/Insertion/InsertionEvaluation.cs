@@ -26,10 +26,11 @@ namespace Game.Lines.Insertion
         }
 
         public IReadOnlyList<LineData> LinesToInsert => _linesToInsert;
-
         public Line ReInsertionLine { get; private set; } // break-in line on loop
         public Line BreakoutLine { get; private set; } // breakout line on loop
         public bool IsStartToEnd { get; private set; }
+
+        public Turn Turn { get; private set; }
 
         /// <summary>
         ///     Get an enumerable loops view that represents the insertion, reconnecting the inserted chain along the loop in
@@ -38,7 +39,7 @@ namespace Game.Lines.Insertion
         ///     Therefore updating the insertion evaluation will also update this loop view.
         /// </summary>
         /// <value>A struct that can be enumerated to get the sorted line data of the loop</value>
-        public InsertionLoopView LoopView => new(this);
+        public InsertionLoopView Loop => new(this);
 
         /// <summary>
         ///     Clear any previous results and regenerate all results from the input
@@ -54,6 +55,7 @@ namespace Game.Lines.Insertion
         /// <exception cref="ArgumentOutOfRangeException">When the loopTurn is NONE</exception>
         public void Evaluate(Turn loopTurn, LineChain chain, Line loopBreakoutLine, Line loopReinsertionLine)
         {
+            Turn = loopTurn;
 #if DEBUG
             if (!loopBreakoutLine.Contains(chain.Start.Start))
             {
@@ -72,7 +74,7 @@ namespace Game.Lines.Insertion
             int chainTurnClockwiseWeight = chain.AsSpan().SumClockwiseTurnWeight();
             int deltaClockwiseWeight = chainTurnClockwiseWeight - loopTurnClockwiseWeight;
 
-            IsStartToEnd = loopTurn switch
+            IsStartToEnd = Turn switch
             {
                 Turn.None => throw new ArgumentOutOfRangeException(),
                 Turn.Right => deltaClockwiseWeight > 0,
@@ -118,19 +120,21 @@ namespace Game.Lines.Insertion
                 _insertionConnection.Add(new LineData(chainEndPosition, ReInsertionLine.Start));
                 if (BreakoutLine != ReInsertionLine.Previous)
                 {
-                    foreach (Line line in new ReverseLineSpan(ReInsertionLine.Previous, ReInsertionLine.Next))
+                    foreach (Line line in new ReverseLineSpan(BreakoutLine.Next, ReInsertionLine.Previous))
                     {
                         _insertionConnection.Add(line.Data.Reverse());
                     }
                 }
 
-                _insertionConnection.Add(new LineData(BreakoutLine.End, chainStartPosition));
+                _insertionConnection.Add(new LineData(chainStartPosition, BreakoutLine.End));
             }
         }
 
         public readonly struct InsertionLoopView
         {
             private readonly InsertionEvaluation _evaluation;
+
+            public Turn Turn => _evaluation.Turn;
 
             public InsertionLoopView(InsertionEvaluation evaluation)
             {

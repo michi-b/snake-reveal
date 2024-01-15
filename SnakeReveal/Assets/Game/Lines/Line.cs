@@ -106,6 +106,28 @@ namespace Game.Lines
             Apply();
         }
 
+#if UNITY_EDITOR
+        protected void OnDrawGizmosSelected()
+        {
+            if (!Selection.Contains(gameObject) || _grid == null)
+            {
+                return;
+            }
+
+            Color originalGizmoColor = Gizmos.color;
+            Gizmos.color = Color.black;
+
+            float diameter = _grid.SceneCellSize.magnitude * 0.25f;
+            Vector3 startWorldPosition = StartWorldPosition;
+            Vector3 endWorldPosition = EndWorldPosition;
+            Gizmos.DrawWireSphere(startWorldPosition, diameter);
+            Vector3 direction = endWorldPosition - startWorldPosition;
+            GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
+
+            Gizmos.color = originalGizmoColor;
+        }
+#endif
+
         public override string ToString()
         {
             return _line.ToString();
@@ -249,27 +271,5 @@ namespace Game.Lines
                          && Direction == Start.GetDirection(End),
                 $"Invalid line: {this}", this);
         }
-        
-#if UNITY_EDITOR
-        protected void OnDrawGizmosSelected()
-        {
-            if (!Selection.Contains(gameObject) || _grid == null)
-            {
-                return;
-            }
-
-            Color originalGizmoColor = Gizmos.color;
-            Gizmos.color = Color.black;
-
-            float diameter = _grid.SceneCellSize.magnitude * 0.25f;
-            Vector3 startWorldPosition = StartWorldPosition;
-            Vector3 endWorldPosition = EndWorldPosition;
-            Gizmos.DrawWireSphere(startWorldPosition, diameter);
-            Vector3 direction = endWorldPosition - startWorldPosition;
-            GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
-
-            Gizmos.color = originalGizmoColor;
-        }
-#endif
     }
 }

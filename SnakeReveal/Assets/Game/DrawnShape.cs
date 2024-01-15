@@ -4,6 +4,7 @@ using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
 using Game.Quads;
+using Game.Quads.Quadrangulation;
 using UnityEngine;
 
 namespace Game
@@ -14,6 +15,7 @@ namespace Game
         [SerializeField] private QuadContainer _quadContainer;
 
         private readonly InsertionEvaluation _insertionEvaluation = new();
+        private readonly BottomUpQuadrangulation _quadrangulation = new();
 
         public Line Start => _lineLoop.Start;
 
@@ -38,27 +40,11 @@ namespace Game
         {
             _insertionEvaluation.Evaluate(_lineLoop.Turn, drawing.Lines, breakoutLine, reinsertionLine);
 
-            foreach (LineData loopLine in _insertionEvaluation.LoopView)
-            {
-                Debug.Log(loopLine);
-            }
-
             InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
-            Apply();
+            
+            _quadrangulation.Evaluate(_insertionEvaluation.Loop);
+            
             return insertionResult;
-        }
-
-
-        [ContextMenu(nameof(Apply))]
-        private void EditModeApply()
-        {
-            // Undo.RegisterCompleteObjectUndo(_polygon.gameObject, "Apply drawn shape");
-            Apply();
-        }
-
-        private void Apply()
-        {
-            // _polygon.Apply(_lineLoop.Grid, _lineLoop.AsSpan());
         }
 
         public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtEndCorner, bool startToEnd, out Line breakoutLine)

@@ -8,13 +8,13 @@ namespace Game.Quads
     {
         [SerializeField] private Vector2Int _bottomLeftCorner;
         [SerializeField] private Vector2Int _size;
-        
+
         public QuadData(Vector2Int position)
         {
             _bottomLeftCorner = position;
             _size = Vector2Int.one;
         }
-        
+
         public Vector2Int TopRight
         {
             set
@@ -39,7 +39,7 @@ namespace Game.Quads
         public Vector2Int Size
         {
             set => _size = value;
-            get => _size; 
+            get => _size;
         }
 
         public void Move(Vector2Int delta)
