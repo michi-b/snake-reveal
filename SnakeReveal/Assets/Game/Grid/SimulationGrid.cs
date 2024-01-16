@@ -88,7 +88,8 @@ namespace Game.Grid
         [CanBeNull]
         public static SimulationGrid EditModeFind()
         {
-            return FindObjectsByType<SimulationGrid>(FindObjectsInactive.Include, FindObjectsSortMode.None)?[0];
+            SimulationGrid[] grids = FindObjectsByType<SimulationGrid>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            return grids is { Length: > 0 } ? grids[0] : null;
         }
     }
 }

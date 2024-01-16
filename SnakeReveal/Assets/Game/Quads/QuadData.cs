@@ -15,6 +15,12 @@ namespace Game.Quads
             _size = Vector2Int.one;
         }
 
+        public QuadData(int startX, int endX, int startY, int endY)
+        {
+            _bottomLeftCorner = new Vector2Int(startX, startY);
+            _size = new Vector2Int(endX - startX, endY - startY);
+        }
+
         public Vector2Int TopRight
         {
             set

@@ -487,8 +487,8 @@ MonoBehaviour:
   _renderer: {fileID: 965730293}
   _collider: {fileID: 965730292}
   _line:
-    Start: {x: 300, y: 510}
-    End: {x: 300, y: 450}
+    Start: {x: 301, y: 510}
+    End: {x: 301, y: 287}
     _direction: 4
   _previous: {fileID: 1452358827}
   _next: {fileID: 1766730896}
@@ -530,7 +530,7 @@ EdgeCollider2D:
   m_EdgeRadius: 0.01000001
   m_Points:
   - {x: 0, y: 0}
-  - {x: 0, y: -1.2}
+  - {x: 0, y: -4.4600005}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -581,7 +581,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: -1.2, z: 0}
+  - {x: 0, y: -4.4600005, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.02
@@ -650,7 +650,7 @@ Transform:
   m_GameObject: {fileID: 965730290}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5999999, y: 0.6000004, z: 0}
+  m_LocalPosition: {x: 0.6199999, y: 0.6000004, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -729,7 +729,7 @@ Transform:
   m_GameObject: {fileID: 1108948899}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.6000004, y: -0.5999994, z: 0}
+  m_LocalPosition: {x: -0.7000003, y: -3.8600001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -773,7 +773,7 @@ EdgeCollider2D:
   m_EdgeRadius: 0.01000001
   m_Points:
   - {x: 0, y: 0}
-  - {x: 0, y: 1.2}
+  - {x: 0, y: 4.4600005}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -824,7 +824,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 1.2, z: 0}
+  - {x: 0, y: 4.4600005, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.02
@@ -900,8 +900,8 @@ MonoBehaviour:
   _renderer: {fileID: 1108948902}
   _collider: {fileID: 1108948901}
   _line:
-    Start: {x: 240, y: 450}
-    End: {x: 240, y: 510}
+    Start: {x: 235, y: 287}
+    End: {x: 235, y: 510}
     _direction: 2
   _previous: {fileID: 1766730896}
   _next: {fileID: 1452358827}
@@ -940,8 +940,8 @@ MonoBehaviour:
   _renderer: {fileID: 1452358829}
   _collider: {fileID: 1452358828}
   _line:
-    Start: {x: 240, y: 510}
-    End: {x: 300, y: 510}
+    Start: {x: 235, y: 510}
+    End: {x: 301, y: 510}
     _direction: 1
   _previous: {fileID: 1108948903}
   _next: {fileID: 965730291}
@@ -983,7 +983,7 @@ EdgeCollider2D:
   m_EdgeRadius: 0.01000001
   m_Points:
   - {x: 0, y: 0}
-  - {x: 1.1999999, y: 0}
+  - {x: 1.3199999, y: 0}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -1034,7 +1034,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 1.1999999, y: 0, z: 0}
+  - {x: 1.3199999, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.02
@@ -1103,7 +1103,7 @@ Transform:
   m_GameObject: {fileID: 1452358826}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.6000004, y: 0.6000004, z: 0}
+  m_LocalPosition: {x: -0.7000003, y: 0.6000004, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1253,8 +1253,8 @@ MonoBehaviour:
   _renderer: {fileID: 1766730898}
   _collider: {fileID: 1766730897}
   _line:
-    Start: {x: 300, y: 450}
-    End: {x: 240, y: 450}
+    Start: {x: 301, y: 287}
+    End: {x: 235, y: 287}
     _direction: 3
   _previous: {fileID: 965730291}
   _next: {fileID: 1108948903}
@@ -1296,7 +1296,7 @@ EdgeCollider2D:
   m_EdgeRadius: 0.01000001
   m_Points:
   - {x: 0, y: 0}
-  - {x: -1.1999999, y: 0}
+  - {x: -1.3199999, y: 0}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -1347,7 +1347,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: -1.1999999, y: 0, z: 0}
+  - {x: -1.3199999, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.02
@@ -1416,7 +1416,7 @@ Transform:
   m_GameObject: {fileID: 1766730895}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5999999, y: -0.5999994, z: 0}
+  m_LocalPosition: {x: 0.6199999, y: -3.8600001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1813,8 +1813,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _grid: {fileID: 1501073790}
   _collider: {fileID: 105041250040229891}
-  _bottomLeftCorner: {x: 240, y: 450}
-  _size: {x: 60, y: 60}
+  _data:
+    _bottomLeftCorner: {x: 0, y: 0}
+    _size: {x: 0, y: 0}
 --- !u!114 &3047996589701644439
 MonoBehaviour:
   m_ObjectHideFlags: 0

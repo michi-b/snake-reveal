@@ -2,7 +2,6 @@ using Extensions;
 using Game.Grid;
 using UnityEngine;
 using Utility;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,7 +20,7 @@ namespace Game.Quads
         {
             set
             {
-                if(value != TopRight)
+                if (value != TopRight)
                 {
                     _data.TopRight = value;
                     Apply();
@@ -34,7 +33,7 @@ namespace Game.Quads
         {
             set
             {
-                if(value != BottomLeft)
+                if (value != BottomLeft)
                 {
                     _data.BottomLeft = value;
                     Apply();
@@ -47,7 +46,7 @@ namespace Game.Quads
         {
             set
             {
-                if(value != Size)
+                if (value != Size)
                 {
                     _data.Size = value;
                     Apply();
@@ -63,6 +62,21 @@ namespace Game.Quads
             _data = new QuadData(_grid.Round(transform.position));
             Apply();
         }
+
+#if UNITY_EDITOR
+        protected void OnDrawGizmosSelected()
+        {
+            if (!Selection.Contains(gameObject) || _grid == null)
+            {
+                return;
+            }
+
+            GizmosUtility.DrawRect(_grid.GetScenePosition(BottomLeft),
+                _grid.GetScenePosition(BottomLeft + Size),
+                transform.position.z,
+                Color.cyan);
+        }
+#endif
 
         public void Initialize(SimulationGrid grid, QuadData quadData)
         {
@@ -84,20 +98,5 @@ namespace Game.Quads
             _data.Move(delta);
             Apply();
         }
-
-#if UNITY_EDITOR
-        protected void OnDrawGizmosSelected()
-        {
-            if (!Selection.Contains(gameObject) || _grid == null)
-            {
-                return;
-            }
-            
-            GizmosUtility.DrawRect(_grid.GetScenePosition(BottomLeft),
-                _grid.GetScenePosition(BottomLeft + Size),
-                transform.position.z,
-                Color.cyan);
-        }
-#endif
     }
 }

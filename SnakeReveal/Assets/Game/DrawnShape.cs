@@ -41,9 +41,9 @@ namespace Game
             _insertionEvaluation.Evaluate(_lineLoop.Turn, drawing.Lines, breakoutLine, reinsertionLine);
 
             InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
-            
+
             _quadrangulation.Evaluate(_insertionEvaluation.Loop);
-            
+
             return insertionResult;
         }
 

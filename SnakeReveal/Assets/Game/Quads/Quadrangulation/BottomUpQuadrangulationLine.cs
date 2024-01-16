@@ -5,52 +5,52 @@ using Game.Lines;
 
 namespace Game.Quads.Quadrangulation
 {
-    public struct BottomUpQuadrangulationLine : IComparable<BottomUpQuadrangulationLine>
+    /// <summary>
+    ///     Utility struct for quadrangulation that extends a curtain with the information, whether it is opening or closing
+    /// </summary>
+    public readonly struct BottomUpQuadrangulationLine : IComparable<BottomUpQuadrangulationLine>
     {
-        public int Y;
-        public int Left;
-        public int Right;
-        public QuadrangulationLineKind Kind;
+        private readonly Curtain _curtain;
 
-        private BottomUpQuadrangulationLine(LineData line, QuadrangulationLineKind kind)
+        public int Left => _curtain.Left;
+
+        public int Right => _curtain.Right;
+
+        public int Y => _curtain.Y;
+
+        public Curtain Curtain => _curtain;
+
+        private BottomUpQuadrangulationLine(LineData line, bool isClosing)
         {
-            switch (line.Direction)
+            _curtain = line.Direction switch
             {
-                case GridDirection.None:
-                    throw new ArgumentOutOfRangeException();
-                case GridDirection.Right:
-                    Y = line.Start.y;
-                    Left = line.Start.x;
-                    Right = line.End.x;
-                    break;
-                case GridDirection.Up:
-                    throw new ArgumentOutOfRangeException();
-                case GridDirection.Left:
-                    Y = line.Start.y;
-                    Left = line.End.x;
-                    Right = line.Start.x;
-                    break;
-                case GridDirection.Down:
-                    throw new ArgumentOutOfRangeException();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            Kind = kind;
+                GridDirection.None => throw new ArgumentOutOfRangeException(),
+                GridDirection.Right => new Curtain(line.Start.x, line.End.x, line.Start.y),
+                GridDirection.Up => throw new ArgumentOutOfRangeException(),
+                GridDirection.Left => new Curtain(line.End.x, line.Start.x, line.Start.y),
+                GridDirection.Down => throw new ArgumentOutOfRangeException(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            IsClosing = isClosing;
         }
+
+        public bool IsOpening => !IsClosing;
+
+        public bool IsClosing { get; }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryConvert(LineData line, GridDirection openingDirection, GridDirection closingDirection, out BottomUpQuadrangulationLine result)
         {
             if (line.Direction == openingDirection)
             {
-                result = new BottomUpQuadrangulationLine(line, QuadrangulationLineKind.Opening);
+                result = new BottomUpQuadrangulationLine(line, false);
                 return true;
             }
 
             if (line.Direction == closingDirection)
             {
-                result = new BottomUpQuadrangulationLine(line, QuadrangulationLineKind.Closing);
+                result = new BottomUpQuadrangulationLine(line, true);
                 return true;
             }
 
