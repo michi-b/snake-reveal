@@ -126,7 +126,7 @@ namespace Game.Lines.Insertion
                     }
                 }
 
-                _insertionConnection.Add(new LineData(chainStartPosition, BreakoutLine.End));
+                _insertionConnection.Add(new LineData(BreakoutLine.End, chainStartPosition));
             }
         }
 

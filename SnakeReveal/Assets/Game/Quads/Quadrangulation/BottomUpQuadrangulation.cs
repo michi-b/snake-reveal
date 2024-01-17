@@ -59,7 +59,10 @@ namespace Game.Quads.Quadrangulation
             _result.Clear();
 
             Debug.Assert(_lines.Count >= 2);
-            Debug.Assert(_lines[0].IsOpening);
+            if (!_lines[0].IsOpening)
+            {
+                throw new InvalidOperationException("First line must be opening");
+            }
 
             _curtains.Add(_lines[0].Curtain);
 
@@ -76,32 +79,77 @@ namespace Game.Quads.Quadrangulation
             if (line.IsOpening)
             {
                 Curtain curtain = line.Curtain;
-                if (TryGetCurtainExtensionIndex(line, out int index, out ExtensionKind extensionKind))
-                {
-                    ExtendCurtain(index, extensionKind, curtain);
-                }
+                int insertionIndex = GetCurtainInsertionIndex(line, out ExtensionKind extensionKind);
+                InsertCurtain(insertionIndex, extensionKind, curtain);
             }
         }
 
-        private void ExtendCurtain(int index, ExtensionKind extensionKind, Curtain extension)
+        private int GetCurtainInsertionIndex(BottomUpQuadrangulationLine line, out ExtensionKind extensionKind)
         {
-            Curtain curtain = _curtains[index];
+            Debug.Assert(_curtains.Count > 0);
+            
+            if(line.Right < _curtains[0].Left)
+            {
+                extensionKind = ExtensionKind.Insert;
+                return 0;
+            }
 
-            CloseCurtain(curtain, extension.Y);
+            int currentIndex = 1;
+            while (currentIndex < _curtains.Count)
+            {
+                Curtain curtain = _curtains[currentIndex];
+                if (line.Right < curtain.Left)
+                {
+                    extensionKind = ExtensionKind.Insert;
+                    return currentIndex;
+                }
+                if (line.Right == curtain.Left)
+                {
+                    extensionKind = ExtensionKind.Left;
+                    return currentIndex;
+                }
+                if (line.Left == curtain.Right)
+                {
+                    if(currentIndex == _curtains.Count - 1)
+                    {
+                        // on last index, there cannot be a merge, and it also cannot be checked
+                        extensionKind = ExtensionKind.Right;
+                    }
+                    else
+                    {
+                        Curtain nextCurtain = _curtains[currentIndex + 1];
+                        extensionKind = line.Right == nextCurtain.Left ? ExtensionKind.Merge : ExtensionKind.Right;
+                    }
+                    return currentIndex;
+                }
+                currentIndex++;
+            }
+            
+            extensionKind = ExtensionKind.Insert;
+            return _curtains.Count;
+        }
 
+        private void InsertCurtain(int index, ExtensionKind extensionKind, Curtain newCurtain)
+        {
             switch (extensionKind)
             {
                 case ExtensionKind.Left:
-                    _curtains[index] = new Curtain(extension.Left, curtain.Right, extension.Y);
+                    CloseCurtain(_curtains[index], newCurtain.Y);
+                    _curtains[index] = new Curtain(newCurtain.Left, _curtains[index].Right, newCurtain.Y);
                     break;
                 case ExtensionKind.Right:
-                    _curtains[index] = new Curtain(curtain.Left, extension.Right, extension.Y);
+                    CloseCurtain(_curtains[index], newCurtain.Y);
+                    _curtains[index] = new Curtain(_curtains[index].Left, newCurtain.Right, newCurtain.Y);
                     break;
                 case ExtensionKind.Merge:
                     Curtain nextCurtain = _curtains[index + 1];
-                    CloseCurtain(nextCurtain, extension.Y);
-                    _curtains[index] = new Curtain(curtain.Left, nextCurtain.Right, extension.Y);
+                    CloseCurtain(_curtains[index], newCurtain.Y);
+                    CloseCurtain(nextCurtain, newCurtain.Y);
+                    _curtains[index] = new Curtain(_curtains[index].Left, nextCurtain.Right, newCurtain.Y);
                     _curtains.RemoveAt(index + 1);
+                    break;
+                case ExtensionKind.Insert:
+                    _curtains.Insert(index, newCurtain);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(extensionKind), extensionKind, null);
@@ -113,63 +161,11 @@ namespace Game.Quads.Quadrangulation
             _result.Add(new QuadData(bottomUpQuadrangulationLine.Left, bottomUpQuadrangulationLine.Right, bottomUpQuadrangulationLine.Y, height));
         }
 
-        private bool TryGetCurtainExtensionIndex(BottomUpQuadrangulationLine line, out int index, out ExtensionKind kind)
-        {
-            int lastIndex = _curtains.Count - 1;
-
-            for (int i = 1; i < lastIndex; i++)
-            {
-                Curtain curtain = _curtains[i];
-
-                if (line.Right == curtain.Left)
-                {
-                    kind = ExtensionKind.Left;
-                    index = i;
-                    return true;
-                }
-
-                if (line.Left == curtain.Right)
-                {
-                    Curtain nextCurtain = _curtains[i + 1];
-
-                    if (line.Right == nextCurtain.Left)
-                    {
-                        kind = ExtensionKind.Merge;
-                        index = i;
-                        return true;
-                    }
-
-                    kind = ExtensionKind.Right;
-                    index = 0;
-                    return true;
-                }
-            }
-
-            // last index cannot merge
-            Curtain lastCurtain = _curtains[^1];
-            if (line.Right == lastCurtain.Left)
-            {
-                kind = ExtensionKind.Left;
-                index = lastIndex;
-                return true;
-            }
-
-            if (line.Left == lastCurtain.Right)
-            {
-                kind = ExtensionKind.Right;
-                index = lastIndex;
-                return true;
-            }
-
-            index = -1;
-            kind = default;
-            return false;
-        }
-
         private enum ExtensionKind
         {
             Left,
             Right,
+            Insert, // insert curtain at this index
             Merge // merge this index to the next index
         }
     }
