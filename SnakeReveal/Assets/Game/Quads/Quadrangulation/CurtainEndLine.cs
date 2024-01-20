@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Game.Enums;
 using Game.Lines;
@@ -8,7 +9,8 @@ namespace Game.Quads.Quadrangulation
     /// <summary>
     ///     Utility struct for quadrangulation that extends a curtain with the information, whether it is opening or closing
     /// </summary>
-    public readonly struct BottomUpQuadrangulationLine : IComparable<BottomUpQuadrangulationLine>
+    [DebuggerDisplay("{ToString(),nq}")]
+    public readonly struct CurtainEndLine : IComparable<CurtainEndLine>
     {
         private readonly Curtain _curtain;
 
@@ -20,7 +22,7 @@ namespace Game.Quads.Quadrangulation
 
         public Curtain Curtain => _curtain;
 
-        private BottomUpQuadrangulationLine(LineData line, bool isClosing)
+        private CurtainEndLine(LineData line, bool isClosing)
         {
             _curtain = line.Direction switch
             {
@@ -31,26 +33,23 @@ namespace Game.Quads.Quadrangulation
                 GridDirection.Down => throw new ArgumentOutOfRangeException(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            IsClosing = isClosing;
+            IsOpening = !isClosing;
         }
 
-        public bool IsOpening => !IsClosing;
-
-        public bool IsClosing { get; }
-
+        public bool IsOpening { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryConvert(LineData line, GridDirection openingDirection, GridDirection closingDirection, out BottomUpQuadrangulationLine result)
+        public static bool TryConvert(LineData line, GridDirection openingDirection, GridDirection closingDirection, out CurtainEndLine result)
         {
             if (line.Direction == openingDirection)
             {
-                result = new BottomUpQuadrangulationLine(line, false);
+                result = new CurtainEndLine(line, false);
                 return true;
             }
 
             if (line.Direction == closingDirection)
             {
-                result = new BottomUpQuadrangulationLine(line, true);
+                result = new CurtainEndLine(line, true);
                 return true;
             }
 
@@ -58,9 +57,14 @@ namespace Game.Quads.Quadrangulation
             return false;
         }
 
-        public int CompareTo(BottomUpQuadrangulationLine other)
+        public int CompareTo(CurtainEndLine other)
         {
             return Y - other.Y;
+        }
+        
+        public override string ToString()
+        {
+            return $"{(IsOpening ? "Opening" : "Closing")} {_curtain}";
         }
     }
 }

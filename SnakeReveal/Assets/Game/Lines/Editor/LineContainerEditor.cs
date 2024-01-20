@@ -282,13 +282,15 @@ namespace Game.Lines.Editor
                 }
             }
 
+            return;
+
             bool PositionHandle(Vector2Int originalGridPosition, out Vector2Int newGridPosition)
             {
                 Vector3 originalWorldPosition = container.GetWorldPosition(originalGridPosition);
 
                 if (drawThisContainer && _cornersList.selectedIndices.Contains(handleIndex))
                 {
-                    Handles.DrawWireDisc(originalWorldPosition, Vector3.back, grid.SceneCellSize.magnitude * 0.5f);
+                    HandlesUtility.DrawWireDisc(originalWorldPosition, 0.5f);
                 }
 
                 EditorGUI.BeginChangeCheck();

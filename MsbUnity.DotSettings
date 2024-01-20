@@ -57,4 +57,20 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=3EABC2737D813440A56015D251CA7186/Text/@EntryValue">if (!UnityEngine.Application.isPlaying)
 {
     $SELECTION$
-}$END$</s:String></wpf:ResourceDictionary>
+}$END$</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Description/@EntryValue">DebuggerDisplay attribute calling ToString()</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Scope/=558F05AA0DE96347816FF785232CFB2A/@KeyIndexDefined">False</s:Boolean>
+	
+	
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Scope/=74A278E9BF386142B53D57114609A033/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Scope/=74A278E9BF386142B53D57114609A033/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Scope/=74A278E9BF386142B53D57114609A033/Type/@EntryValue">InCSharpExceptStringLiterals</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Scope/=B68999B9D6B43E47A02B22C12A54C3CC/@KeyIndexDefined">False</s:Boolean>
+	
+	
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Shortcut/@EntryValue">ddts</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=59A16390D072E4419DD5B42DC0C7C612/Text/@EntryValue">[System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]$END$</s:String></wpf:ResourceDictionary>

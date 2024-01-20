@@ -11,46 +11,75 @@ namespace Game.Quads.Quadrangulation
     {
         private const int DefaultCapacity = 1000;
 
-        private static Comparison<BottomUpQuadrangulationLine> _comparison = (x, y) => y.Y - x.Y;
         private readonly List<Curtain> _curtains;
 
-        private readonly List<BottomUpQuadrangulationLine> _lines;
+        private readonly List<CurtainEndLine> _lines;
         private readonly List<QuadData> _result;
 
         public BottomUpQuadrangulation(int capacity = DefaultCapacity)
         {
-            _lines = new List<BottomUpQuadrangulationLine>(capacity);
+            _lines = new List<CurtainEndLine>(capacity);
             _curtains = new List<Curtain>(capacity);
             _result = new List<QuadData>(capacity);
         }
 
-        public IReadOnlyList<QuadData> Evaluate(InsertionEvaluation.InsertionLoopView loop)
+        public List<QuadData> Evaluate(LineLoop loop)
         {
-            _lines.Clear();
+            SetLines(loop);
+            Quadrangulate();
+            return _result;
+        }
 
-            GridDirection openingDirection = loop.Turn switch
+        public List<QuadData> Evaluate(InsertionEvaluation.InsertionLoopView loop)
+        {
+            SetLines(loop);
+            Quadrangulate();
+            return _result;
+        }
+
+        private static GridDirection GetOpeningDirection(Turn turn)
+        {
+            return turn switch
             {
                 Turn.None => throw new ArgumentOutOfRangeException(),
                 Turn.Right => GridDirection.Left,
                 Turn.Left => GridDirection.Right,
                 _ => throw new ArgumentOutOfRangeException()
             };
+        }
 
+        private void SetLines(LineLoop loop)
+        {
+            GridDirection openingDirection = GetOpeningDirection(loop.Turn);
             GridDirection closingDirection = openingDirection.Reverse();
-
-            foreach (LineData line in loop)
+            
+            _lines.Clear();
+            foreach (Line line in loop.AsSpan())
             {
-                if (BottomUpQuadrangulationLine.TryConvert(line, openingDirection, closingDirection, out BottomUpQuadrangulationLine result))
+                if (CurtainEndLine.TryConvert(line.Data, openingDirection, closingDirection, out CurtainEndLine result))
                 {
                     _lines.Add(result);
                 }
             }
 
             _lines.Sort();
+        }
 
-            Quadrangulate();
+        private void SetLines(InsertionEvaluation.InsertionLoopView loop)
+        {
+            GridDirection openingDirection = GetOpeningDirection(loop.Turn);
+            GridDirection closingDirection = openingDirection.Reverse();
+            
+            _lines.Clear();
+            foreach (LineData line in loop)
+            {
+                if (CurtainEndLine.TryConvert(line, openingDirection, closingDirection, out CurtainEndLine result))
+                {
+                    _lines.Add(result);
+                }
+            }
 
-            return _result;
+            _lines.Sort();
         }
 
         private void Quadrangulate()
@@ -59,10 +88,7 @@ namespace Game.Quads.Quadrangulation
             _result.Clear();
 
             Debug.Assert(_lines.Count >= 2);
-            if (!_lines[0].IsOpening)
-            {
-                throw new InvalidOperationException("First line must be opening");
-            }
+            Debug.Assert(_lines[0].IsOpening);
 
             _curtains.Add(_lines[0].Curtain);
 
@@ -72,96 +98,135 @@ namespace Game.Quads.Quadrangulation
             }
         }
 
-        private void ContinueQuadrangulation(BottomUpQuadrangulationLine line)
+        private void ContinueQuadrangulation(CurtainEndLine line)
         {
             Debug.Assert(_curtains.Count > 0);
 
             if (line.IsOpening)
             {
-                Curtain curtain = line.Curtain;
-                int insertionIndex = GetCurtainInsertionIndex(line, out ExtensionKind extensionKind);
-                InsertCurtain(insertionIndex, extensionKind, curtain);
+                Curtain opener = line.Curtain;
+                int insertionIndex = GetCurtainInsertionIndex(opener, out InsertionKind insertionKind);
+                InsertCurtain(insertionIndex, insertionKind, opener);
+            }
+            else // line.IsClosing
+            {
+                Curtain closure = line.Curtain;
+                int toCloseIndex = GetCurtainToCloseIndex(closure);
+                Curtain toClose = _curtains[toCloseIndex];
+                
+                AddCurtainCloseQuad(toClose, closure.Y);
+
+                if (closure.Left == toClose.Left)
+                {
+                    if (closure.Right == toClose.Right)
+                    {
+                        // exact match
+                        _curtains.RemoveAt(toCloseIndex);
+                        return;
+                    }
+
+                    // left side close
+                    _curtains[toCloseIndex] = new Curtain(closure.Right, toClose.Right, closure.Y);
+                }
+                else if (closure.Right == toClose.Right)
+                {
+                    // right side close
+                    _curtains[toCloseIndex] = new Curtain(toClose.Left, closure.Left, closure.Y);
+                }
+                else
+                {
+                    // split
+                    _curtains[toCloseIndex] = new Curtain(toClose.Left, closure.Left, closure.Y);
+                    _curtains.Insert(toCloseIndex + 1, new Curtain(closure.Right, toClose.Right, closure.Y));
+                }
             }
         }
 
-        private int GetCurtainInsertionIndex(BottomUpQuadrangulationLine line, out ExtensionKind extensionKind)
+        private int GetCurtainInsertionIndex(Curtain opener, out InsertionKind insertionKind)
         {
             Debug.Assert(_curtains.Count > 0);
-            
-            if(line.Right < _curtains[0].Left)
-            {
-                extensionKind = ExtensionKind.Insert;
-                return 0;
-            }
 
-            int currentIndex = 1;
-            while (currentIndex < _curtains.Count)
+            for (int i = 0; i < _curtains.Count; i++)
             {
-                Curtain curtain = _curtains[currentIndex];
-                if (line.Right < curtain.Left)
+                Curtain currentCurtain = _curtains[i];
+                if (opener.Right < currentCurtain.Left)
                 {
-                    extensionKind = ExtensionKind.Insert;
-                    return currentIndex;
+                    insertionKind = InsertionKind.Insert;
+                    return i;
                 }
-                if (line.Right == curtain.Left)
+                if (opener.Right == currentCurtain.Left)
                 {
-                    extensionKind = ExtensionKind.Left;
-                    return currentIndex;
+                    insertionKind = InsertionKind.Left;
+                    return i;
                 }
-                if (line.Left == curtain.Right)
+                if (opener.Left == currentCurtain.Right)
                 {
-                    if(currentIndex == _curtains.Count - 1)
+                    if(i == _curtains.Count - 1)
                     {
                         // on last index, there cannot be a merge, and it also cannot be checked
-                        extensionKind = ExtensionKind.Right;
+                        insertionKind = InsertionKind.Right;
                     }
                     else
                     {
-                        Curtain nextCurtain = _curtains[currentIndex + 1];
-                        extensionKind = line.Right == nextCurtain.Left ? ExtensionKind.Merge : ExtensionKind.Right;
+                        Curtain nextCurtain = _curtains[i + 1];
+                        insertionKind = opener.Right == nextCurtain.Left ? InsertionKind.Merge : InsertionKind.Right;
                     }
-                    return currentIndex;
+                    return i;
                 }
-                currentIndex++;
             }
             
-            extensionKind = ExtensionKind.Insert;
+            insertionKind = InsertionKind.Insert;
             return _curtains.Count;
         }
 
-        private void InsertCurtain(int index, ExtensionKind extensionKind, Curtain newCurtain)
+        private void InsertCurtain(int insertionIndex, InsertionKind insertionKind, Curtain newCurtain)
         {
-            switch (extensionKind)
+            switch (insertionKind)
             {
-                case ExtensionKind.Left:
-                    CloseCurtain(_curtains[index], newCurtain.Y);
-                    _curtains[index] = new Curtain(newCurtain.Left, _curtains[index].Right, newCurtain.Y);
+                case InsertionKind.Left:
+                    AddCurtainCloseQuad(_curtains[insertionIndex], newCurtain.Y);
+                    _curtains[insertionIndex] = new Curtain(newCurtain.Left, _curtains[insertionIndex].Right, newCurtain.Y);
                     break;
-                case ExtensionKind.Right:
-                    CloseCurtain(_curtains[index], newCurtain.Y);
-                    _curtains[index] = new Curtain(_curtains[index].Left, newCurtain.Right, newCurtain.Y);
+                case InsertionKind.Right:
+                    AddCurtainCloseQuad(_curtains[insertionIndex], newCurtain.Y);
+                    _curtains[insertionIndex] = new Curtain(_curtains[insertionIndex].Left, newCurtain.Right, newCurtain.Y);
                     break;
-                case ExtensionKind.Merge:
-                    Curtain nextCurtain = _curtains[index + 1];
-                    CloseCurtain(_curtains[index], newCurtain.Y);
-                    CloseCurtain(nextCurtain, newCurtain.Y);
-                    _curtains[index] = new Curtain(_curtains[index].Left, nextCurtain.Right, newCurtain.Y);
-                    _curtains.RemoveAt(index + 1);
+                case InsertionKind.Merge:
+                    Curtain nextCurtain = _curtains[insertionIndex + 1];
+                    AddCurtainCloseQuad(_curtains[insertionIndex], newCurtain.Y);
+                    AddCurtainCloseQuad(nextCurtain, newCurtain.Y);
+                    _curtains[insertionIndex] = new Curtain(_curtains[insertionIndex].Left, nextCurtain.Right, newCurtain.Y);
+                    _curtains.RemoveAt(insertionIndex + 1);
                     break;
-                case ExtensionKind.Insert:
-                    _curtains.Insert(index, newCurtain);
+                case InsertionKind.Insert:
+                    _curtains.Insert(insertionIndex, newCurtain);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(extensionKind), extensionKind, null);
+                    throw new ArgumentOutOfRangeException(nameof(insertionKind), insertionKind, null);
             }
         }
 
-        private void CloseCurtain(Curtain bottomUpQuadrangulationLine, int height)
+        private int GetCurtainToCloseIndex(Curtain closure)
         {
-            _result.Add(new QuadData(bottomUpQuadrangulationLine.Left, bottomUpQuadrangulationLine.Right, bottomUpQuadrangulationLine.Y, height));
+            for (int i = 0; i < _curtains.Count; i++)
+            {
+                Curtain currentCurtain = _curtains[i];
+                Debug.Assert(closure.Left >= currentCurtain.Left, "If the close is left of the current curtain, it should have closed an earlier curtain already");
+                if(closure.Left >= currentCurtain.Left && closure.Right <= currentCurtain.Right)
+                {
+                    // close somehow closes the current curtain
+                    return i;
+                }
+            }
+            throw new ArgumentOutOfRangeException(nameof(closure), closure, "Close does not close any curtain");
         }
 
-        private enum ExtensionKind
+        private void AddCurtainCloseQuad(Curtain toClose, int closureHeight)
+        {
+            _result.Add(new QuadData(toClose.Left, toClose.Right, toClose.Y, closureHeight));
+        }
+
+        private enum InsertionKind
         {
             Left,
             Right,

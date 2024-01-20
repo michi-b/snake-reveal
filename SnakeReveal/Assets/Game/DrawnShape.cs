@@ -17,8 +17,6 @@ namespace Game
         private readonly InsertionEvaluation _insertionEvaluation = new();
         private readonly BottomUpQuadrangulation _quadrangulation = new();
 
-        public Line Start => _lineLoop.Start;
-
         private Turn GetTravelTurn(bool startToEnd)
         {
             return _lineLoop.GetTurn(startToEnd);
@@ -42,7 +40,7 @@ namespace Game
 
             InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
 
-            _quadrangulation.Evaluate(_insertionEvaluation.Loop);
+            _quadContainer.AddRange(_quadrangulation.Evaluate(_insertionEvaluation.Loop));
 
             return insertionResult;
         }
@@ -89,6 +87,11 @@ namespace Game
         private bool IsBreakoutDirection(GridDirection direction, Line line)
         {
             return direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
+        }
+
+        public void EditModeRegenerateQuads()
+        {
+            _quadContainer.EditModeSetQuads(_quadrangulation.Evaluate(_lineLoop));
         }
     }
 }

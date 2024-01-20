@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Quads
 {
     [Serializable]
+    [DebuggerDisplay("{ToString(),nq}")]
     public struct QuadData
     {
         [SerializeField] private Vector2Int _bottomLeftCorner;
@@ -51,6 +54,11 @@ namespace Game.Quads
         public void Move(Vector2Int delta)
         {
             _bottomLeftCorner += delta;
+        }
+
+        public override string ToString()
+        {
+            return $"{BottomLeft} -> {TopRight}";
         }
     }
 }

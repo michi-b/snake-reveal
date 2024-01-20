@@ -1,8 +1,11 @@
-﻿namespace Game.Quads.Quadrangulation
+﻿using System.Diagnostics;
+
+namespace Game.Quads.Quadrangulation
 {
     /// <summary>
     ///     Utility struct for quadrangulation that represents a strictly horizontal shape opening or closing line
     /// </summary>
+    [DebuggerDisplay("{ToString(),nq}")]
     public readonly struct Curtain
     {
         public readonly int Y;
@@ -14,6 +17,11 @@
             Left = left;
             Right = right;
             Y = y;
+        }
+        
+        public override string ToString()
+        {
+            return $"{Left} -> {Right} @ {Y}";
         }
     }
 }

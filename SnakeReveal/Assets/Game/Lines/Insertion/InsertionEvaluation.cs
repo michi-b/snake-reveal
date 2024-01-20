@@ -140,7 +140,7 @@ namespace Game.Lines.Insertion
             {
                 _evaluation = evaluation;
             }
-
+            
             public InsertionLoopEnumerator GetEnumerator()
             {
                 return new InsertionLoopEnumerator(_evaluation._linesToInsert, _evaluation._insertionConnection);

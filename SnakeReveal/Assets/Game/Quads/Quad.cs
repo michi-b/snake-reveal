@@ -1,15 +1,18 @@
+using System.Diagnostics;
 using Extensions;
 using Game.Grid;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utility;
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
 
 namespace Game.Quads
 {
+    [DebuggerDisplay("{ToString(),nq}")]
     public class Quad : MonoBehaviour
     {
+        private static readonly Color GizmosColor = Color.cyan.WithAlpha(0.1f);
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private BoxCollider2D _collider;
         [SerializeField] private QuadData _data;
@@ -63,21 +66,6 @@ namespace Game.Quads
             Apply();
         }
 
-#if UNITY_EDITOR
-        protected void OnDrawGizmosSelected()
-        {
-            if (!Selection.Contains(gameObject) || _grid == null)
-            {
-                return;
-            }
-
-            GizmosUtility.DrawRect(_grid.GetScenePosition(BottomLeft),
-                _grid.GetScenePosition(BottomLeft + Size),
-                transform.position.z,
-                Color.cyan);
-        }
-#endif
-
         public void Initialize(SimulationGrid grid, QuadData quadData)
         {
             _grid = grid;
@@ -97,6 +85,17 @@ namespace Game.Quads
         {
             _data.Move(delta);
             Apply();
+        }
+
+        public void Set(QuadData quadData)
+        {
+            _data = quadData;
+            Apply();
+        }
+
+        public override string ToString()
+        {
+            return _data.ToString();
         }
     }
 }

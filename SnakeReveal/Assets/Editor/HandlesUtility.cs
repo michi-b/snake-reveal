@@ -22,5 +22,11 @@ namespace Editor
             newPosition = position;
             return false;
         }
+
+        public static void DrawWireDisc(Vector3 position, float sizeMultiplier)
+        {
+            float size = HandleUtility.GetHandleSize(position) * sizeMultiplier;
+            Handles.DrawWireDisc(position, Vector3.back, size);
+        }
     }
 }

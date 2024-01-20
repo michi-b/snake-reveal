@@ -36,13 +36,13 @@ namespace Game.Lines
         public abstract Line End { get; }
         protected int ClockwiseTurnWeight => _clockwiseTurnWeight;
 
-        protected void Reset()
+        protected virtual void Reset()
         {
             _grid = SimulationGrid.EditModeFind();
             _cache = FindObjectsByType<LineCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
         }
 
-        protected void OnDrawGizmos()
+        protected virtual void OnDrawGizmos()
         {
             if (_start == null)
             {
@@ -134,7 +134,7 @@ namespace Game.Lines
         }
 
         [CanBeNull]
-        public Line GetLineAt(Vector2Int position, GridDirection direction)
+        private Line GetLineAt(Vector2Int position, GridDirection direction)
         {
             foreach (Collider2D lineCollider in GetUpToTwoCollidersAt(position))
             {
