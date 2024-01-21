@@ -133,19 +133,18 @@ namespace Game.Lines
             return _line.ToString();
         }
 
-        public void Initialize(SimulationGrid grid, LineData lineData)
+        public void Place(LineData lineData)
         {
-            _grid = grid;
             _line = lineData;
             Apply();
         }
 
-        public void Initialize()
+        public void Initialize(SimulationGrid grid)
         {
             _previous = null;
             _next = null;
             _line = new LineData(Vector2Int.zero, Vector2Int.right);
-            Apply();
+            _grid = grid;
         }
 
         private void Apply()

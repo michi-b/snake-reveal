@@ -6,6 +6,7 @@ using Extensions;
 using Game.Enums;
 using Game.Grid;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Utility;
@@ -183,7 +184,7 @@ namespace Game.Lines
         {
             Line line = Cache.Get();
             line.transform.parent = transform;
-            line.Initialize(Grid, lineData);
+            line.Place(lineData);
             return line;
         }
 
@@ -201,12 +202,12 @@ namespace Game.Lines
                 ClearLines(container);
 
                 Undo.RegisterFullObjectHierarchyUndo(container.gameObject, nameof(Rebuild));
-                Line start = Instantiate(container, positions[0], positions[1], true);
+                Line start = Instantiate(container, positions[0], positions[1]);
                 Line last = start;
                 for (int i = 2; i < positions.Count; i++)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line line = Instantiate(container, last.End, positions[i], true);
+                    Line line = Instantiate(container, last.End, positions[i]);
                     Undo.RecordObject(line, nameof(Rebuild) + " - patch created line");
                     line.Previous = last;
 
@@ -218,7 +219,7 @@ namespace Game.Lines
                 if (container.Loop)
                 {
                     // note: the order of assignments and registering UNDO operations is extremely sensible here! 
-                    Line loopConnection = Instantiate(container, last.End, start.Start, true);
+                    Line loopConnection = Instantiate(container, last.End, start.Start);
                     Undo.RecordObject(loopConnection, nameof(Rebuild) + " - patch loop connection");
                     loopConnection.Previous = last;
                     loopConnection.Next = start;
@@ -273,23 +274,18 @@ namespace Game.Lines
                 container.PostProcessEditModeLineChanges();
             }
 
-            public static Line Instantiate(LineContainer container, Vector2Int startPosition, Vector2Int endPosition, bool registerUndo)
+            public static Line Instantiate(LineContainer container, Vector2Int startPosition, Vector2Int endPosition)
             {
-                Line result = Object.Instantiate(container._cache.Prefab, container.transform);
-                if (registerUndo)
-                {
-                    Undo.RegisterCreatedObjectUndo(result.gameObject, "EditModeInstantiateLine");
-                }
+                var result = PrefabUtility.InstantiatePrefab(container._cache.Prefab).GetComponent<Line>();
+                Undo.RegisterCreatedObjectUndo(result.gameObject, "EditModeInstantiateLine");
+                Undo.RegisterFullObjectHierarchyUndo(result.gameObject, "EditModeInstantiateLine - Initialize Line");
 
-                result.Grid = container._grid;
-                result.Start = startPosition;
-                result.End = endPosition;
+                result.transform.parent = container.transform;
+                result.Initialize(container._grid);
+                result.Place(new LineData(startPosition, endPosition));
 
                 GameObject resultGameObject = result.gameObject;
-                if (registerUndo)
-                {
-                    Undo.RecordObject(resultGameObject, "EditModeInstantiateLine - Set Layer");
-                }
+                Undo.RecordObject(resultGameObject, "EditModeInstantiateLine - Set Layer");
 
                 resultGameObject.layer = container.gameObject.layer;
 

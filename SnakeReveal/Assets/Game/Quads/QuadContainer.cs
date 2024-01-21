@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Grid;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace Game.Quads
         {
             Quad quad = _cache.Get();
             quad.transform.parent = transform;
-            quad.Initialize(_grid, quadData);
+            quad.Place(quadData);
             return quad;
         }
 
@@ -46,9 +47,12 @@ namespace Game.Quads
 
             foreach (QuadData quadData in newQuads)
             {
-                Quad quad = Instantiate(_cache.Prefab, transform);
-                Undo.RegisterCreatedObjectUndo(quad.gameObject, "Edit Mode Set Quads");
-                quad.Initialize(_grid, quadData);
+                var quad = PrefabUtility.InstantiatePrefab(_cache.Prefab).GetComponent<Quad>();
+                quad.transform.parent = transform;
+                Undo.RegisterCreatedObjectUndo(quad.gameObject, "Create Quad");
+                Undo.RegisterFullObjectHierarchyUndo(quad.gameObject, "Initialize Quad");
+                quad.Initialize(_grid);
+                quad.Place(quadData);
                 _quads.Add(quad);
             }
         }

@@ -194,7 +194,7 @@ namespace Game.Lines.Editor
             if (breakoutLine == breakInLine)
             {
                 // split breakout line in two to get a separate break in line, which is necessary to insert the chain in between
-                breakInLine = LineContainer.EditModeUtility.Instantiate(loop, breakoutLine.Start, breakoutLine.End, true);
+                breakInLine = LineContainer.EditModeUtility.Instantiate(loop, breakoutLine.Start, breakoutLine.End);
                 Undo.IncrementCurrentGroup();
                 breakInLine.EditModeStitchToNext(breakoutLine.Next);
             }
@@ -223,7 +223,7 @@ namespace Game.Lines.Editor
             // no LINQ to avoid allocations
             foreach (LineData line in linesToInsert)
             {
-                Line newLine = LineContainer.EditModeUtility.Instantiate(loop, line.Start, line.End, true);
+                Line newLine = LineContainer.EditModeUtility.Instantiate(loop, line.Start, line.End);
                 Undo.IncrementCurrentGroup();
                 lastLine.EditModeStitchToNext(newLine);
                 lastLine = lastLine.Next!;

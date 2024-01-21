@@ -1,9 +1,8 @@
 using System.Diagnostics;
 using Extensions;
 using Game.Grid;
-using Unity.VisualScripting;
 using UnityEngine;
-using Utility;
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 #endif
 
@@ -12,10 +11,18 @@ namespace Game.Quads
     [DebuggerDisplay("{ToString(),nq}")]
     public class Quad : MonoBehaviour
     {
-        private static readonly Color GizmosColor = Color.cyan.WithAlpha(0.1f);
+        private const int BottomLeftVertexIndex = 0;
+        private const int TopLeftVertexIndex = 1;
+        private const int TopRightVertexIndex = 2;
+        private const int BottomRightVertexIndex = 3;
+
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private BoxCollider2D _collider;
+        [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private QuadData _data;
+
+        private Mesh _mesh;
+        private Vector3[] _vertices;
 
         public SimulationGrid Grid => _grid;
 
@@ -32,6 +39,8 @@ namespace Game.Quads
             get => _data.TopRight;
         }
 
+        public Vector2Int TopLeft => new(BottomLeft.x, TopRight.y);
+
         public Vector2Int BottomLeft
         {
             set
@@ -44,6 +53,8 @@ namespace Game.Quads
             }
             get => _data.BottomLeft;
         }
+
+        public Vector2Int BottomRight => new(TopRight.x, BottomLeft.y);
 
         public Vector2Int Size
         {
@@ -66,9 +77,27 @@ namespace Game.Quads
             Apply();
         }
 
-        public void Initialize(SimulationGrid grid, QuadData quadData)
+        public virtual void Initialize(SimulationGrid grid)
         {
             _grid = grid;
+            _mesh = new Mesh();
+            _vertices = new Vector3[4];
+            _mesh.vertices = _vertices;
+            int[] triangles = new int[6];
+            triangles[0] = BottomLeftVertexIndex;
+            triangles[1] = TopLeftVertexIndex;
+            triangles[2] = TopRightVertexIndex;
+            triangles[3] = TopRightVertexIndex;
+            triangles[4] = BottomRightVertexIndex;
+            triangles[5] = BottomLeftVertexIndex;
+            // todo: look into lower level mesh api SetIndexBufferParams & SetVertexBufferData for maximum performance
+            _mesh.triangles = triangles;
+            _meshFilter.sharedMesh = _mesh;
+            _mesh.RecalculateBounds(MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontResetBoneBounds);
+        }
+
+        public void Place(QuadData quadData)
+        {
             _data = quadData;
             Apply();
         }
@@ -79,6 +108,14 @@ namespace Game.Quads
             Vector2 sceneSize = Size * Grid.SceneCellSize;
             _collider.offset = sceneSize * 0.5f;
             _collider.size = sceneSize;
+
+            _vertices[TopLeftVertexIndex] = new Vector3(0f, sceneSize.y, 0f);
+            _vertices[TopRightVertexIndex] = sceneSize;
+            _vertices[BottomRightVertexIndex] = new Vector3(sceneSize.x, 0f, 0f);
+
+            // todo: look into lower level mesh api SetVertexBufferParams & SetVertexBufferData for maximum performance
+            _mesh.vertices = _vertices;
+            _mesh.RecalculateBounds(MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontResetBoneBounds);
         }
 
         public void Move(Vector2Int delta)
