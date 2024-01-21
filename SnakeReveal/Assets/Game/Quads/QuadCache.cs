@@ -6,7 +6,7 @@ namespace Game.Quads
     public class QuadCache : SimpleCache<Quad>
     {
         [SerializeField] private SimulationGrid _grid;
-        
+
         protected override Quad Instantiate()
         {
             Quad instance = base.Instantiate();

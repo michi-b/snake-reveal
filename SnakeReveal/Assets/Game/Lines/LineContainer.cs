@@ -10,7 +10,6 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Utility;
-using Object = UnityEngine.Object;
 
 namespace Game.Lines
 {

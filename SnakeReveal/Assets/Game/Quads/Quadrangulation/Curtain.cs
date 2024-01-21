@@ -18,7 +18,7 @@ namespace Game.Quads.Quadrangulation
             Right = right;
             Y = y;
         }
-        
+
         public override string ToString()
         {
             return $"{Left} -> {Right} @ {Y}";

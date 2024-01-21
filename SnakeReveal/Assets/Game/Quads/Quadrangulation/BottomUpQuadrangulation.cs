@@ -52,7 +52,7 @@ namespace Game.Quads.Quadrangulation
         {
             GridDirection openingDirection = GetOpeningDirection(loop.Turn);
             GridDirection closingDirection = openingDirection.Reverse();
-            
+
             _lines.Clear();
             foreach (Line line in loop.AsSpan())
             {
@@ -69,7 +69,7 @@ namespace Game.Quads.Quadrangulation
         {
             GridDirection openingDirection = GetOpeningDirection(loop.Turn);
             GridDirection closingDirection = openingDirection.Reverse();
-            
+
             _lines.Clear();
             foreach (LineData line in loop)
             {
@@ -113,7 +113,7 @@ namespace Game.Quads.Quadrangulation
                 Curtain closure = line.Curtain;
                 int toCloseIndex = GetCurtainToCloseIndex(closure);
                 Curtain toClose = _curtains[toCloseIndex];
-                
+
                 AddCurtainCloseQuad(toClose, closure.Y);
 
                 if (closure.Left == toClose.Left)
@@ -154,14 +154,16 @@ namespace Game.Quads.Quadrangulation
                     insertionKind = InsertionKind.Insert;
                     return i;
                 }
+
                 if (opener.Right == currentCurtain.Left)
                 {
                     insertionKind = InsertionKind.Left;
                     return i;
                 }
+
                 if (opener.Left == currentCurtain.Right)
                 {
-                    if(i == _curtains.Count - 1)
+                    if (i == _curtains.Count - 1)
                     {
                         // on last index, there cannot be a merge, and it also cannot be checked
                         insertionKind = InsertionKind.Right;
@@ -171,10 +173,11 @@ namespace Game.Quads.Quadrangulation
                         Curtain nextCurtain = _curtains[i + 1];
                         insertionKind = opener.Right == nextCurtain.Left ? InsertionKind.Merge : InsertionKind.Right;
                     }
+
                     return i;
                 }
             }
-            
+
             insertionKind = InsertionKind.Insert;
             return _curtains.Count;
         }
@@ -212,12 +215,13 @@ namespace Game.Quads.Quadrangulation
             {
                 Curtain currentCurtain = _curtains[i];
                 Debug.Assert(closure.Left >= currentCurtain.Left, "If the close is left of the current curtain, it should have closed an earlier curtain already");
-                if(closure.Left >= currentCurtain.Left && closure.Right <= currentCurtain.Right)
+                if (closure.Left >= currentCurtain.Left && closure.Right <= currentCurtain.Right)
                 {
                     // close somehow closes the current curtain
                     return i;
                 }
             }
+
             throw new ArgumentOutOfRangeException(nameof(closure), closure, "Close does not close any curtain");
         }
 

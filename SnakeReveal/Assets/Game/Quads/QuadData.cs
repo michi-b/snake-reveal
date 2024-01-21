@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Quads
 {
-    [Serializable]
-    [DebuggerDisplay("{ToString(),nq}")]
+    [Serializable, DebuggerDisplay("{ToString(),nq}")]
     public struct QuadData
     {
         [SerializeField] private Vector2Int _bottomLeftCorner;

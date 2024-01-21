@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Grid;
@@ -13,6 +12,12 @@ namespace Game.Quads
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private QuadCache _cache;
         [SerializeField] private List<Quad> _quads;
+
+        protected virtual void Reset()
+        {
+            _grid = SimulationGrid.EditModeFind();
+            _cache = FindObjectsByType<QuadCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
+        }
 
         public void AddRange(List<QuadData> quads)
         {
@@ -43,6 +48,7 @@ namespace Game.Quads
             {
                 Undo.DestroyObjectImmediate(quad.gameObject);
             }
+
             _quads.Clear();
 
             foreach (QuadData quadData in newQuads)
@@ -55,12 +61,6 @@ namespace Game.Quads
                 quad.Place(quadData);
                 _quads.Add(quad);
             }
-        }
-
-        protected virtual void Reset()
-        {
-                _grid = SimulationGrid.EditModeFind();
-                _cache = FindObjectsByType<QuadCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
         }
     }
 }

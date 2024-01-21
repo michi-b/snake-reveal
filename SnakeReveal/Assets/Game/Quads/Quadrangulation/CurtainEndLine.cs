@@ -61,7 +61,7 @@ namespace Game.Quads.Quadrangulation
         {
             return Y - other.Y;
         }
-        
+
         public override string ToString()
         {
             return $"{(IsOpening ? "Opening" : "Closing")} {_curtain}";
