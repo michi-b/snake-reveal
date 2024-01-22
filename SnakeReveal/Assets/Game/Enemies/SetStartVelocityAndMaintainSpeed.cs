@@ -7,11 +7,11 @@ namespace Game.Enemies
         [SerializeField] private Vector2 _startVelocity;
 
         private Rigidbody2D _rigidbody;
-        private Rigidbody2D Rigidbody => _rigidbody ??= GetComponent<Rigidbody2D>();
-        
-        
+
+
         private float _speed;
-        
+        private Rigidbody2D Rigidbody => _rigidbody ??= GetComponent<Rigidbody2D>();
+
         protected override void Start()
         {
             _speed = _startVelocity.magnitude;

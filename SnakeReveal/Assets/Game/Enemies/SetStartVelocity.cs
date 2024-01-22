@@ -1,4 +1,3 @@
-using System;
 using Extensions;
 using UnityEngine;
 using Utility;
@@ -32,7 +31,7 @@ namespace Game.Enemies
 
                 Vector3 position = transform.position;
                 GizmosUtility.DrawArrow(position, position + _startVelocity.ToVector3(0f));
-            
+
                 Gizmos.color = originalGizmosColor;
             }
         }

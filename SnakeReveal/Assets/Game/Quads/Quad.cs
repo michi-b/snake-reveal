@@ -22,8 +22,10 @@ namespace Game.Quads
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private QuadData _data;
 
-        [ContextMenuItem("Personalize", nameof(PersonalizeMesh))]
-        [SerializeField] private Mesh _mesh;
+        [ContextMenuItem("Personalize", nameof(PersonalizeMesh)), SerializeField]
+        
+        private Mesh _mesh;
+
         [SerializeField] private Vector3[] _vertices;
 
         public SimulationGrid Grid => _grid;
@@ -71,6 +73,14 @@ namespace Game.Quads
             get => _data.Size;
         }
 
+        protected virtual void Reset()
+        {
+            _grid = SimulationGrid.EditModeFind()!;
+            _collider = gameObject.GetComponent<BoxCollider2D>();
+            _data = new QuadData(_grid.Round(transform.position));
+            Apply();
+        }
+
 #if UNITY_EDITOR
         public void PersonalizeMesh()
         {
@@ -81,20 +91,12 @@ namespace Game.Quads
         }
 #endif
 
-        protected virtual void Reset()
-        {
-            _grid = SimulationGrid.EditModeFind()!;
-            _collider = gameObject.GetComponent<BoxCollider2D>();
-            _data = new QuadData(_grid.Round(transform.position));
-            Apply();
-        }
-
         [ContextMenu("Initialize", false)]
         public virtual void Initialize(SimulationGrid grid)
         {
             _grid = grid;
             _vertices = new Vector3[4];
-            _mesh = new Mesh(){vertices = _vertices, indexFormat = IndexFormat.UInt16};
+            _mesh = new Mesh { vertices = _vertices, indexFormat = IndexFormat.UInt16 };
             _mesh.vertices = _vertices;
             int[] triangles = new int[6];
             triangles[0] = BottomLeftVertexIndex;

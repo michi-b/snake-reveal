@@ -12,13 +12,13 @@ namespace Utility
         {
             Gizmos.DrawLine(startWorldPosition, endWorldPosition);
             Vector3 direction = endWorldPosition - startWorldPosition;
-            GizmosUtility.DrawArrowHead(endWorldPosition, direction);
+            DrawArrowHead(endWorldPosition, direction);
         }
 
         private static void DrawArrowHead(Vector3 position, Vector3 direction, float angle = DefaultArrowAngle)
         {
             // Handle Utility is only available in editor
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             float size = HandleUtility.GetHandleSize(position) * 0.2f;
             if (direction != Vector3.zero)
             {
@@ -31,7 +31,7 @@ namespace Utility
                 Gizmos.DrawLine(position, position + up * size);
                 Gizmos.DrawLine(position, position + down * size);
             }
-            #endif
+#endif
         }
 
         public static void DrawRect(Vector2 bottomLeft, Vector2 topRight, float z, Color color)

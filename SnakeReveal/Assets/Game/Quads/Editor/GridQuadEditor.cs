@@ -20,12 +20,6 @@ namespace Game.Quads.Editor
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
         }
 
-        private void OnUndoRedoPerformed()
-        {
-            var quad = (Quad)target;
-            quad.Apply();            
-        }
-
         public void OnSceneGUI()
         {
             var quad = (Quad)target;
@@ -59,6 +53,12 @@ namespace Game.Quads.Editor
                 Vector2Int delta = newCenter - center;
                 quad.Move(delta);
             }
+        }
+
+        private void OnUndoRedoPerformed()
+        {
+            var quad = (Quad)target;
+            quad.Apply();
         }
 
         public override void OnInspectorGUI()
