@@ -41,6 +41,8 @@ namespace Game.Quads
             return quad;
         }
 
+
+#if UNITY_EDITOR
         public void EditModeSetQuads(List<QuadData> newQuads)
         {
             Undo.RegisterFullObjectHierarchyUndo(this, "Edit Mode Set Quads");
@@ -62,5 +64,6 @@ namespace Game.Quads
                 _quads.Add(quad);
             }
         }
+#endif
     }
 }

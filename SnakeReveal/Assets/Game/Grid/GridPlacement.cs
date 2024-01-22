@@ -29,6 +29,7 @@ namespace Game.Grid
             }
         }
 
+#if UNITY_EDITOR
         protected virtual void Reset()
         {
             RecordUndo("Reset Grid Transform");
@@ -38,6 +39,7 @@ namespace Game.Grid
                 Position = _grid.Round(transform.position);
             }
         }
+#endif
 
         public void Apply()
         {
@@ -46,11 +48,13 @@ namespace Game.Grid
             _positionChanged?.Invoke(_position);
         }
 
+#if UNITY_EDITOR
         public void RecordUndo(string operationName)
         {
             UndoObjectsBuffer[0] = this;
             UndoObjectsBuffer[1] = transform;
             Undo.RecordObjects(UndoObjectsBuffer, operationName);
         }
+#endif
     }
 }

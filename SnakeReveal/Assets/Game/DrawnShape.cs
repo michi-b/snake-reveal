@@ -89,9 +89,11 @@ namespace Game
             return direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
         }
 
+#if UNITY_EDITOR
         public void EditModeRegenerateQuads()
         {
             _quadContainer.EditModeSetQuads(_quadrangulation.Evaluate(_lineLoop));
         }
+#endif
     }
 }

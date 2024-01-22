@@ -9,7 +9,9 @@ using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using Utility;
+#if UNITY_EDITOR
+#endif
+
 
 namespace Game.Lines
 {
@@ -42,6 +44,8 @@ namespace Game.Lines
             _cache = FindObjectsByType<LineCache>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault();
         }
 
+// Selection and HandleUtility class ar in editor assembly, therefore this preprocessor switch is required
+#if UNITY_EDITOR
         protected virtual void OnDrawGizmos()
         {
             if (_start == null)
@@ -52,16 +56,14 @@ namespace Game.Lines
             Color originalGizmoColor = Gizmos.color;
             Gizmos.color = GizmosColor;
 
-            Vector3 startArrowStart = _start.StartWorldPosition;
-            float cellDiameter = _grid.SceneCellSize.magnitude;
-            Gizmos.DrawSphere(startArrowStart, cellDiameter);
-            if (_start.Start != _start.End)
+            if (!Selection.Contains(_start.gameObject) && _start.Grid != null)
             {
-                GizmosUtility.DrawArrow(startArrowStart, _start.EndWorldPosition, cellDiameter * 2, 25f);
+                _start.DrawArrowGizmo();
             }
 
             Gizmos.color = originalGizmoColor;
         }
+#endif
 
 
         IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
@@ -187,6 +189,8 @@ namespace Game.Lines
             return line;
         }
 
+
+#if UNITY_EDITOR
         public static class EditModeUtility
         {
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
@@ -293,5 +297,6 @@ namespace Game.Lines
                 return result;
             }
         }
+#endif
     }
 }

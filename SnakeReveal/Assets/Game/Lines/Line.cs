@@ -106,28 +106,6 @@ namespace Game.Lines
             Apply();
         }
 
-#if UNITY_EDITOR
-        protected void OnDrawGizmosSelected()
-        {
-            if (!Selection.Contains(gameObject) || _grid == null)
-            {
-                return;
-            }
-
-            Color originalGizmoColor = Gizmos.color;
-            Gizmos.color = Color.black;
-
-            float diameter = _grid.SceneCellSize.magnitude * 0.25f;
-            Vector3 startWorldPosition = StartWorldPosition;
-            Vector3 endWorldPosition = EndWorldPosition;
-            Gizmos.DrawWireSphere(startWorldPosition, diameter);
-            Vector3 direction = endWorldPosition - startWorldPosition;
-            GizmosUtility.DrawArrowHead(endWorldPosition, direction, diameter);
-
-            Gizmos.color = originalGizmoColor;
-        }
-#endif
-
         public override string ToString()
         {
             return _line.ToString();
@@ -163,41 +141,6 @@ namespace Game.Lines
             // first element in collider points update buffer must always be Vector2.zero
             ColliderPointsUpdateBuffer[1] = sceneDelta;
             _collider.SetPoints(ColliderPointsUpdateBuffer);
-        }
-
-        public void RegisterUndoWithNeighbors(string operationName)
-        {
-            if (_previous != null)
-            {
-                _previous.RegisterUndo(operationName);
-            }
-
-            RegisterUndo(operationName);
-            if (_next != null)
-            {
-                _next.RegisterUndo(operationName);
-            }
-        }
-
-        public void RegisterUndo(string operationName)
-        {
-            Undo.RegisterFullObjectHierarchyUndo(this, operationName);
-        }
-
-        public void EditModeStitchToNext(Line next)
-        {
-            RegisterUndo(nameof(EditModeStitchToNext) + " - current");
-            End = next.Start;
-            _next = next;
-
-            _next!.RegisterUndo(nameof(EditModeStitchToNext) + " - next");
-            next._previous = this;
-        }
-
-        public void Set(LineData lineData)
-        {
-            _line = lineData;
-            Apply();
         }
 
         public bool Contains(Vector2Int position)
@@ -270,5 +213,65 @@ namespace Game.Lines
                          && Direction == Start.GetDirection(End),
                 $"Invalid line: {this}", this);
         }
+
+#if UNITY_EDITOR
+        public void RegisterUndoWithNeighbors(string operationName)
+        {
+            if (_previous != null)
+            {
+                _previous.RegisterUndo(operationName);
+            }
+
+            RegisterUndo(operationName);
+            if (_next != null)
+            {
+                _next.RegisterUndo(operationName);
+            }
+        }
+
+
+        public void RegisterUndo(string operationName)
+        {
+            Undo.RegisterFullObjectHierarchyUndo(this, operationName);
+        }
+
+        public void EditModeStitchToNext(Line next)
+        {
+            RegisterUndo(nameof(EditModeStitchToNext) + " - current");
+            End = next.Start;
+            _next = next;
+
+            _next!.RegisterUndo(nameof(EditModeStitchToNext) + " - next");
+            next._previous = this;
+        }
+#endif
+
+// Selection and HandleUtility class ar in editor assembly, therefore this preprocessor switch is required
+#if UNITY_EDITOR
+        protected void OnDrawGizmosSelected()
+        {
+            if (!Selection.Contains(gameObject) || _grid == null)
+            {
+                return;
+            }
+
+            Color originalGizmoColor = Gizmos.color;
+            Gizmos.color = Color.black;
+
+            DrawArrowGizmo();
+
+            Gizmos.color = originalGizmoColor;
+        }
+
+        public void DrawArrowGizmo()
+        {
+            Vector3 startWorldPosition = StartWorldPosition;
+            Vector3 endWorldPosition = EndWorldPosition;
+            Gizmos.DrawLine(startWorldPosition, EndWorldPosition);
+            Gizmos.DrawWireSphere(startWorldPosition, HandleUtility.GetHandleSize(StartWorldPosition) * 0.2f);
+            Vector3 direction = endWorldPosition - startWorldPosition;
+            GizmosUtility.DrawArrowHead(endWorldPosition, direction, HandleUtility.GetHandleSize(EndWorldPosition) * 0.5f);
+        }
+#endif
     }
 }
