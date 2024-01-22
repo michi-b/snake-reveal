@@ -11,11 +11,19 @@ namespace Game.Quads.Editor
         protected virtual void OnEnable()
         {
             Tools.hidden = true;
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
         protected virtual void OnDisable()
         {
             Tools.hidden = false;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+        }
+
+        private void OnUndoRedoPerformed()
+        {
+            var quad = (Quad)target;
+            quad.Apply();            
         }
 
         public void OnSceneGUI()
@@ -35,19 +43,19 @@ namespace Game.Quads.Editor
 
             if (HandlesUtility.TryGridHandleMove(bottomLeft, z, grid, out Vector2Int newBottomLeft))
             {
-                Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Bottom Left Handle");
+                quad.RegisterUndo("Move Grid Quad Bottom Left Handle");
                 quad.BottomLeft = newBottomLeft;
             }
 
             if (HandlesUtility.TryGridHandleMove(topRight, z, grid, out Vector2Int newTopRight))
             {
-                Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Top Right Handle");
+                quad.RegisterUndo("Move Grid Quad Top Right Handle");
                 quad.TopRight = newTopRight;
             }
 
             if (HandlesUtility.TryGridHandleMove(center, z, grid, out Vector2Int newCenter))
             {
-                Undo.RegisterFullObjectHierarchyUndo(quad, "Move Grid Quad Center Handle");
+                quad.RegisterUndo("Move Grid Quad Center Handle");
                 Vector2Int delta = newCenter - center;
                 quad.Move(delta);
             }

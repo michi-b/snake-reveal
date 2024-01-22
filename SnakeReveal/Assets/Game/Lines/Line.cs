@@ -266,12 +266,10 @@ namespace Game.Lines
         public void DrawArrowGizmo()
         {
             Vector3 startWorldPosition = StartWorldPosition;
-            Vector3 endWorldPosition = EndWorldPosition;
-            Gizmos.DrawLine(startWorldPosition, EndWorldPosition);
-            Gizmos.DrawWireSphere(startWorldPosition, HandleUtility.GetHandleSize(StartWorldPosition) * 0.2f);
-            Vector3 direction = endWorldPosition - startWorldPosition;
-            GizmosUtility.DrawArrowHead(endWorldPosition, direction, HandleUtility.GetHandleSize(EndWorldPosition) * 0.5f);
+            Gizmos.DrawWireSphere(startWorldPosition, HandleUtility.GetHandleSize(startWorldPosition) * 0.1f);
+            GizmosUtility.DrawArrow(startWorldPosition, EndWorldPosition);
         }
+
 #endif
     }
 }

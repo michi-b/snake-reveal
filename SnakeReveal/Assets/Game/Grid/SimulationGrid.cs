@@ -13,7 +13,6 @@ namespace Game.Grid
         [SerializeField] private Vector2 _lowerLeftCornerScenePosition;
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
-        [SerializeField] private bool _drawGizmo = true;
 
         public Vector2Int Size => _size;
 
@@ -22,27 +21,27 @@ namespace Game.Grid
 
         protected void OnDrawGizmos()
         {
-            if (!_drawGizmo)
-            {
-                return;
-            }
-
             Vector2Int gizmoCellCount = _size / _gizmoCellSizeMultiplier;
 
             Color oldColor = Gizmos.color;
             Gizmos.color = _gizmoColor;
 
+            int maxX = gizmoCellCount.x * _gizmoCellSizeMultiplier;
+            int maxYIndex = gizmoCellCount.y * _gizmoCellSizeMultiplier;
+
             for (int x = 0; x <= gizmoCellCount.x; x++)
             {
-                Vector3 bottom = GetWorldPosition(new Vector2Int(x, 0));
-                Vector3 top = GetWorldPosition(new Vector2Int(x, gizmoCellCount.y));
+                int xIndex = x * _gizmoCellSizeMultiplier;
+                Vector3 bottom = GetWorldPosition(new Vector2Int(xIndex, 0));
+                Vector3 top = GetWorldPosition(new Vector2Int(xIndex, maxYIndex));
                 Gizmos.DrawLine(bottom, top);
             }
 
             for (int y = 0; y <= gizmoCellCount.y; y++)
             {
-                Vector3 left = GetWorldPosition(new Vector2Int(0, y));
-                Vector3 right = GetWorldPosition(new Vector2Int(gizmoCellCount.x, y));
+                int yIndex = y * _gizmoCellSizeMultiplier;
+                Vector3 left = GetWorldPosition(new Vector2Int(0, yIndex));
+                Vector3 right = GetWorldPosition(new Vector2Int(maxX, yIndex));
                 Gizmos.DrawLine(left, right);
             }
 

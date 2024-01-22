@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace Utility
 {
@@ -7,25 +8,30 @@ namespace Utility
         private const float DefaultArrowAngle = 25.0f;
         private const float DefaultArrowHeadSize = 0.02f;
 
-        public static void DrawArrow(Vector3 start, Vector3 end, float arrowHeadSize = DefaultArrowHeadSize, float arrowHeadAngle = DefaultArrowAngle)
+        public static void DrawArrow(Vector3 startWorldPosition, Vector3 endWorldPosition)
         {
-            Gizmos.DrawLine(start, end);
-            DrawArrowHead(end, end - start, arrowHeadSize, arrowHeadAngle);
+            Gizmos.DrawLine(startWorldPosition, endWorldPosition);
+            Vector3 direction = endWorldPosition - startWorldPosition;
+            GizmosUtility.DrawArrowHead(endWorldPosition, direction);
         }
 
-        public static void DrawArrowHead(Vector3 end, Vector3 direction, float size = DefaultArrowHeadSize, float angle = DefaultArrowAngle)
+        private static void DrawArrowHead(Vector3 position, Vector3 direction, float angle = DefaultArrowAngle)
         {
+            // Handle Utility is only available in editor
+            #if UNITY_EDITOR
+            float size = HandleUtility.GetHandleSize(position) * 0.2f;
             if (direction != Vector3.zero)
             {
                 Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(angle, 0, 0) * Vector3.back;
                 Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(-angle, 0, 0) * Vector3.back;
                 Vector3 up = Quaternion.LookRotation(direction) * Quaternion.Euler(0, angle, 0) * Vector3.back;
                 Vector3 down = Quaternion.LookRotation(direction) * Quaternion.Euler(0, -angle, 0) * Vector3.back;
-                Gizmos.DrawLine(end, end + right * size);
-                Gizmos.DrawLine(end, end + left * size);
-                Gizmos.DrawLine(end, end + up * size);
-                Gizmos.DrawLine(end, end + down * size);
+                Gizmos.DrawLine(position, position + right * size);
+                Gizmos.DrawLine(position, position + left * size);
+                Gizmos.DrawLine(position, position + up * size);
+                Gizmos.DrawLine(position, position + down * size);
             }
+            #endif
         }
 
         public static void DrawRect(Vector2 bottomLeft, Vector2 topRight, float z, Color color)

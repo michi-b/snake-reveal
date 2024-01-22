@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Extensions;
 using Game.Grid;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_EDITOR
@@ -21,8 +22,9 @@ namespace Game.Quads
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private QuadData _data;
 
-        private Mesh _mesh;
-        private Vector3[] _vertices;
+        [ContextMenuItem("Personalize", nameof(PersonalizeMesh))]
+        [SerializeField] private Mesh _mesh;
+        [SerializeField] private Vector3[] _vertices;
 
         public SimulationGrid Grid => _grid;
 
@@ -69,6 +71,16 @@ namespace Game.Quads
             get => _data.Size;
         }
 
+#if UNITY_EDITOR
+        public void PersonalizeMesh()
+        {
+            Undo.RecordObject(this, "Personalize Mesh");
+            _mesh = Instantiate(_mesh);
+            _mesh.name = gameObject.name;
+            _meshFilter.sharedMesh = _mesh;
+        }
+#endif
+
         protected virtual void Reset()
         {
             _grid = SimulationGrid.EditModeFind()!;
@@ -77,11 +89,12 @@ namespace Game.Quads
             Apply();
         }
 
+        [ContextMenu("Initialize", false)]
         public virtual void Initialize(SimulationGrid grid)
         {
             _grid = grid;
-            _mesh = new Mesh();
             _vertices = new Vector3[4];
+            _mesh = new Mesh(){vertices = _vertices, indexFormat = IndexFormat.UInt16};
             _mesh.vertices = _vertices;
             int[] triangles = new int[6];
             triangles[0] = BottomLeftVertexIndex;
@@ -134,5 +147,13 @@ namespace Game.Quads
         {
             return _data.ToString();
         }
+
+#if UNITY_EDITOR
+        public void RegisterUndo(string operationName)
+        {
+            Undo.RecordObject(_mesh, operationName + " - Mesh");
+            Undo.RegisterFullObjectHierarchyUndo(gameObject, operationName + " - Quad");
+        }
+#endif
     }
 }

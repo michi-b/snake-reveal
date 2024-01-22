@@ -20,7 +20,6 @@ namespace Game.Lines
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private LineCache _cache;
         [SerializeField, HideInInspector] protected Line _start;
-        [SerializeField, HideInInspector] private bool _displayLinesInHierarchy = true;
         [SerializeField, HideInInspector] private int _clockwiseTurnWeight;
         private readonly Collider2D[] _findLinesBuffer = new Collider2D[2];
 
@@ -195,7 +194,6 @@ namespace Game.Lines
         {
             public const string ClockwiseTurnWeightPropertyName = nameof(_clockwiseTurnWeight);
             public const string StartPropertyName = nameof(_start);
-            public const string DisplayLinesInHierarchyPropertyName = nameof(_displayLinesInHierarchy);
 
             public static void Rebuild(LineContainer container, List<Vector2Int> positions)
             {
@@ -263,8 +261,6 @@ namespace Game.Lines
                 {
                     Undo.RegisterFullObjectHierarchyUndo(line.gameObject, nameof(ApplyHideLineInSceneView));
                 }
-
-                line.gameObject.SetVisibleInSceneView(container._displayLinesInHierarchy);
             }
 
             public static void PostProcessLineChanges(LineContainer container)

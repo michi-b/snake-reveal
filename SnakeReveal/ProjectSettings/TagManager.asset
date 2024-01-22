@@ -9,12 +9,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Enemies
   - Water
   - UI
   - 
   - 
-  - 
+  - GridEdgeQuads
   - ShapeQuads
   - ShapeLines
   - ChainLines

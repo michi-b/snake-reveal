@@ -30,8 +30,6 @@ namespace Game.Lines.Editor
         private SerializedProperty _clockwiseTurnWeightProperty;
         private ReorderableList _cornersList;
 
-        private SerializedProperty _hideLinesInSceneViewProperty;
-
         protected SerializedProperty StartProperty;
 
         protected virtual IEnumerable<LineContainer> AdditionalHandlesTargets => Array.Empty<LineContainer>();
@@ -39,7 +37,6 @@ namespace Game.Lines.Editor
         protected virtual void OnEnable()
         {
             StartProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.StartPropertyName);
-            _hideLinesInSceneViewProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.DisplayLinesInHierarchyPropertyName);
             _clockwiseTurnWeightProperty = serializedObject.FindDirectChild(LineContainer.EditModeUtility.ClockwiseTurnWeightPropertyName);
 
             ReadLinesIntoCorners();
@@ -128,15 +125,6 @@ namespace Game.Lines.Editor
             DrawProperties();
 
             var container = (LineContainer)target;
-
-            EditorGUI.BeginChangeCheck();
-            SerializedProperty hideProp = _hideLinesInSceneViewProperty;
-            hideProp.boolValue = EditorGUILayout.ToggleLeft(hideProp.displayName, hideProp.boolValue);
-            if (EditorGUI.EndChangeCheck())
-            {
-                serializedObject.ApplyModifiedProperties();
-                LineContainer.EditModeUtility.ApplyHideLinesInSceneView(container);
-            }
 
             bool hasGridAndLineCache = container.Grid != null && container.Cache != null;
             if (Application.isPlaying || !hasGridAndLineCache)
