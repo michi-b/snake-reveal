@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8033435742544846707, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 8033435742544846707, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
       propertyPath: m_LocalPosition.x

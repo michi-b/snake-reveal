@@ -1,6 +1,8 @@
-namespace Abstractions.ValueDisplays
+using TextDisplay.Abstractions;
+
+namespace TextDisplay
 {
-    public class IntDisplay : ValueDisplay<int>
+    public class ForwardIntDisplay : IntDisplay
     {
         protected override void Apply()
         {

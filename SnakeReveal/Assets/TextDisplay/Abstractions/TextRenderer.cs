@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Abstractions.TextRendering
+namespace TextDisplay.Abstractions
 {
     public abstract class TextRenderer : MonoBehaviour
     {

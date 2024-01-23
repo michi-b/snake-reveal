@@ -1,9 +1,7 @@
-﻿using Abstractions.ValueDisplays;
-using CustomPropertyDrawers;
+﻿using CustomPropertyDrawers;
 using Game.Player;
 using Game.Player.Simulation;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Game
 {
@@ -12,8 +10,8 @@ namespace Game
         [SerializeField] private PlayerActor _playerActor;
         [SerializeField] private DrawnShape _drawnShape;
         [SerializeField] private DrawingChain _drawingLineChain;
-        [SerializeField] private ValueDisplay<int> _tickCounter;
-        [SerializeField] private ValueDisplay<float> _timeCounter;
+        [SerializeField] private DebugInfo _debugInfo;
+
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
 
         private PlayerSimulation _playerSimulation;
@@ -29,8 +27,8 @@ namespace Game
         protected virtual void FixedUpdate()
         {
             Ticks++;
-            _tickCounter.Value = Ticks;
-            _timeCounter.Value = Ticks * Time.fixedDeltaTime;
+            _debugInfo.SimulationTicks = Ticks;
+            _debugInfo.SimulationTime = Ticks * Time.fixedDeltaTime;
             _playerSimulation.Move();
         }
 

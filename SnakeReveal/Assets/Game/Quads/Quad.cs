@@ -23,7 +23,6 @@ namespace Game.Quads
         [SerializeField] private QuadData _data;
 
         [ContextMenuItem("Personalize", nameof(PersonalizeMesh)), SerializeField]
-        
         private Mesh _mesh;
 
         [SerializeField] private Vector3[] _vertices;

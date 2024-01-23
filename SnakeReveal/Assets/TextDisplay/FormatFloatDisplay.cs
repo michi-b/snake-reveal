@@ -1,11 +1,12 @@
+using TextDisplay.Abstractions;
 using UnityEngine;
 
-namespace Abstractions.ValueDisplays
+namespace TextDisplay
 {
-    public class FloatDisplay : ValueDisplay<float>
+    public class FormatFloatDisplay : FloatDisplay
     {
         [SerializeField] private string _format = "F2";
-        
+
         protected override void Apply()
         {
             Renderer.Text = Value.ToString(_format);
