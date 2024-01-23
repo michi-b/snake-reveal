@@ -1,5 +1,5 @@
-﻿using CustomPropertyDrawers;
-using Game.Menu.ValueDisplays;
+﻿using Abstractions.ValueDisplays;
+using CustomPropertyDrawers;
 using Game.Player;
 using Game.Player.Simulation;
 using UnityEngine;

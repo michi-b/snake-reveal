@@ -1,4 +1,4 @@
-namespace Game.Menu.ValueDisplays
+namespace Abstractions.ValueDisplays
 {
     public class IntDisplay : ValueDisplay<int>
     {

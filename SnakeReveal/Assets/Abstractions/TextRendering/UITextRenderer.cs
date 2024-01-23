@@ -1,8 +1,7 @@
-using System.Net.Mime;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.Menu.ValueDisplays
+namespace Abstractions.TextRendering
 {
     [RequireComponent(typeof(Text))]
     public class UITextRenderer : TextRenderer

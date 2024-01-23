@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Menu.ValueDisplays
+namespace Abstractions.TextRendering
 {
     public abstract class TextRenderer : MonoBehaviour
     {

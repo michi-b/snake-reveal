@@ -1,6 +1,7 @@
+using Abstractions.TextRendering;
 using UnityEngine;
 
-namespace Game.Menu.ValueDisplays
+namespace Abstractions.ValueDisplays
 {
     public abstract class ValueDisplay<TValue> : MonoBehaviour
     {

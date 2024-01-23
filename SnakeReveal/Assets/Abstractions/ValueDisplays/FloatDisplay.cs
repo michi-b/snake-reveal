@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Menu.ValueDisplays
+namespace Abstractions.ValueDisplays
 {
     public class FloatDisplay : ValueDisplay<float>
     {
