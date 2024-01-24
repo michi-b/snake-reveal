@@ -58,5 +58,10 @@ namespace Game.Quads
         {
             return $"{BottomLeft} -> {TopRight}";
         }
+
+        public int GetCellCount()
+        {
+            return _size.x * _size.y;
+        }
     }
 }

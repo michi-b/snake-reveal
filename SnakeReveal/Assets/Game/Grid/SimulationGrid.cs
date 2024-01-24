@@ -19,6 +19,8 @@ namespace Game.Grid
         public Vector2 SceneCellSize => _sceneCellSize;
         public Vector2Int CenterPosition => _size / 2;
 
+        public int GetCellCount() => _size.x * _size.y;
+
         protected void OnDrawGizmos()
         {
             Vector2Int gizmoCellCount = _size / _gizmoCellSizeMultiplier;

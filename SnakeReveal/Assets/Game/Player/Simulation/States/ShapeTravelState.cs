@@ -24,6 +24,8 @@ namespace Game.Player.Simulation.States
             ClearState();
         }
 
+        public int CoveredCellCount => _shape.CoveredCellCount;
+
         public IPlayerSimulationState Move(GridDirection requestedDirection)
         {
             AssertActorIsOnShape();

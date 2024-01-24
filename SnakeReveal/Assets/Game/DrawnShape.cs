@@ -16,6 +16,7 @@ namespace Game
 
         private readonly InsertionEvaluation _insertionEvaluation = new();
         private readonly BottomUpQuadrangulation _quadrangulation = new();
+        public int CoveredCellCount => _quadContainer.CoveredCellCount;
 
         private Turn GetTravelTurn(bool startToEnd)
         {

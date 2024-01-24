@@ -90,7 +90,15 @@ namespace Game.Quads
         }
 #endif
 
-        [ContextMenu("Initialize", false)]
+        [ContextMenu("Initialize")]
+        public void ContextMenuInitialize()
+        {
+#if UNITY_EDITOR
+            Undo.RegisterFullObjectHierarchyUndo(gameObject, "Initialize Quad");
+#endif
+            Initialize(SimulationGrid.EditModeFind());
+        }
+
         public virtual void Initialize(SimulationGrid grid)
         {
             _grid = grid;

@@ -11,14 +11,15 @@ namespace Game.Player.Simulation
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
         private IPlayerSimulationState _currentState;
 
+        private readonly ShapeTravelState _shapeTravelState;
+        
         public PlayerSimulation(PlayerActor actor, DrawnShape shape, DrawingChain drawing, bool monkeyTestPlayerSimulationWithRandomInputs)
         {
             _actor = actor;
-            DrawnShape shape1 = shape;
             _controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
-            var shapeTravelState = new ShapeTravelState(_actor, shape1);
-            var drawingState = new DrawingState(_actor, shape1, drawing, shapeTravelState);
-            _currentState = shapeTravelState.Initialize(drawingState);
+            _shapeTravelState = new ShapeTravelState(_actor, shape);
+            var drawingState = new DrawingState(_actor, shape, drawing, _shapeTravelState);
+            _currentState = _shapeTravelState.Initialize(drawingState);
         }
 
         public bool ControlsEnabled
@@ -35,6 +36,8 @@ namespace Game.Player.Simulation
                 }
             }
         }
+
+        public int CoveredCellCount => _shapeTravelState.CoveredCellCount;
 
         public void Move()
         {

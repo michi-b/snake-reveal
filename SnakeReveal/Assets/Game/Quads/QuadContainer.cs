@@ -12,6 +12,8 @@ namespace Game.Quads
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private QuadCache _cache;
         [SerializeField] private List<Quad> _quads;
+        [SerializeField] private int _coveredCellCount;
+        public int CoveredCellCount => _coveredCellCount;
 
         protected virtual void Reset()
         {
@@ -30,6 +32,7 @@ namespace Game.Quads
         private void Add(QuadData quadData)
         {
             Quad quad = GetNewQuad(quadData);
+            _coveredCellCount += quadData.GetCellCount();
             _quads.Add(quad);
         }
 
@@ -61,6 +64,7 @@ namespace Game.Quads
                 Undo.RegisterFullObjectHierarchyUndo(quad.gameObject, "Initialize Quad");
                 quad.Initialize(_grid);
                 quad.Place(quadData);
+                _coveredCellCount += quadData.GetCellCount();
                 _quads.Add(quad);
             }
         }
