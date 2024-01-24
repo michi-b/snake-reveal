@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6330791367422722322}
   - component: {fileID: 7681651678251067053}
   m_Layer: 5
-  m_Name: GameInfoLineText
+  m_Name: DebugInfoLineText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

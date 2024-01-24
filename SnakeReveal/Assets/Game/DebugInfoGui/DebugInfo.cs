@@ -1,7 +1,7 @@
 using TextDisplay.Abstractions;
 using UnityEngine;
 
-namespace Game
+namespace Game.DebugInfoGui
 {
     public class DebugInfo : MonoBehaviour
     {

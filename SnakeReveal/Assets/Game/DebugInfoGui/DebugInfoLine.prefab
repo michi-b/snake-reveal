@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7723171401162403771}
   m_Layer: 5
-  m_Name: GameInfoLine
+  m_Name: DebugInfoLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
