@@ -6,7 +6,6 @@ namespace Utility
     public static class GizmosUtility
     {
         private const float DefaultArrowAngle = 25.0f;
-        private const float DefaultArrowHeadSize = 0.02f;
 
         public static void DrawArrow(Vector3 startWorldPosition, Vector3 endWorldPosition)
         {

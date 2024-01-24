@@ -1,12 +1,20 @@
+using System;
 using TextDisplay.Abstractions;
 using UnityEngine;
 
-namespace Game.DebugInfoGui
+namespace Game.Gui.DebugInfo
 {
-    public class DebugInfo : MonoBehaviour
+    public class DebugInfoGui : MonoBehaviour
     {
         [SerializeField] private IntDisplay _simulationTicks;
         [SerializeField] private FloatDisplay _simulationTime;
+
+        public void Start()
+        {
+#if !UNITY_EDITOR
+            gameObject.SetActive(false);
+#endif
+        }
 
         public float SimulationTime
         {

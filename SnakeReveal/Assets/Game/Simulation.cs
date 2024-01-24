@@ -1,5 +1,5 @@
 ﻿using CustomPropertyDrawers;
-using Game.DebugInfoGui;
+using Game.Gui.DebugInfo;
 using Game.Player;
 using Game.Player.Simulation;
 using UnityEngine;
@@ -11,14 +11,14 @@ namespace Game
         [SerializeField] private PlayerActor _playerActor;
         [SerializeField] private DrawnShape _drawnShape;
         [SerializeField] private DrawingChain _drawingLineChain;
-        [SerializeField] private DebugInfo _debugInfo;
+        [SerializeField] private DebugInfoGui _debugInfoGui;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
 
         private PlayerSimulation _playerSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
-        public int Ticks { get; private set; }
+        private int Ticks { get; set; }
 
         protected virtual void Awake()
         {
@@ -28,8 +28,10 @@ namespace Game
         protected virtual void FixedUpdate()
         {
             Ticks++;
-            _debugInfo.SimulationTicks = Ticks;
-            _debugInfo.SimulationTime = Ticks * Time.fixedDeltaTime;
+#if UNITY_EDITOR
+            _debugInfoGui.SimulationTicks = Ticks;
+            _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
+#endif
             _playerSimulation.Move();
         }
 

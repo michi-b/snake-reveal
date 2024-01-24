@@ -18,7 +18,7 @@ namespace TextDisplay.Abstractions
                 Apply();
             }
         }
-
+        
         protected abstract void Apply();
     }
 }

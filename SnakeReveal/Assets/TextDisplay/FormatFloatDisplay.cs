@@ -9,7 +9,12 @@ namespace TextDisplay
 
         protected override void Apply()
         {
-            Renderer.Text = Value.ToString(_format);
+            Renderer.Text = FormatValue(Value);
+        }
+
+        protected virtual string FormatValue(float value)
+        {
+            return value.ToString(_format);
         }
     }
 }

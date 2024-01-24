@@ -8,8 +8,6 @@ namespace Game.Enemies
     {
         [SerializeField] private Vector2 _startVelocity;
 
-        private float _speed;
-
         public Vector2 StartVelocity
         {
             get => _startVelocity;
@@ -18,7 +16,6 @@ namespace Game.Enemies
 
         protected virtual void Start()
         {
-            _speed = StartVelocity.magnitude;
             GetComponent<Rigidbody2D>().velocity = StartVelocity;
         }
 
