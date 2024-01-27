@@ -16,12 +16,12 @@ namespace Game
         [SerializeField] private DrawingChain _drawingLineChain;
         [SerializeField] private DebugInfoGui _debugInfoGui;
         [SerializeField] private GameInfoGui _gameInfoGui;
-        
+
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
 
         [SerializeField] private int _gridCellCount;
         [SerializeField] private int _coveredCellCount;
-        
+
         private PlayerSimulation _playerSimulation;
 
         // with a fixed time step of 0.0083, this int will overflow after 206,2976188668982 days
@@ -43,9 +43,9 @@ namespace Game
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
 #endif
             _playerSimulation.Move();
-            
+
             int newCoveredCellCount = _playerSimulation.CoveredCellCount;
-            if(newCoveredCellCount != _coveredCellCount)
+            if (newCoveredCellCount != _coveredCellCount)
             {
                 _coveredCellCount = newCoveredCellCount;
                 UpdatePercentCompletionDisplay();

@@ -9,7 +9,7 @@ namespace TextDisplay.Abstractions
         private void ContextMenuApply()
         {
 #if UNITY_EDITOR
-            Undo.RecordObject(Renderer, "Apply Float Display");
+            Undo.RegisterFullObjectHierarchyUndo(gameObject, "Apply Float Display");
 #endif
             Apply();
         }

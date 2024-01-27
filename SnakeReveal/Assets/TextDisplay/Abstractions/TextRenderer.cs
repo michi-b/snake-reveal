@@ -4,7 +4,7 @@ namespace TextDisplay.Abstractions
 {
     public abstract class TextRenderer : MonoBehaviour
     {
-        [SerializeField] private string _text;
+        [SerializeField, TextArea] private string _text;
 
         public string Text
         {

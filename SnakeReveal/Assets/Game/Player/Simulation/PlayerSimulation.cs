@@ -12,7 +12,7 @@ namespace Game.Player.Simulation
         private IPlayerSimulationState _currentState;
 
         private readonly ShapeTravelState _shapeTravelState;
-        
+
         public PlayerSimulation(PlayerActor actor, DrawnShape shape, DrawingChain drawing, bool monkeyTestPlayerSimulationWithRandomInputs)
         {
             _actor = actor;
