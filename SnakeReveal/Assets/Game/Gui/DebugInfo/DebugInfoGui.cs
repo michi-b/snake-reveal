@@ -1,4 +1,3 @@
-using System;
 using TextDisplay.Abstractions;
 using UnityEngine;
 

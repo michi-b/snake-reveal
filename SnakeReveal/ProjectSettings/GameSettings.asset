@@ -12,6 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8bb102b95615c54492609bd6c58ad6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _drawnShapeLayer:
-    serializedVersion: 2
-    m_Bits: 9
+  _isCapturedInDrawnShapeCheckLayer: 9

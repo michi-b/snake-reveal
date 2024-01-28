@@ -56,16 +56,25 @@ namespace Game.Player.Simulation.States
 
         private IPlayerSimulationState Move()
         {
-            _actor.Move();
+            if (!_actor.TryMoveCheckingEnemies())
+            {
+                return Reset();
+            }
 
+            //collision with drawing line
             if (_drawing.Contains(_actor.Position))
             {
-                return EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
+                return Reset();
             }
 
             _drawing.Extend(_actor.Position);
 
             return TryReconnect();
+        }
+
+        private IPlayerSimulationState Reset()
+        {
+            return EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
         }
 
         private IPlayerSimulationState TryReconnect()

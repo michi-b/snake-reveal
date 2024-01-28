@@ -63,7 +63,7 @@ namespace Game.Enemies
 
         private static bool GetIsDrawnShape(Component other)
         {
-            return other.gameObject.layer == GameSettings.instance.DrawnShapeLayer;
+            return other.gameObject.layer == GameSettings.instance.IsCapturedInDrawnShapeCheckLayer;
         }
 
         private void CheckIsCaptured(Collider2D contact)

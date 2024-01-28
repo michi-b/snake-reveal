@@ -95,5 +95,10 @@ namespace Game.Grid
             SimulationGrid[] grids = FindObjectsByType<SimulationGrid>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             return grids is { Length: > 0 } ? grids[0] : null;
         }
+
+        public Vector2 ToSceneVector(Vector2Int gridVector)
+        {
+            return _sceneCellSize * gridVector;
+        }
     }
 }

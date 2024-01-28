@@ -52,9 +52,9 @@ namespace Game
             }
         }
 
-        private float UpdatePercentCompletionDisplay()
+        private void UpdatePercentCompletionDisplay()
         {
-            return _gameInfoGui.PercentCompletion = _coveredCellCount / (float)_gridCellCount;
+            _gameInfoGui.PercentCompletion = _coveredCellCount / (float)_gridCellCount;
         }
 
         protected virtual void OnEnable()

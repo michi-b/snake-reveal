@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using Attributes;
-using Extensions;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Game.Enemies.Bouncer
 {

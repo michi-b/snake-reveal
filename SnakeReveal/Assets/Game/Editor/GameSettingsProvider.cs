@@ -1,11 +1,10 @@
-using System.Collections.Generic;
 using UnityEditor;
 
 namespace Game.Editor
 {
     public class GameSettingsProvider : SettingsProvider
     {
-        private GameSettingsProvider(string path, SettingsScope scopes) : base(path, scopes, new string[]
+        private GameSettingsProvider(string path, SettingsScope scopes) : base(path, scopes, new[]
         {
             "Game"
         })
@@ -15,7 +14,16 @@ namespace Game.Editor
         public override void OnGUI(string searchContext)
         {
             GameSettings instance = GameSettings.instance;
-            instance.DrawnShapeLayer = EditorGUILayout.LayerField("Drawn Shape Layer", instance.DrawnShapeLayer);
+
+            _areLayersExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(_areLayersExpanded, "Is Captured in Drawn Shape Check");
+            if (_areLayersExpanded)
+            {
+                EditorGUI.indentLevel++;
+                instance.IsCapturedInDrawnShapeCheckLayer = EditorGUILayout.LayerField("Layer", instance.IsCapturedInDrawnShapeCheckLayer);
+                EditorGUI.indentLevel--;
+            }
+
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         [SettingsProvider]
@@ -23,5 +31,7 @@ namespace Game.Editor
         {
             return new GameSettingsProvider("Project/Game", SettingsScope.Project);
         }
+
+        private bool _areLayersExpanded = true;
     }
 }

@@ -1,5 +1,7 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Utility
 {
@@ -46,6 +48,14 @@ namespace Utility
                 Gizmos.DrawLine(bottomRight, bottomLeft);
             }
             Gizmos.color = gizmosColor;
+        }
+
+        public static void DrawCircle(Vector3 position, float radius, Color red)
+        {
+            // Handle Utility is only available in editor
+#if UNITY_EDITOR
+            Handles.DrawWireDisc(position, Vector3.back, radius);
+#endif
         }
     }
 }

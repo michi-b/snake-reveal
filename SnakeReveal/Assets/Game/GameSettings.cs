@@ -6,16 +6,16 @@ namespace Game
     [FilePath("ProjectSettings/GameSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class GameSettings : ScriptableSingleton<GameSettings>
     {
-        [SerializeField] private LayerMask _drawnShapeLayer;
+        [SerializeField] private int _isCapturedInDrawnShapeCheckLayer;
 
-        public LayerMask DrawnShapeLayer
+        public int IsCapturedInDrawnShapeCheckLayer
         {
-            get => _drawnShapeLayer;
+            get => _isCapturedInDrawnShapeCheckLayer;
             set
             {
-                if (value != _drawnShapeLayer)
+                if (value != _isCapturedInDrawnShapeCheckLayer)
                 {
-                    _drawnShapeLayer = value;
+                    _isCapturedInDrawnShapeCheckLayer = value;
                     Save();
                 }
             }

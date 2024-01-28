@@ -5,6 +5,7 @@ using Game.Lines;
 using Game.Player.Controls;
 using JetBrains.Annotations;
 using UnityEngine;
+using Utility;
 
 namespace Game.Player
 {
@@ -14,8 +15,13 @@ namespace Game.Player
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private GridPlacement _placement;
         [SerializeField] private PlayerActorRenderer _renderer;
-        [SerializeField] private GridDirection _direction = GridDirection.None;
+        
+        [SerializeField, Header("Enemies")] private LayerMask _enemiesLayerMask;
+        [SerializeField] private float _enemyCollisionRadius = 0.005f;
+        
+        [SerializeField, Header("Runtime")] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
+
 
         private PlayerActorControls _controls;
 
@@ -44,6 +50,11 @@ namespace Game.Player
             _placement = GetComponent<GridPlacement>();
         }
 
+        protected void OnDrawGizmos()
+        {
+            GizmosUtility.DrawCircle(transform.position, _enemyCollisionRadius, Color.red);
+        }
+
         protected void OnValidate()
         {
             ApplyRendererDirection();
@@ -68,6 +79,23 @@ namespace Game.Player
 
             // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering
             ApplyPosition();
+        }
+
+        public bool TryMoveCheckingEnemies()
+        {
+            Vector2 sceneVector = _grid.ToSceneVector(Direction.ToVector2Int());
+            RaycastHit2D hit = Physics2D.CircleCast(transform.position,
+                _enemyCollisionRadius,
+                sceneVector,
+                sceneVector.magnitude,
+                _enemiesLayerMask);
+            if (hit.collider != null)
+            {
+                return false;
+            }
+
+            Move();
+            return true;
         }
     }
 }

@@ -3701,6 +3701,10 @@ MonoBehaviour:
   _grid: {fileID: 1501073790}
   _placement: {fileID: 4047278784638130997}
   _renderer: {fileID: 6105569100108602566}
+  _enemiesLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  _enemyCollisionRadius: 0.005
   _direction: 1
   _speed: 1
 --- !u!114 &4047278784638130997
