@@ -1,7 +1,10 @@
+using System;
 using Extensions;
+using Game.Enums;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 
 namespace Game.Grid
 {
@@ -56,5 +59,17 @@ namespace Game.Grid
             Undo.RecordObjects(UndoObjectsBuffer, operationName);
         }
 #endif
+        public bool GetCanMoveInGridBounds(GridDirection requestedDirection)
+        {
+            return requestedDirection switch
+            {
+                GridDirection.None => false,
+                GridDirection.Right => Position.x < _grid.Size.x,
+                GridDirection.Up => Position.y < _grid.Size.y,
+                GridDirection.Left => Position.x > 0,
+                GridDirection.Down => Position.y > 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(requestedDirection), requestedDirection, null)
+            };
+        }
     }
 }

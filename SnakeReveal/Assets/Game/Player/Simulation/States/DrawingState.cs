@@ -27,7 +27,8 @@ namespace Game.Player.Simulation.States
         {
             if (requestedDirection != GridDirection.None
                 && requestedDirection != _actor.Direction
-                && requestedDirection != _actor.Direction.Reverse())
+                && requestedDirection != _actor.Direction.Reverse()
+                && _actor.GetCanMoveInGridBounds(requestedDirection))
             {
                 _actor.Direction = requestedDirection;
             }
@@ -43,6 +44,7 @@ namespace Game.Player.Simulation.States
 
             _drawing.Activate(_shapeBreakoutPosition, _actor.Position);
 
+            // note that enemy collisions are not checked on first move, to avoid an infinite loop of re-entering drawing state
             _actor.Move();
 
 #if DEBUG
@@ -68,6 +70,11 @@ namespace Game.Player.Simulation.States
             }
 
             _drawing.Extend(_actor.Position);
+
+            if (!_actor.GetCanMoveInGridBounds(_actor.Direction))
+            {
+                _actor.TurnOnGridBounds();
+            }
 
             return TryReconnect();
         }

@@ -32,7 +32,7 @@ namespace Game.Player.Simulation.States
 
             bool isAtEndCorner = _actor.Position == _currentLine.GetEnd(_isTravelingStartToEnd);
 
-            if (requestedDirection != GridDirection.None
+            if (_actor.GetCanMoveInGridBounds(requestedDirection)
                 && _shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isTravelingStartToEnd, out Line breakoutLine))
             {
                 // note: drawing state instantly moves and might return this state again on instant reconnection
@@ -68,6 +68,7 @@ namespace Game.Player.Simulation.States
             _drawingState = drawingState;
             Line continuation = _shape.GetLine(_actor.Position);
             Debug.Assert(continuation != null, "Player actor is not on shape");
+            _actor.Initialize(continuation.Direction, continuation.Previous!.Direction);
             return Enter(new InsertionResult(continuation, true));
         }
 

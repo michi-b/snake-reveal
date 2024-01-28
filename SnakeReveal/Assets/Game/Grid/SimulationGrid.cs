@@ -1,7 +1,10 @@
+using System;
 using Extensions;
+using Game.Enums;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem.iOS;
 
 namespace Game.Grid
 {
@@ -18,6 +21,10 @@ namespace Game.Grid
 
         public Vector2 SceneCellSize => _sceneCellSize;
         public Vector2Int CenterPosition => _size / 2;
+        public Vector2Int BottomLeft => Vector2Int.zero;
+        public Vector2Int TopLeft => new(0, _size.y);
+        public Vector2Int TopRight => _size;
+        public Vector2Int BottomRight => new(_size.x, 0);
 
         public int GetCellCount()
         {
@@ -99,6 +106,101 @@ namespace Game.Grid
         public Vector2 ToSceneVector(Vector2Int gridVector)
         {
             return _sceneCellSize * gridVector;
+        }
+
+        public bool IsInBounds(Vector2Int position)
+        {
+            return position.x >= 0 && position.x <= _size.x && position.y >= 0 && position.y <= _size.y;
+        }
+
+        public bool TryGetCornerTurn(Vector2Int position, GridDirection direction, out Turn turn)
+        {
+            switch (direction)
+            {
+                case GridDirection.None:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                case GridDirection.Right:
+                    if (GetIsTopRightCorner())
+                    {
+                        turn = Turn.Right;
+                        return true;
+                    }
+
+                    if (GetIsBottomRightCorner())
+                    {
+                        turn = Turn.Left;
+                        return true;
+                    }
+
+                    break;
+                case GridDirection.Up:
+                    if (GetIsTopLeftCorner())
+                    {
+                        turn = Turn.Right;
+                        return true;
+                    }
+
+                    if (GetIsTopRightCorner())
+                    {
+                        turn = Turn.Left;
+                        return true;
+                    }
+
+                    break;
+                case GridDirection.Left:
+                    if (GetIsBottomLeftCorner())
+                    {
+                        turn = Turn.Right;
+                        return true;
+                    }
+
+                    if (GetIsTopLeftCorner())
+                    {
+                        turn = Turn.Left;
+                        return true;
+                    }
+
+                    break;
+                case GridDirection.Down:
+                    if (GetIsBottomRightCorner())
+                    {
+                        turn = Turn.Right;
+                        return true;
+                    }
+
+                    if (GetIsBottomLeftCorner())
+                    {
+                        turn = Turn.Left;
+                        return true;
+                    }
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+
+            turn = default;
+            return false;
+
+            bool GetIsTopRightCorner()
+            {
+                return position == TopRight;
+            }
+
+            bool GetIsTopLeftCorner()
+            {
+                return position == TopLeft;
+            }
+
+            bool GetIsBottomLeftCorner()
+            {
+                return position == BottomLeft;
+            }
+
+            bool GetIsBottomRightCorner()
+            {
+                return position == BottomRight;
+            }
         }
     }
 }

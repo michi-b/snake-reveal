@@ -55,6 +55,7 @@ namespace Game.Quads
             }
 
             _quads.Clear();
+            _coveredCellCount = 0;
 
             foreach (QuadData quadData in newQuads)
             {

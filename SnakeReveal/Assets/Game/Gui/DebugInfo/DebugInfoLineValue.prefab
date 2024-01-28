@@ -24,6 +24,14 @@ PrefabInstance:
       propertyPath: m_text
       value: Value
       objectReference: {fileID: 0}
+    - target: {fileID: 7681651678251067053, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
+      propertyPath: m_margin.x
+      value: -66.600006
+      objectReference: {fileID: 0}
+    - target: {fileID: 7681651678251067053, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8033435742544846707, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -106,7 +114,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9162616702731849585, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
       propertyPath: m_Name
-      value: GameInfoLineValue
+      value: DebugInfoLineValue
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
