@@ -74,6 +74,7 @@ namespace Game.Player.Simulation.States
 
         public ShapeTravelState Enter(InsertionResult insertion)
         {
+            ClearState();
             _currentLine = insertion.Continuation;
             _isTravelingStartToEnd = insertion.IsStartToEnd;
             _actor.Direction = _currentLine.GetDirection(_isTravelingStartToEnd);

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Game.Enums;
+using Game.Grid;
 using Game.Lines;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -23,6 +24,8 @@ namespace Game
         }
 
         public GridDirection StartDirection => _lineChain.Start.Direction;
+        public SimulationGrid Grid => _lineChain.Grid;
+        public Line LastLine => _lineChain.End;
 
         public void Activate(Vector2Int start, Vector2Int end)
         {
@@ -42,10 +45,10 @@ namespace Game
             return _lineChain.ContainsLineAt(position);
         }
 
-        public void Extend(Vector2Int actorPosition)
+        public void Extend(Vector2Int actorPosition, out bool turned)
         {
             AssertIsActive();
-            _lineChain.Extend(actorPosition);
+            _lineChain.Extend(actorPosition, out turned);
         }
 
         [Conditional("DEBUG")]

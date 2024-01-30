@@ -1,11 +1,13 @@
 using System;
 using Game.Enums;
+using Game.Grid;
 using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
 using Game.Quads;
 using Game.Quads.Quadrangulation;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Game
 {
@@ -17,6 +19,7 @@ namespace Game
         private readonly InsertionEvaluation _insertionEvaluation = new();
         private readonly BottomUpQuadrangulation _quadrangulation = new();
         public int CoveredCellCount => _quadContainer.CoveredCellCount;
+        public SimulationGrid Grid => _lineLoop.Grid;
 
         private Turn GetTravelTurn(bool startToEnd)
         {

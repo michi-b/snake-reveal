@@ -108,9 +108,14 @@ namespace Game.Grid
             return _sceneCellSize * gridVector;
         }
 
-        public bool IsInBounds(Vector2Int position)
+        public bool GetIsInBounds(Vector2Int position)
         {
             return position.x >= 0 && position.x <= _size.x && position.y >= 0 && position.y <= _size.y;
+        }
+
+        public bool GetIsOnBounds(Vector2Int position)
+        {
+            return position.x == 0 || position.x == _size.x || position.y == 0 || position.y == _size.y;
         }
 
         public bool TryGetCornerTurn(Vector2Int position, GridDirection direction, out Turn turn)

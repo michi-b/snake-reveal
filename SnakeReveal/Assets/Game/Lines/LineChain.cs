@@ -48,9 +48,10 @@ namespace Game.Lines
             _start = _end = line;
         }
 
-        public void Extend(Vector2Int actorPosition)
+        public void Extend(Vector2Int actorPosition, out bool turned)
         {
-            if (!End.TryExtend(actorPosition))
+            turned = !End.TryExtend(actorPosition);
+            if (turned)
             {
                 Line newEnd = GetNewLine(End.End, actorPosition);
 

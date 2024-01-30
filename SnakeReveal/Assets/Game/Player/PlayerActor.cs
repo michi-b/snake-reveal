@@ -77,6 +77,8 @@ namespace Game.Player
             set => _placement.Position = value;
         }
 
+        public SimulationGrid Grid => _grid;
+
         protected void Reset()
         {
             _placement = GetComponent<GridPlacement>();
@@ -94,7 +96,7 @@ namespace Game.Player
 
         public void ApplyPosition()
         {
-            transform.SetLocalPositionXY(_grid.GetScenePosition(Position));
+            transform.SetLocalPositionXY(Grid.GetScenePosition(Position));
         }
 
         private void ApplyRendererDirection()
@@ -107,7 +109,7 @@ namespace Game.Player
             Position += Direction.ToVector2Int();
 
 #if DEBUG
-            Debug.Assert(_grid.IsInBounds(Position));
+            Debug.Assert(Grid.GetIsInBounds(Position));
 #endif
 
             // todo: extrapolate grid position in Update() instead (this just applies the grid position to scene position for rendering
@@ -116,7 +118,7 @@ namespace Game.Player
 
         public bool TryMoveCheckingEnemies()
         {
-            Vector2 sceneVector = _grid.ToSceneVector(Direction.ToVector2Int());
+            Vector2 sceneVector = Grid.ToSceneVector(Direction.ToVector2Int());
             RaycastHit2D hit = Physics2D.CircleCast(transform.position,
                 _enemyCollisionRadius,
                 sceneVector,
@@ -139,7 +141,7 @@ namespace Game.Player
 
         public void TurnOnGridBounds()
         {
-            Direction = Direction.Turn(_grid.TryGetCornerTurn(Position, Direction, out Turn cornerTurn)
+            Direction = Direction.Turn(Grid.TryGetCornerTurn(Position, Direction, out Turn cornerTurn)
                 ? cornerTurn // literal "corner" case
                 : _lastTurn.Reverse()); // default case - invert last turn?
         }

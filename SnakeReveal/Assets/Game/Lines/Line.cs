@@ -271,5 +271,27 @@ namespace Game.Lines
         }
 
 #endif
+        public int GetClockwiseTurnWeightFromPrevious()
+        {
+            return Previous!.Direction.GetTurn(Direction).GetClockwiseWeight();
+        }
+
+        public BoundsInteraction GetBoundsInteraction()
+        {
+            if (Grid.GetIsOnBounds(Start))
+            {
+                return Grid.GetIsOnBounds(End) ? BoundsInteraction.OnBounds : BoundsInteraction.Exit;
+            }
+
+            return Grid.GetIsOnBounds(End) ? BoundsInteraction.Enter : BoundsInteraction.None;
+        }
+
+        public enum BoundsInteraction
+        {
+            None,
+            Enter,
+            Exit,
+            OnBounds
+        }
     }
 }
