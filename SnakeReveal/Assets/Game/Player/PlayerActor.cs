@@ -1,6 +1,7 @@
 using System;
 using Extensions;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Grid;
 using Game.Lines;
 using Game.Player.Controls;
@@ -22,9 +23,8 @@ namespace Game.Player
 
         [SerializeField, Header("Runtime")] private GridDirection _direction = GridDirection.None;
         [SerializeField] private int _speed = 1;
-        [SerializeField] private GridDirection _lastHorizontalDirection = GridDirection.None;
-        [SerializeField] private GridDirection _lastVerticalDirection = GridDirection.None;
-        [SerializeField] private Turn _lastTurn = Turn.None;
+        [SerializeField] private GridDirection _latestHorizontalDirection = GridDirection.None;
+        [SerializeField] private GridDirection _latestVerticalDirection = GridDirection.None;
 
         private PlayerActorControls _controls;
 
@@ -32,20 +32,30 @@ namespace Game.Player
 
         public void Initialize(GridDirection direction, GridDirection lastDirection)
         {
-            AxisOrientation currentOrientation = direction.GetOrientation();
+            GridAxis currentAxis = direction.GetAxis();
 
-            Debug.Assert(currentOrientation != lastDirection.GetOrientation());
+            Debug.Assert(currentAxis != lastDirection.GetAxis());
 
-            if (lastDirection.GetOrientation() == AxisOrientation.Horizontal)
-            {
-                _lastHorizontalDirection = lastDirection;
-            }
-            else
-            {
-                _lastVerticalDirection = lastDirection;
-            }
+            Debug.Assert(direction.GetAxis() != lastDirection.GetAxis());
+
+            SetLatestDirection(lastDirection);
 
             Direction = direction;
+        }
+
+        private void SetLatestDirection(GridDirection direction)
+        {
+            switch (direction.GetAxis())
+            {
+                case GridAxis.Horizontal:
+                    _latestHorizontalDirection = direction;
+                    break;
+                case GridAxis.Vertical:
+                    _latestVerticalDirection = direction;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
         }
 
         public GridDirection Direction
@@ -53,20 +63,23 @@ namespace Game.Player
             get => _direction;
             set
             {
-                _direction = value;
-                if (_direction.GetOrientation() == AxisOrientation.Horizontal)
+                if(value != _direction)
                 {
-                    _lastHorizontalDirection = _direction;
-                    _lastTurn = _lastVerticalDirection.GetTurn(_lastHorizontalDirection);
+                    _direction = value;
+                    SetLatestDirection(_direction);
+                    ApplyRendererDirection();
                 }
-                else
-                {
-                    _lastVerticalDirection = _direction;
-                    _lastTurn = _lastHorizontalDirection.GetTurn(_lastVerticalDirection);
-                }
-
-                ApplyRendererDirection();
             }
+        }
+        
+        public GridDirection GetLatestDirection(GridAxis axis)
+        {
+            return axis switch
+            {
+                GridAxis.Horizontal => _latestHorizontalDirection,
+                GridAxis.Vertical => _latestVerticalDirection,
+                _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, null)
+            };
         }
 
         public int Speed => _speed;
@@ -106,7 +119,7 @@ namespace Game.Player
 
         public void Move()
         {
-            Position += Direction.ToVector2Int();
+            Position += Direction.AsVector();
 
 #if DEBUG
             Debug.Assert(Grid.GetIsInBounds(Position));
@@ -118,7 +131,7 @@ namespace Game.Player
 
         public bool TryMoveCheckingEnemies()
         {
-            Vector2 sceneVector = Grid.ToSceneVector(Direction.ToVector2Int());
+            Vector2 sceneVector = Grid.ToSceneVector(Direction.AsVector());
             RaycastHit2D hit = Physics2D.CircleCast(transform.position,
                 _enemyCollisionRadius,
                 sceneVector,
@@ -136,14 +149,7 @@ namespace Game.Player
 
         public bool GetCanMoveInGridBounds(GridDirection requestedDirection)
         {
-            return _placement.GetCanMoveInGridBounds(requestedDirection);
-        }
-
-        public void TurnOnGridBounds()
-        {
-            Direction = Direction.Turn(Grid.TryGetCornerTurn(Position, Direction, out Turn cornerTurn)
-                ? cornerTurn // literal "corner" case
-                : _lastTurn.Reverse()); // default case - invert last turn?
+            return _grid.GetCanMoveInDirectionInsideBounds(Position, requestedDirection);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Extensions;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Grid;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -76,7 +77,7 @@ namespace Game.Lines
             }
         }
 
-        public AxisOrientation Orientation => _line.Direction.GetOrientation();
+        public GridAxis Orientation => _line.Direction.GetAxis();
 
         public Vector3 StartWorldPosition => transform.position;
 

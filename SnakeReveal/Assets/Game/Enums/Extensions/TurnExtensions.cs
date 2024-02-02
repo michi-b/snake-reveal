@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Game.Enums
+namespace Game.Enums.Extensions
 {
     public static class TurnExtensions
     {

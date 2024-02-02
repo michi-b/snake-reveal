@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Game.Enums;
+using Game.Enums.Extensions;
 using UnityEngine;
 using Utility;
 

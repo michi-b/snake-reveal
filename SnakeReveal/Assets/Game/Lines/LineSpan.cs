@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Game.Enums;
+using Game.Enums.Extensions;
 using JetBrains.Annotations;
 
 namespace Game.Lines

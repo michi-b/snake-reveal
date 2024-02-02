@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Grid;
 using Game.Lines;
 using Game.Lines.Insertion;
-using JetBrains.Annotations;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -19,7 +18,8 @@ namespace Game.Player.Simulation.States
         private readonly ShapeTravelState _shapeTravelState;
         private Line _shapeBreakoutLine;
         private Vector2Int _shapeBreakoutPosition;
-        private int? _clockwiseTurnWeightSinceLastLineOnBounds;
+        private int _clockwiseTurnWeightSinceLastBounds;
+        private GridSide _lastBoundsSide;
 
         public DrawingState(SimulationGrid grid, PlayerActor actor, DrawnShape shape, DrawingChain drawing, ShapeTravelState shapeTravelState)
         {
@@ -63,7 +63,12 @@ namespace Game.Player.Simulation.States
 
             ExtendDrawingToActor();
 
-            return TryReconnect();
+            if (TryReconnect(out ShapeTravelState enteredShapeTravelState))
+            {
+                return enteredShapeTravelState;
+            }
+
+            return this;
         }
 
         private IPlayerSimulationState Move()
@@ -81,12 +86,45 @@ namespace Game.Player.Simulation.States
 
             ExtendDrawingToActor();
 
-            if (!_actor.GetCanMoveInGridBounds(_actor.Direction))
+            GridSide boundsSide = _grid.GetBoundsSide(_actor.Position);
+            if (boundsSide != GridSide.None)
             {
-                _actor.TurnOnGridBounds();
+                // actor needs to turn, because next move would move him out of bounds
+                GridCorner boundsCorner = _grid.GetBoundsCorner(_actor.Position);
+
+                if (boundsCorner != GridCorner.None)
+                {
+                    // if actor is exactly on a corner, turn inside the corner
+                    _actor.Direction = _actor.Direction.TurnInsideCorner(boundsCorner);
+                }
+                else if (_actor.Direction.GetAxis() != boundsSide.GetLineAxis())
+                {
+                    if (_lastBoundsSide != GridSide.None)
+                    {
+                        // if actor was on bounds before, turn that way, that he cannot trap himself in a drawing loop
+                        int boundsTurnWeight = _lastBoundsSide.GetClockwiseTurnWeight(boundsSide);
+                        int relativeTurnWeight = _clockwiseTurnWeightSinceLastBounds - boundsTurnWeight;
+                        _actor.Direction = relativeTurnWeight switch
+                        {
+                            2 => _actor.Direction.Turn(Turn.Left),
+                            -2 => _actor.Direction.Turn(Turn.Right),
+                            _ => throw new ArgumentOutOfRangeException()
+                        };
+                    }
+                    else
+                    {
+                        // direction on other axis can be chosen => assign latest direction on other axis
+                        _actor.Direction = _actor.GetLatestDirection(_actor.Direction.GetAxis().GetOther());
+                    }
+                }
             }
 
-            return TryReconnect();
+            if (TryReconnect(out ShapeTravelState enteredShapeTravelState))
+            {
+                return enteredShapeTravelState;
+            }
+
+            return this;
         }
 
         private void ExtendDrawingToActor()
@@ -96,29 +134,34 @@ namespace Game.Player.Simulation.States
             if (turned)
             {
                 // increment clockwise turn weight since last line on bounds
-                IncrementTrackClockwiseTurnWeightSinceLastLineOnBounds();
+                TrackBounds();
             }
         }
 
-        private void IncrementTrackClockwiseTurnWeightSinceLastLineOnBounds()
+        /// <summary>
+        /// update <see cref="_lastBoundsSide"/> and <see cref="_clockwiseTurnWeightSinceLastBounds"/>
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private void TrackBounds()
         {
             switch (_drawing.LastLine.GetBoundsInteraction())
             {
                 case Line.BoundsInteraction.None:
-                    if (_clockwiseTurnWeightSinceLastLineOnBounds != null)
+                    if (_lastBoundsSide != GridSide.None)
                     {
-                        _clockwiseTurnWeightSinceLastLineOnBounds += _drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
-                        LogClockwiseTurnWeightSinceLastLineOnBounds();
+                        _clockwiseTurnWeightSinceLastBounds += _drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
+                        LogBoundsInteraction();
                     }
 
                     break;
                 case Line.BoundsInteraction.Exit:
-                    _clockwiseTurnWeightSinceLastLineOnBounds = 0;
-                    LogClockwiseTurnWeightSinceLastLineOnBounds();
+                    _clockwiseTurnWeightSinceLastBounds = 0;
+                    _lastBoundsSide = _grid.GetBoundsSide(_drawing.LastLine.Start);
+                    Debug.Assert(_lastBoundsSide != GridSide.None);
+                    LogBoundsInteraction();
                     break;
                 case Line.BoundsInteraction.Enter:
                 case Line.BoundsInteraction.OnBounds:
-                    _clockwiseTurnWeightSinceLastLineOnBounds = null;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -126,9 +169,9 @@ namespace Game.Player.Simulation.States
 
             return;
 
-            void LogClockwiseTurnWeightSinceLastLineOnBounds()
+            void LogBoundsInteraction()
             {
-                Debug.Log($"Clockwise turn weight since last line on bounds: {_clockwiseTurnWeightSinceLastLineOnBounds}");
+                Debug.Log($"Clockwise turn weight since last line on {_lastBoundsSide.ToString()} bounds: {_clockwiseTurnWeightSinceLastBounds}");
             }
         }
 
@@ -137,16 +180,18 @@ namespace Game.Player.Simulation.States
             return EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
         }
 
-        private IPlayerSimulationState TryReconnect()
+        private bool TryReconnect(out ShapeTravelState enteredShapeTravelState)
         {
             if (_shape.TryGetReconnectionLine(_actor, out Line shapeCollisionLine))
             {
                 // insert drawing into shape and switch to shape travel
                 InsertionResult insertionResult = _shape.Insert(_drawing, _shapeBreakoutLine, shapeCollisionLine);
-                return _shapeTravelState.Enter(insertionResult);
+                enteredShapeTravelState = _shapeTravelState.Enter(insertionResult);
+                return true;
             }
 
-            return this;
+            enteredShapeTravelState = null;
+            return false;
         }
 
         private void ClearState()
@@ -154,7 +199,8 @@ namespace Game.Player.Simulation.States
             _drawing.Deactivate();
             _shapeBreakoutLine = null;
             _shapeBreakoutPosition = new Vector2Int(-1, -1);
-            _clockwiseTurnWeightSinceLastLineOnBounds = null;
+            _clockwiseTurnWeightSinceLastBounds = 0;
+            _lastBoundsSide = GridSide.None;
         }
     }
 }

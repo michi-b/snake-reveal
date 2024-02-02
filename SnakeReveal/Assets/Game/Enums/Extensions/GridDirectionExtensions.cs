@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Game.Enums
+namespace Game.Enums.Extensions
 {
     public static class GridDirectionExtensions
     {
@@ -10,7 +10,7 @@ namespace Game.Enums
         private static readonly Quaternion LeftRotation = Quaternion.Euler(0f, 0f, 180f);
         private static readonly Quaternion DownRotation = Quaternion.Euler(0f, 0f, 270f);
 
-        public static Vector2Int ToVector2Int(this GridDirection target)
+        public static Vector2Int AsVector(this GridDirection target)
         {
             return target switch
             {
@@ -37,35 +37,22 @@ namespace Game.Enums
             };
         }
 
-        public static AxisOrientation GetOrientation(this GridDirection target)
+        public static GridAxis GetAxis(this GridDirection target)
         {
             return target switch
             {
                 GridDirection.None => throw new ArgumentOutOfRangeException(nameof(target), target, "\"None\" direction has no axis orientation"),
-                GridDirection.Right => AxisOrientation.Horizontal,
-                GridDirection.Up => AxisOrientation.Vertical,
-                GridDirection.Left => AxisOrientation.Horizontal,
-                GridDirection.Down => AxisOrientation.Vertical,
+                GridDirection.Right => GridAxis.Horizontal,
+                GridDirection.Up => GridAxis.Vertical,
+                GridDirection.Left => GridAxis.Horizontal,
+                GridDirection.Down => GridAxis.Vertical,
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
             };
         }
 
-        public static string GetName(this GridDirection target)
+        public static Turn GetTurn(this GridDirection direction, GridDirection to)
         {
-            return target switch
-            {
-                GridDirection.None => "None",
-                GridDirection.Right => "Right",
-                GridDirection.Up => "Up",
-                GridDirection.Left => "Left",
-                GridDirection.Down => "Down",
-                _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
-            };
-        }
-
-        public static Turn GetTurn(this GridDirection target, GridDirection to)
-        {
-            return target switch
+            return direction switch
             {
                 GridDirection.None => Enums.Turn.None,
                 GridDirection.Right => to switch
@@ -104,7 +91,7 @@ namespace Game.Enums
                     GridDirection.Down => Enums.Turn.None,
                     _ => throw new ArgumentOutOfRangeException(nameof(to), to, null)
                 },
-                _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
             };
         }
 
@@ -119,16 +106,6 @@ namespace Game.Enums
                 GridDirection.Down => GridDirection.Up,
                 _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
             };
-        }
-
-        public static bool IsOpposite(this GridDirection target, GridDirection other)
-        {
-            return target.Reverse() == other;
-        }
-
-        public static bool IsSameOrOpposite(this GridDirection target, GridDirection other)
-        {
-            return target == other || target.IsOpposite(other);
         }
 
         public static GridDirection Turn(this GridDirection target, Turn turn)
@@ -155,6 +132,51 @@ namespace Game.Enums
                     _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
                 },
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
+            };
+        }
+        
+        public static GridDirection TurnInsideCorner(this GridDirection direction, GridCorner corner)
+        {
+            return direction switch
+            {
+                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
+                GridDirection.Right => corner switch
+                {
+                    GridCorner.None => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomLeft => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.TopLeft => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.TopRight => GridDirection.Down,
+                    GridCorner.BottomRight => GridDirection.Up,
+                    _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, null)
+                },
+                GridDirection.Up => corner switch
+                {
+                    GridCorner.None => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomLeft => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.TopLeft => GridDirection.Right,
+                    GridCorner.TopRight => GridDirection.Left,
+                    GridCorner.BottomRight => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, null)
+                },
+                GridDirection.Left => corner switch
+                {
+                    GridCorner.None => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomLeft => GridDirection.Up,
+                    GridCorner.TopLeft => GridDirection.Down,
+                    GridCorner.TopRight => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomRight => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, null)
+                },
+                GridDirection.Down => corner switch
+                {
+                    GridCorner.None => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomLeft => GridDirection.Right,
+                    GridCorner.TopLeft => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.TopRight => throw new ArgumentOutOfRangeException(nameof(corner), corner, null),
+                    GridCorner.BottomRight => GridDirection.Left,
+                    _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, null)
+                },
+                _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
             };
         }
     }

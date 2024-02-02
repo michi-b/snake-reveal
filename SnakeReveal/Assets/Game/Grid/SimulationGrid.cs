@@ -1,10 +1,9 @@
-using System;
 using Extensions;
 using Game.Enums;
+using Game.Enums.Extensions;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem.iOS;
 
 namespace Game.Grid
 {
@@ -118,94 +117,49 @@ namespace Game.Grid
             return position.x == 0 || position.x == _size.x || position.y == 0 || position.y == _size.y;
         }
 
-        public bool TryGetCornerTurn(Vector2Int position, GridDirection direction, out Turn turn)
+        public GridSide GetBoundsSide(Vector2Int position)
         {
-            switch (direction)
+            return position.x == 0
+                ? GridSide.Left
+                : position.x == _size.x
+                    ? GridSide.Right
+                    : position.y == 0
+                        ? GridSide.Bottom
+                        : position.y == _size.y
+                            ? GridSide.Top
+                            : GridSide.None;
+        }
+
+        public GridCorner GetBoundsCorner(Vector2Int position)
+        {
+            return position == BottomLeft
+                ? GridCorner.BottomLeft
+                : position == TopLeft
+                    ? GridCorner.TopLeft
+                    : position == TopRight
+                        ? GridCorner.TopRight
+                        : position == BottomRight
+                            ? GridCorner.BottomRight
+                            : GridCorner.None;
+        }
+        
+        public bool GetCanMoveInDirectionInsideBounds(Vector2Int position, GridDirection requestedDirection)
+        {
+            GridSide boundsSide = GetBoundsSide(position);
+            if (boundsSide == GridSide.None)
             {
-                case GridDirection.None:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-                case GridDirection.Right:
-                    if (GetIsTopRightCorner())
-                    {
-                        turn = Turn.Right;
-                        return true;
-                    }
-
-                    if (GetIsBottomRightCorner())
-                    {
-                        turn = Turn.Left;
-                        return true;
-                    }
-
-                    break;
-                case GridDirection.Up:
-                    if (GetIsTopLeftCorner())
-                    {
-                        turn = Turn.Right;
-                        return true;
-                    }
-
-                    if (GetIsTopRightCorner())
-                    {
-                        turn = Turn.Left;
-                        return true;
-                    }
-
-                    break;
-                case GridDirection.Left:
-                    if (GetIsBottomLeftCorner())
-                    {
-                        turn = Turn.Right;
-                        return true;
-                    }
-
-                    if (GetIsTopLeftCorner())
-                    {
-                        turn = Turn.Left;
-                        return true;
-                    }
-
-                    break;
-                case GridDirection.Down:
-                    if (GetIsBottomRightCorner())
-                    {
-                        turn = Turn.Right;
-                        return true;
-                    }
-
-                    if (GetIsBottomLeftCorner())
-                    {
-                        turn = Turn.Left;
-                        return true;
-                    }
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                // not on bounds => can choose Direction
+                return true;
             }
 
-            turn = default;
-            return false;
-
-            bool GetIsTopRightCorner()
+            if(GetBoundsCorner(position) != GridCorner.None)
             {
-                return position == TopRight;
+                // on corner => cannot choose Direction
+                return false;
             }
 
-            bool GetIsTopLeftCorner()
-            {
-                return position == TopLeft;
-            }
-
-            bool GetIsBottomLeftCorner()
-            {
-                return position == BottomLeft;
-            }
-
-            bool GetIsBottomRightCorner()
-            {
-                return position == BottomRight;
-            }
+            // on bounds but not on corner => can choose direction that does not leave bounds
+            return requestedDirection != boundsSide.GetOutsideDirection();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Editor;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Grid;
 using UnityEditor;
 using UnityEditorInternal;
@@ -94,7 +95,7 @@ namespace Game.Lines.Editor
                     ? current.GetDirection(_corners[(currentIndex + 1) % _cornersList.count])
                     : _corners[currentIndex - 1].GetDirection(current) // current is last
                 : current.GetDirection(_corners[currentIndex + 1]); // current is not last
-            Vector2Int newPosition = current + flowDirection.ToVector2Int();
+            Vector2Int newPosition = current + flowDirection.AsVector();
 
             int newIndex = currentIndex + 1;
             _corners.Insert(newIndex, newPosition);

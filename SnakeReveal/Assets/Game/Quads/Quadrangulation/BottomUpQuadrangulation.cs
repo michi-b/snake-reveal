@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Lines;
 using Game.Lines.Insertion;
 using UnityEngine;

@@ -2,6 +2,7 @@
 using System.Linq;
 using Editor;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Lines.Insertion;
 using UnityEditor;
 using UnityEngine;

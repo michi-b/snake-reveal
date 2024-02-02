@@ -1,6 +1,6 @@
 namespace Game.Enums
 {
-    public enum AxisOrientation
+    public enum GridAxis
     {
         Horizontal,
         Vertical

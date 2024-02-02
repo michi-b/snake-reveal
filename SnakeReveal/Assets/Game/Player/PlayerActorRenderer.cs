@@ -1,4 +1,5 @@
 using Game.Enums;
+using Game.Enums.Extensions;
 using UnityEngine;
 
 namespace Game.Player
