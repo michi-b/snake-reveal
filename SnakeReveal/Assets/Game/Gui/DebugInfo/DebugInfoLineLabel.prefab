@@ -34,7 +34,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9162616702731849585, guid: 56c7ddef3506e0e4990cde3a0205d4fc, type: 3}
       propertyPath: m_Name
-      value: GameInfoLineLabel
+      value: DebugInfoLineLabel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

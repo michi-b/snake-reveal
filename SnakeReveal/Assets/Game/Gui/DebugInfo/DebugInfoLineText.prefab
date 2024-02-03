@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8033435742544846707}
   - component: {fileID: 1072767954554922351}
-  - component: {fileID: 6330791367422722322}
   - component: {fileID: 7681651678251067053}
   m_Layer: 5
   m_Name: DebugInfoLineText
@@ -46,20 +45,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9162616702731849585}
   m_CullTransparentMesh: 1
---- !u!114 &6330791367422722322
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9162616702731849585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc3f653e46d0ae04c824a4b6e33977cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _text: Value
-  _renderer: {fileID: 7681651678251067053}
 --- !u!114 &7681651678251067053
 MonoBehaviour:
   m_ObjectHideFlags: 0

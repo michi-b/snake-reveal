@@ -134,7 +134,7 @@ namespace Game.Player.Simulation.States
             if (turned)
             {
                 // increment clockwise turn weight since last line on bounds
-                TrackBounds();
+                TrackBoundsInteraction();
             }
         }
 
@@ -142,7 +142,7 @@ namespace Game.Player.Simulation.States
         /// update <see cref="_lastBoundsSide"/> and <see cref="_clockwiseTurnWeightSinceLastBounds"/>
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private void TrackBounds()
+        private void TrackBoundsInteraction()
         {
             switch (_drawing.LastLine.GetBoundsInteraction())
             {
@@ -150,7 +150,6 @@ namespace Game.Player.Simulation.States
                     if (_lastBoundsSide != GridSide.None)
                     {
                         _clockwiseTurnWeightSinceLastBounds += _drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
-                        LogBoundsInteraction();
                     }
 
                     break;
@@ -158,7 +157,6 @@ namespace Game.Player.Simulation.States
                     _clockwiseTurnWeightSinceLastBounds = 0;
                     _lastBoundsSide = _grid.GetBoundsSide(_drawing.LastLine.Start);
                     Debug.Assert(_lastBoundsSide != GridSide.None);
-                    LogBoundsInteraction();
                     break;
                 case Line.BoundsInteraction.Enter:
                 case Line.BoundsInteraction.OnBounds:
@@ -168,11 +166,6 @@ namespace Game.Player.Simulation.States
             }
 
             return;
-
-            void LogBoundsInteraction()
-            {
-                Debug.Log($"Clockwise turn weight since last line on {_lastBoundsSide.ToString()} bounds: {_clockwiseTurnWeightSinceLastBounds}");
-            }
         }
 
         private IPlayerSimulationState Reset()

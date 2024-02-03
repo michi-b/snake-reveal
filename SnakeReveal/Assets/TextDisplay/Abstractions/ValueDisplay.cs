@@ -11,7 +11,7 @@ namespace TextDisplay.Abstractions
 
         public TValue Value
         {
-            protected get => _value;
+            get => _value;
             set
             {
                 _value = value;

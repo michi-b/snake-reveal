@@ -134,7 +134,7 @@ namespace Game.Enums.Extensions
                 _ => throw new ArgumentOutOfRangeException(nameof(turn), turn, null)
             };
         }
-        
+
         public static GridDirection TurnInsideCorner(this GridDirection direction, GridCorner corner)
         {
             return direction switch

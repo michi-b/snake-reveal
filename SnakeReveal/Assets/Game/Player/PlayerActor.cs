@@ -63,7 +63,7 @@ namespace Game.Player
             get => _direction;
             set
             {
-                if(value != _direction)
+                if (value != _direction)
                 {
                     _direction = value;
                     SetLatestDirection(_direction);
@@ -71,7 +71,7 @@ namespace Game.Player
                 }
             }
         }
-        
+
         public GridDirection GetLatestDirection(GridAxis axis)
         {
             return axis switch

@@ -18,9 +18,13 @@ namespace Game
         [SerializeField] private GameInfoGui _gameInfoGui;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
-
-        [SerializeField] private int _gridCellCount;
-        [SerializeField] private int _coveredCellCount;
+        
+        [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
+        
+        private int _gridCellCount;
+        private int  _startingCellCount;
+        private int _coveredCellCount;
+        private int _targetCellCount;
 
         private PlayerSimulation _playerSimulation;
 
@@ -29,9 +33,11 @@ namespace Game
 
         protected virtual void Awake()
         {
+            _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
+            _debugInfoGui.TotalCellCount = _gridCellCount = _grid.GetCellCount();
+            
             _playerSimulation = new PlayerSimulation(_grid, _playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
-            _gridCellCount = _grid.GetCellCount();
-            _coveredCellCount = _playerSimulation.CoveredCellCount;
+            _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();
         }
 
@@ -54,7 +60,8 @@ namespace Game
 
         private void UpdatePercentCompletionDisplay()
         {
-            _gameInfoGui.PercentCompletion = _coveredCellCount / (float)_gridCellCount;
+            _debugInfoGui.CoveredCellCount = _coveredCellCount;
+            _gameInfoGui.PercentCompletion = (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
         }
 
         protected virtual void OnEnable()

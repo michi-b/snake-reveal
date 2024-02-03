@@ -20,10 +20,10 @@ namespace Game.Grid
 
         public Vector2 SceneCellSize => _sceneCellSize;
         public Vector2Int CenterPosition => _size / 2;
-        public Vector2Int BottomLeft => Vector2Int.zero;
-        public Vector2Int TopLeft => new(0, _size.y);
-        public Vector2Int TopRight => _size;
-        public Vector2Int BottomRight => new(_size.x, 0);
+        private static Vector2Int BottomLeft => Vector2Int.zero;
+        private Vector2Int TopLeft => new(0, _size.y);
+        private Vector2Int TopRight => _size;
+        private Vector2Int BottomRight => new(_size.x, 0);
 
         public int GetCellCount()
         {
@@ -142,7 +142,7 @@ namespace Game.Grid
                             ? GridCorner.BottomRight
                             : GridCorner.None;
         }
-        
+
         public bool GetCanMoveInDirectionInsideBounds(Vector2Int position, GridDirection requestedDirection)
         {
             GridSide boundsSide = GetBoundsSide(position);
@@ -152,7 +152,7 @@ namespace Game.Grid
                 return true;
             }
 
-            if(GetBoundsCorner(position) != GridCorner.None)
+            if (GetBoundsCorner(position) != GridCorner.None)
             {
                 // on corner => cannot choose Direction
                 return false;
