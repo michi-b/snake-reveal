@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4e8cfdc605b5b374bab40ffd712fe371
+guid: 9dddec17f3f34ef46a289e9361ee8f61
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8130262811779839864
-    second: GameMenuButton_0
+      213: 5498701578074256869
+    second: SliderKnob_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -152,13 +152,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: GameMenuButton_0
+      name: SliderKnob_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 4
-        width: 56
-        height: 56
+        x: 0
+        y: 0
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 877b4ba83fe74d070800000000000000
-      internalID: 8130262811779839864
+      spriteID: 5e5fefea3ff4f4c40800000000000000
+      internalID: 5498701578074256869
       vertices: []
       indices: 
       edges: []
@@ -183,7 +183,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      GameMenuButton_0: 8130262811779839864
+      SliderKnob_0: 5498701578074256869
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

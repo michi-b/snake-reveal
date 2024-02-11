@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4e8cfdc605b5b374bab40ffd712fe371
+guid: db1151ae4336e8f45b9b203f0bcd536e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8130262811779839864
-    second: GameMenuButton_0
+      213: -1229317916883731650
+    second: SliderEmpty_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 18, y: 0, z: 18, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -152,22 +152,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: GameMenuButton_0
+      name: SliderEmpty_0
       rect:
         serializedVersion: 2
-        x: 4
+        x: 31
         y: 4
-        width: 56
-        height: 56
+        width: 28
+        height: 24
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 877b4ba83fe74d070800000000000000
-      internalID: 8130262811779839864
+      spriteID: e3b3f182ed590fee0800000000000000
+      internalID: -1229317916883731650
       vertices: []
       indices: 
       edges: []
@@ -176,14 +176,14 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 0
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      GameMenuButton_0: 8130262811779839864
+      SliderEmpty_0: -1229317916883731650
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
