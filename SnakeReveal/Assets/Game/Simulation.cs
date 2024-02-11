@@ -18,11 +18,11 @@ namespace Game
         [SerializeField] private GameInfoGui _gameInfoGui;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
-        
+
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
-        
+
         private int _gridCellCount;
-        private int  _startingCellCount;
+        private int _startingCellCount;
         private int _coveredCellCount;
         private int _targetCellCount;
 
@@ -35,7 +35,7 @@ namespace Game
         {
             _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
             _debugInfoGui.TotalCellCount = _gridCellCount = _grid.GetCellCount();
-            
+
             _playerSimulation = new PlayerSimulation(_grid, _playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();

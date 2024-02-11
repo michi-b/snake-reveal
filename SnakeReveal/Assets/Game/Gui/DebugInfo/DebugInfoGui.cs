@@ -37,7 +37,7 @@ namespace Game.Gui.DebugInfo
                 UpdateCoveredCellPercentage();
             }
         }
-        
+
         public int CoveredCellCount
         {
             set
@@ -46,7 +46,7 @@ namespace Game.Gui.DebugInfo
                 UpdateCoveredCellPercentage();
             }
         }
-        
+
         public int TargetCellCount
         {
             set => _targetCellCount.Value = value;
