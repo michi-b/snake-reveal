@@ -164,8 +164,6 @@ namespace Game.Player.Simulation.States
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            return;
         }
 
         private IPlayerSimulationState Reset()
