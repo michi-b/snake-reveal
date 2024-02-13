@@ -179,5 +179,18 @@ namespace Game.Enums.Extensions
                 _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
             };
         }
+
+        public static GridDirections AsFlag(this GridDirection target)
+        {
+            return target switch
+            {
+                GridDirection.None => GridDirections.None,
+                GridDirection.Right => GridDirections.Right,
+                GridDirection.Up => GridDirections.Up,
+                GridDirection.Left => GridDirections.Left,
+                GridDirection.Down => GridDirections.Down,
+                _ => throw new ArgumentOutOfRangeException(nameof(target), target, null)
+            };
+        }
     }
 }

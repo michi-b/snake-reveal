@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using CustomPropertyDrawers;
 using Game.Grid;
+using Game.Gui.AvailableDirectionsIndication;
 using Game.Gui.DebugInfo;
 using Game.Gui.GameInfo;
 using Game.Gui.GameMenu;
@@ -21,6 +22,7 @@ namespace Game
         [SerializeField] private DebugInfoGui _debugInfoGui;
         [SerializeField] private GameInfoGui _gameInfoGui;
         [SerializeField] private GameMenu _gameMenu;
+        [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
@@ -58,6 +60,8 @@ namespace Game
             _playerSimulation = new PlayerSimulation(_grid, _playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();
+            
+            _availableDirectionsIndication.SetVisible(true);
         }
 
         protected virtual void FixedUpdate()
