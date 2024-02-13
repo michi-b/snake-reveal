@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using CustomPropertyDrawers;
+using Extensions;
 using Game.Grid;
 using Game.Gui.AvailableDirectionsIndication;
 using Game.Gui.DebugInfo;
@@ -60,8 +61,14 @@ namespace Game
             _playerSimulation = new PlayerSimulation(_grid, _playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();
-            
+
+            _availableDirectionsIndication.transform.SetLocalPositionXY(_playerActor.transform.localPosition);
             _availableDirectionsIndication.SetVisible(true);
+
+#if DEBUG
+            _debugInfoGui.SimulationTicks = 0;
+            _debugInfoGui.SimulationTime = 0f;
+#endif
         }
 
         protected virtual void FixedUpdate()
