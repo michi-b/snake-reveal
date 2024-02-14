@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
-
-namespace Game.Enums.Utility
+﻿namespace Game.Enums.Utility
 {
     public static class GridDirectionUtility
     {
         static GridDirectionUtility()
         {
-            ActualDirections = new List<GridDirection>
+            ActualDirections = new[]
             {
-                GridDirection.Right,
                 GridDirection.Up,
-                GridDirection.Left,
-                GridDirection.Down
+                GridDirection.Right,
+                GridDirection.Down,
+                GridDirection.Left
             };
         }
 
         // all defined directions without <see cref="GridDirection.None"/>
-        public static readonly IReadOnlyList<GridDirection> ActualDirections;
+        public static readonly GridDirection[] ActualDirections;
     }
 }

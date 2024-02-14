@@ -71,6 +71,14 @@ namespace Game.Player.Simulation.States
             return this;
         }
 
+        public GridDirections GetAvailableDirections()
+        {
+            var result = GridDirections.All;
+            result = result.WithoutDirection(_drawing.LastLine.GetDirection(false));
+            result = _actor.RestrictDirectionsToAvailableInBounds(result);
+            return result;
+        }
+
         private IPlayerSimulationState Move()
         {
             if (!_actor.TryMoveCheckingEnemies())

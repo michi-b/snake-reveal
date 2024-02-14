@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using CustomPropertyDrawers;
 using Extensions;
+using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Grid;
 using Game.Gui.AvailableDirectionsIndication;
 using Game.Gui.DebugInfo;
@@ -43,9 +45,16 @@ namespace Game
             {
                 Debug.Assert(value != _currentState);
 
-                _playerSimulation.ControlsEnabled = value != State.Paused;
-
                 LogStateTransition(_currentState, value);
+                
+                if(value == State.WaitingForInput)
+                {
+                    _availableDirectionsIndication.Place(_playerActor.transform.localPosition);
+                    _playerActor.Direction = GridDirection.None;
+                    _availableDirectionsIndication.Directions = _playerSimulation.CurrentState.GetAvailableDirections();
+                }
+                
+                _availableDirectionsIndication.SetVisible(value == State.WaitingForInput);
 
                 _currentState = value;
             }
@@ -62,8 +71,8 @@ namespace Game
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();
 
-            _availableDirectionsIndication.transform.SetLocalPositionXY(_playerActor.transform.localPosition);
-            _availableDirectionsIndication.SetVisible(true);
+            _currentState = State.Paused;
+            CurrentState = State.WaitingForInput;
 
 #if DEBUG
             _debugInfoGui.SimulationTicks = 0;
@@ -73,7 +82,7 @@ namespace Game
 
         protected virtual void FixedUpdate()
         {
-            if (HandlePauseState())
+            if (!HandlePauseState())
             {
                 return;
             }
@@ -107,7 +116,7 @@ namespace Game
             }
         }
 
-        /// <returns>true if the simulation is paused (or waiting for input) at the moment</returns>
+        /// <returns>true if the simulation needs to run (NOT paused) at the moment</returns>
         private bool HandlePauseState()
         {
             bool needsPause = _gameMenu.AnimatorState.IsSomewhatOpen;
@@ -119,22 +128,33 @@ namespace Game
                     {
                         CurrentState = State.Paused;
                     }
-
-                    return false;
+                    return true;
                 case State.Paused:
                     if (!needsPause)
                     {
                         CurrentState = State.WaitingForInput;
                     }
-
-                    return true;
+                    return false;
                 case State.WaitingForInput:
                     if (needsPause)
                     {
                         CurrentState = State.Paused;
                     }
-
-                    return true;
+                    else
+                    {
+                        GridDirection requestedDirection = _playerSimulation.Controls.GetRequestedDirection();
+                        if(requestedDirection != GridDirection.None)
+                        {
+                            GridDirections availableDirections = _playerSimulation.CurrentState.GetAvailableDirections();
+                            if (availableDirections.Contains(requestedDirection))
+                            {
+                                _playerActor.Direction = requestedDirection;
+                                CurrentState = State.Running;
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -147,7 +167,7 @@ namespace Game
         }
 
         [Conditional("DEBUG")]
-        private void LogStateTransition(State stateFrom, State stateTo)
+        private static void LogStateTransition(State stateFrom, State stateTo)
         {
             Debug.Log($"Simulation changes state \"{stateFrom}\" => \"{stateTo}\"");
         }

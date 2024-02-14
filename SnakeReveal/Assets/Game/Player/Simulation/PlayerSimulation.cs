@@ -15,11 +15,17 @@ namespace Game.Player.Simulation
 
         private readonly ShapeTravelState _shapeTravelState;
 
+        public IPlayerSimulationState CurrentState => _currentState;
+
+        public int CoveredCellCount => _shapeTravelState.CoveredCellCount;
+
+        public IPlayerActorControls Controls => _controls;
+
         public void Move()
         {
             for (int moveIndex = 0; moveIndex < _actor.Speed; moveIndex++)
             {
-                _currentState = _currentState.Move(_controls.GetRequestedDirection());
+                _currentState = CurrentState.Move(Controls.GetRequestedDirection());
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)
@@ -31,26 +37,10 @@ namespace Game.Player.Simulation
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
             _actor = actor;
             _controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
+            _controls.Activate();
             _shapeTravelState = new ShapeTravelState(_actor, shape);
             var drawingState = new DrawingState(grid, _actor, shape, drawing, _shapeTravelState);
             _currentState = _shapeTravelState.Initialize(drawingState);
         }
-
-        public bool ControlsEnabled
-        {
-            set
-            {
-                if (value)
-                {
-                    _controls.Activate();
-                }
-                else
-                {
-                    _controls.Deactivate();
-                }
-            }
-        }
-
-        public int CoveredCellCount => _shapeTravelState.CoveredCellCount;
     }
 }

@@ -3,9 +3,9 @@ namespace Game.Enums
     public enum GridDirection
     {
         None,
-        Right,
         Up,
-        Left,
-        Down
+        Right,
+        Down,
+        Left
     }
 }

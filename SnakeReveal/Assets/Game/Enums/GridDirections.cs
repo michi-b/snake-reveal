@@ -6,9 +6,10 @@ namespace Game.Enums
     public enum GridDirections
     {
         None = 0,
-        Right = 1 << 0,
-        Up = 1 << 1,
-        Left = 1 << 2,
-        Down = 1 << 3
+        Up = 1 << 0,
+        Right = 1 << 1,
+        Down = 1 << 2,
+        Left = 1 << 3,
+        All = Up | Right | Down | Left
     }
 }

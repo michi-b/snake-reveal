@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Lines;
 using Game.Lines.Insertion;
 using UnityEngine;
@@ -15,7 +16,9 @@ namespace Game.Player.Simulation.States
 
         private Line _currentLine;
         private DrawingState _drawingState;
-        private bool _isTravelingStartToEnd;
+        
+        // whether the player travels in shape turn (start to end of lines)
+        private bool _isInTurn;
 
         public ShapeTravelState(PlayerActor actor, DrawnShape shape)
         {
@@ -26,14 +29,15 @@ namespace Game.Player.Simulation.States
 
         public int CoveredCellCount => _shape.CoveredCellCount;
 
+        /// <inheritdoc cref="IPlayerSimulationState.Move"/>>
         public IPlayerSimulationState Move(GridDirection requestedDirection)
         {
             AssertActorIsOnShape();
 
-            bool isAtEndCorner = _actor.Position == _currentLine.GetEnd(_isTravelingStartToEnd);
+            bool isAtEndCorner = _actor.Position == _currentLine.GetEnd(_isInTurn);
 
             if (_actor.GetCanMoveInGridBounds(requestedDirection)
-                && _shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isTravelingStartToEnd, out Line breakoutLine))
+                && _shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isInTurn, out Line breakoutLine))
             {
                 // note: drawing state instantly moves and might return this state again on instant reconnection
                 return EnterDrawingAndMove(breakoutLine, _actor.Position, requestedDirection);
@@ -42,14 +46,46 @@ namespace Game.Player.Simulation.States
             // if at line end, switch to next line and adjust direction
             if (isAtEndCorner)
             {
-                _currentLine = _currentLine.GetNext(_isTravelingStartToEnd);
-                GridDirection currentLineDirection = _currentLine.GetDirection(_isTravelingStartToEnd);
+                _currentLine = _currentLine.GetNext(_isInTurn);
+                GridDirection currentLineDirection = _currentLine.GetDirection(_isInTurn);
                 _actor.Direction = currentLineDirection;
             }
 
             _actor.Move();
             AssertActorIsOnShape();
             return this;
+        }
+
+        /// <inheritdoc cref="IPlayerSimulationState.GetAvailableDirections"/>>
+        public GridDirections GetAvailableDirections()
+        {
+            var result = GridDirections.None;
+            result = result.WithDirection(_currentLine.GetDirection(_isInTurn));
+            
+            if (TryGetCornerContinuationDirection(out GridDirection cornerContinuationDirection2))
+            {
+                result = result.WithDirection(cornerContinuationDirection2);
+            }
+
+            GridDirection breakoutDirection = _currentLine.GetDirection(_isInTurn).Turn(_shape.GetTravelTurn(_isInTurn).Reverse());
+            result = result.WithDirection(breakoutDirection);
+
+            result = _actor.RestrictDirectionsToAvailableInBounds(result);
+
+            return result;
+        }
+
+        private bool TryGetCornerContinuationDirection(out GridDirection direction)
+        {
+            if (_actor.Position != _currentLine.GetEnd(_isInTurn))
+            {
+                direction = GridDirection.None;
+                return false;
+            }
+
+            Line next = _currentLine.GetNext(_isInTurn);
+            direction = next.GetDirection(_isInTurn);
+            return true;
         }
 
         [Conditional("DEBUG")]
@@ -76,8 +112,8 @@ namespace Game.Player.Simulation.States
         {
             ClearState();
             _currentLine = insertion.Continuation;
-            _isTravelingStartToEnd = insertion.IsStartToEnd;
-            _actor.Direction = _currentLine.GetDirection(_isTravelingStartToEnd);
+            _isInTurn = insertion.IsStartToEnd;
+            _actor.Direction = _currentLine.GetDirection(_isInTurn);
             return this;
         }
 
@@ -90,7 +126,7 @@ namespace Game.Player.Simulation.States
         private void ClearState()
         {
             _currentLine = null;
-            _isTravelingStartToEnd = false;
+            _isInTurn = false;
         }
     }
 }

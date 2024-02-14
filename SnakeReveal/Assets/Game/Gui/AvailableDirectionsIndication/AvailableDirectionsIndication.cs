@@ -1,4 +1,5 @@
 using System;
+using Extensions;
 using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Enums.Utility;
@@ -73,5 +74,10 @@ namespace Game.Gui.AvailableDirectionsIndication
 
         [SerializeField] private string _isVisibleParameterName = "IsVisible";
         private int _isVisibleParameterId;
+
+        public void Place(Vector3 position)
+        {
+            transform.SetLocalPositionXY(position);
+        }
     }
 }

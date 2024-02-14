@@ -66,7 +66,10 @@ namespace Game.Player
                 if (value != _direction)
                 {
                     _direction = value;
-                    SetLatestDirection(_direction);
+                    if (value != GridDirection.None)
+                    {
+                        SetLatestDirection(_direction);
+                    }
                     ApplyRendererDirection();
                 }
             }
@@ -132,11 +135,13 @@ namespace Game.Player
         public bool TryMoveCheckingEnemies()
         {
             Vector2 sceneVector = Grid.ToSceneVector(Direction.AsVector());
+
             RaycastHit2D hit = Physics2D.CircleCast(transform.position,
                 _enemyCollisionRadius,
                 sceneVector,
                 sceneVector.magnitude,
                 _enemiesLayerMask);
+
             if (hit.collider != null)
             {
                 return false;
@@ -150,6 +155,11 @@ namespace Game.Player
         public bool GetCanMoveInGridBounds(GridDirection requestedDirection)
         {
             return _grid.GetCanMoveInDirectionInsideBounds(Position, requestedDirection);
+        }
+
+        public GridDirections RestrictDirectionsToAvailableInBounds(GridDirections directions)
+        {
+            return directions.RestrictInBounds(_grid, Position);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Game
         public int CoveredCellCount => _quadContainer.CoveredCellCount;
         public SimulationGrid Grid => _lineLoop.Grid;
 
-        private Turn GetTravelTurn(bool startToEnd)
+        public Turn GetTravelTurn(bool startToEnd)
         {
             return _lineLoop.GetTurn(startToEnd);
         }
