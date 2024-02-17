@@ -3,5 +3,6 @@
     public interface IGameState
     {
         IGameState FixedUpdate();
+        string Name { get; }
     }
 }

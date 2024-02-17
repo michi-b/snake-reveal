@@ -11,6 +11,8 @@ namespace Game.State
         private readonly AvailableDirectionsIndication _availableDirectionsIndication;
         private GridDirections _availableDirections;
 
+        public string Name => "WaitingForSimulationInput";
+
         public WaitingForSimulationInputState(Game game, AvailableDirectionsIndication availableDirectionsIndication)
         {
             _game = game;
@@ -25,7 +27,7 @@ namespace Game.State
                 return enteredGameMenuState;
             }
 
-            Simulation simulation = _game.Simulation;
+            Simulation.Simulation simulation = _game.Simulation;
             GridDirection requestedDirection = simulation.GetRequestedDirection();
             if (requestedDirection != GridDirection.None)
             {
@@ -42,7 +44,7 @@ namespace Game.State
 
         public IGameState Enter()
         {
-            Simulation simulation = _game.Simulation;
+            Simulation.Simulation simulation = _game.Simulation;
             PlayerActor playerActor = simulation.PlayerActor;
             _availableDirectionsIndication.Place(playerActor.transform.localPosition);
             playerActor.Direction = GridDirection.None;

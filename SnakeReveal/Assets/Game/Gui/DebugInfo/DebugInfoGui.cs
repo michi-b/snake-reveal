@@ -5,6 +5,8 @@ namespace Game.Gui.DebugInfo
 {
     public class DebugInfoGui : MonoBehaviour
     {
+        [SerializeField] private TextRenderer _gameState;
+        [SerializeField] private TextRenderer _simulationState;
         [SerializeField] private IntDisplay _simulationTicks;
         [SerializeField] private FloatDisplay _simulationTime;
         [SerializeField] private IntDisplay _totalCellCount;
@@ -12,11 +14,24 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private FloatDisplay _coveredCellPercentage;
         [SerializeField] private IntDisplay _targetCellCount;
 
+
         public void Start()
         {
-#if !UNITY_EDITOR
+#if DEBUG
+            gameObject.SetActive(true);
+#else
             gameObject.SetActive(false);
 #endif
+        }
+
+        public string GameState
+        {
+            set => _gameState.Text = value;
+        }
+
+        public string SimulationState
+        {
+            set => _simulationState.Text = value;
         }
 
         public float SimulationTime

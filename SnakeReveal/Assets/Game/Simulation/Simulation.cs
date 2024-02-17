@@ -4,11 +4,10 @@ using Game.Grid;
 using Game.Gui.DebugInfo;
 using Game.Gui.GameInfo;
 using Game.Player;
-using Game.Player.Simulation;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Game
+namespace Game.Simulation
 {
     public class Simulation : MonoBehaviour
     {
@@ -65,8 +64,14 @@ namespace Game
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
 #endif
 
+            IPlayerSimulationState oldState = _playerSimulation.CurrentState;
             // move player and update drawing
             _playerSimulation.Move();
+            IPlayerSimulationState newState = _playerSimulation.CurrentState;
+            if(newState != oldState)
+            {
+                _debugInfoGui.SimulationState = newState.Name;
+            }
 
             // automatic physics simulation is disabled in Physics 2D project settings, and is triggered here instead
             // (ATM Physics 2D is what updates the enemies and resolves collisions mainly)

@@ -15,5 +15,10 @@ namespace Game.Player
         /// </summary>
         /// <returns>Currently available directions for the player to move in</returns>
         public GridDirections GetAvailableDirections();
+
+        /// <summary>
+        /// Name of the state for the debug info gui
+        /// </summary>
+        string Name { get; }
     }
 }

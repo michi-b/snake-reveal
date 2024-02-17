@@ -4,6 +4,8 @@
     {
         private readonly Game _game;
 
+        public string Name => "SimulationRunning";
+
         public SimulationRunningState(Game game)
         {
             _game = game;

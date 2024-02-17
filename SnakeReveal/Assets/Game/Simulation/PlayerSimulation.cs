@@ -1,31 +1,30 @@
 ﻿using Game.Grid;
+using Game.Player;
 using Game.Player.Controls;
-using Game.Player.Simulation.States;
+using Game.Simulation.States;
 using UnityEngine;
 
-namespace Game.Player.Simulation
+namespace Game.Simulation
 {
     public class PlayerSimulation
     {
         private readonly PlayerActor _actor;
-        private readonly IPlayerActorControls _controls;
 
         // whether the player in shape travel mode is traveling in the same direction as the shape turn
-        private IPlayerSimulationState _currentState;
 
         private readonly ShapeTravelState _shapeTravelState;
 
-        public IPlayerSimulationState CurrentState => _currentState;
+        public IPlayerSimulationState CurrentState { get; private set; }
 
         public int CoveredCellCount => _shapeTravelState.CoveredCellCount;
 
-        public IPlayerActorControls Controls => _controls;
+        public IPlayerActorControls Controls { get; }
 
         public void Move()
         {
             for (int moveIndex = 0; moveIndex < _actor.Speed; moveIndex++)
             {
-                _currentState = CurrentState.Move(Controls.GetRequestedDirection());
+                CurrentState = CurrentState.Move(Controls.GetRequestedDirection());
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)
@@ -36,11 +35,11 @@ namespace Game.Player.Simulation
         {
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
             _actor = actor;
-            _controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
-            _controls.Activate();
+            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
+            Controls.Activate();
             _shapeTravelState = new ShapeTravelState(_actor, shape);
             var drawingState = new DrawingState(grid, _actor, shape, drawing, _shapeTravelState);
-            _currentState = _shapeTravelState.Initialize(drawingState);
+            CurrentState = _shapeTravelState.Initialize(drawingState);
         }
     }
 }

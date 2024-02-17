@@ -1,5 +1,5 @@
-using System;
 using Game.Gui.AvailableDirectionsIndication;
+using Game.Gui.DebugInfo;
 using Game.Gui.GameMenu;
 using UnityEngine;
 
@@ -7,16 +7,18 @@ namespace Game.State
 {
     public class Game : MonoBehaviour
     {
-        [SerializeField] private Simulation _simulation;
+        [SerializeField] private Simulation.Simulation _simulation;
         [SerializeField] private GameMenu _gameMenu;
         [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
+        [SerializeField] private DebugInfoGui _debugInfoGui;
+        
 
         private IGameState _currentState;
         private GameMenuState _gameMenuState;
         private WaitingForSimulationInputState _waitingForSimulationInputState;
         private SimulationRunningState _simulationRunningState;
 
-        public Simulation Simulation => _simulation;
+        public Simulation.Simulation Simulation => _simulation;
         public GameMenu Menu => _gameMenu;
 
         public GameMenuState GameMenuState => _gameMenuState;
@@ -34,11 +36,17 @@ namespace Game.State
         protected void Start()
         {
             _currentState = _waitingForSimulationInputState.Enter();
+#if DEBUG
+            _debugInfoGui.GameState = _currentState.Name;
+#endif
         }
 
         protected virtual void FixedUpdate()
         {
             _currentState = _currentState.FixedUpdate();
+#if DEBUG
+            _debugInfoGui.GameState = _currentState.Name;   
+#endif
         }
     }
 }

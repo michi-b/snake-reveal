@@ -4,10 +4,11 @@ using Game.Enums.Extensions;
 using Game.Grid;
 using Game.Lines;
 using Game.Lines.Insertion;
+using Game.Player;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Game.Player.Simulation.States
+namespace Game.Simulation.States
 {
     public class DrawingState : IPlayerSimulationState
     {
@@ -78,6 +79,8 @@ namespace Game.Player.Simulation.States
             result = _actor.RestrictDirectionsToAvailableInBounds(result);
             return result;
         }
+
+        public string Name => "Drawing";
 
         private IPlayerSimulationState Move()
         {

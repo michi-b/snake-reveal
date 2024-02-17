@@ -4,10 +4,11 @@ using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Lines;
 using Game.Lines.Insertion;
+using Game.Player;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Game.Player.Simulation.States
+namespace Game.Simulation.States
 {
     public class ShapeTravelState : IPlayerSimulationState
     {
@@ -74,6 +75,8 @@ namespace Game.Player.Simulation.States
 
             return result;
         }
+
+        public string Name => "ShapeTravel";
 
         private bool TryGetCornerContinuationDirection(out GridDirection direction)
         {

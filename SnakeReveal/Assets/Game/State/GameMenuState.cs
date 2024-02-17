@@ -4,6 +4,8 @@
     {
         private readonly Game _game;
 
+        public string Name => "GameMenu";
+
         public GameMenuState(Game game)
         {
             _game = game;
