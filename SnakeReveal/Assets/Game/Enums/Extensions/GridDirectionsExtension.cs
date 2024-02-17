@@ -6,20 +6,11 @@ namespace Game.Enums.Extensions
 {
     public static class GridDirectionsExtension
     {
-        public static bool Contains(this GridDirections directions, GridDirection direction)
-        {
-            return (directions & direction.AsFlag()) != 0;
-        }
+        public static bool Contains(this GridDirections directions, GridDirection direction) => (directions & direction.AsFlag()) != 0;
 
-        public static GridDirections WithDirection(this GridDirections directions, GridDirection direction)
-        {
-            return directions | direction.AsFlag();
-        }
+        public static GridDirections WithDirection(this GridDirections directions, GridDirection direction) => directions | direction.AsFlag();
 
-        public static GridDirections WithoutDirection(this GridDirections directions, GridDirection direction)
-        {
-            return directions & ~direction.AsFlag();
-        }
+        public static GridDirections WithoutDirection(this GridDirections directions, GridDirection direction) => directions & ~direction.AsFlag();
 
         public static GridDirections RestrictInBounds(this GridDirections directions, SimulationGrid grid, Vector2Int position)
         {

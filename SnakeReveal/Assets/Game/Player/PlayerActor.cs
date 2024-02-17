@@ -70,6 +70,7 @@ namespace Game.Player
                     {
                         SetLatestDirection(_direction);
                     }
+
                     ApplyRendererDirection();
                 }
             }
@@ -152,14 +153,8 @@ namespace Game.Player
             return true;
         }
 
-        public bool GetCanMoveInGridBounds(GridDirection requestedDirection)
-        {
-            return _grid.GetCanMoveInDirectionInsideBounds(Position, requestedDirection);
-        }
+        public bool GetCanMoveInGridBounds(GridDirection requestedDirection) => _grid.GetCanMoveInDirectionInsideBounds(Position, requestedDirection);
 
-        public GridDirections RestrictDirectionsToAvailableInBounds(GridDirections directions)
-        {
-            return directions.RestrictInBounds(_grid, Position);
-        }
+        public GridDirections RestrictDirectionsToAvailableInBounds(GridDirections directions) => directions.RestrictInBounds(_grid, Position);
     }
 }

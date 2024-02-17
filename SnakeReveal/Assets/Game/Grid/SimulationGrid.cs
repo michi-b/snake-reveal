@@ -25,10 +25,7 @@ namespace Game.Grid
         private Vector2Int TopRight => _size;
         private Vector2Int BottomRight => new(_size.x, 0);
 
-        public int GetCellCount()
-        {
-            return _size.x * _size.y;
-        }
+        public int GetCellCount() => _size.x * _size.y;
 
         protected void OnDrawGizmos()
         {
@@ -65,28 +62,17 @@ namespace Game.Grid
             _lowerLeftCornerScenePosition = -_sceneSize * 0.5f;
         }
 
-        public Vector2 GetScenePosition(Vector2Int gridPosition)
-        {
-            return _lowerLeftCornerScenePosition + SceneCellSize * gridPosition;
-        }
+        public Vector2 GetScenePosition(Vector2Int gridPosition) => _lowerLeftCornerScenePosition + SceneCellSize * gridPosition;
 
-        private Vector3 GetWorldPosition(Vector2Int gridPosition)
-        {
-            return GetWorldPosition(GetScenePosition(gridPosition));
-        }
+        private Vector3 GetWorldPosition(Vector2Int gridPosition) => GetWorldPosition(GetScenePosition(gridPosition));
 
-        private Vector3 GetWorldPosition(Vector2 scenePosition)
-        {
-            return scenePosition.ToVector3(transform.position.z);
-        }
+        private Vector3 GetWorldPosition(Vector2 scenePosition) => scenePosition.ToVector3(transform.position.z);
 
-        public Vector2Int Clamp(Vector2Int gridPosition)
-        {
-            return new Vector2Int(
+        public Vector2Int Clamp(Vector2Int gridPosition) =>
+            new(
                 math.clamp(gridPosition.x, 0, _size.x),
                 math.clamp(gridPosition.y, 0, _size.y)
             );
-        }
 
         public Vector2Int Round(Vector2 scenePosition)
         {
@@ -102,24 +88,14 @@ namespace Game.Grid
             return grids is { Length: > 0 } ? grids[0] : null;
         }
 
-        public Vector2 ToSceneVector(Vector2Int gridVector)
-        {
-            return _sceneCellSize * gridVector;
-        }
+        public Vector2 ToSceneVector(Vector2Int gridVector) => _sceneCellSize * gridVector;
 
-        public bool GetIsInBounds(Vector2Int position)
-        {
-            return position.x >= 0 && position.x <= _size.x && position.y >= 0 && position.y <= _size.y;
-        }
+        public bool GetIsInBounds(Vector2Int position) => position.x >= 0 && position.x <= _size.x && position.y >= 0 && position.y <= _size.y;
 
-        public bool GetIsOnBounds(Vector2Int position)
-        {
-            return position.x == 0 || position.x == _size.x || position.y == 0 || position.y == _size.y;
-        }
+        public bool GetIsOnBounds(Vector2Int position) => position.x == 0 || position.x == _size.x || position.y == 0 || position.y == _size.y;
 
-        public GridSide GetBoundsSide(Vector2Int position)
-        {
-            return position.x == 0
+        public GridSide GetBoundsSide(Vector2Int position) =>
+            position.x == 0
                 ? GridSide.Left
                 : position.x == _size.x
                     ? GridSide.Right
@@ -128,11 +104,9 @@ namespace Game.Grid
                         : position.y == _size.y
                             ? GridSide.Top
                             : GridSide.None;
-        }
 
-        public GridCorner GetBoundsCorner(Vector2Int position)
-        {
-            return position == BottomLeft
+        public GridCorner GetBoundsCorner(Vector2Int position) =>
+            position == BottomLeft
                 ? GridCorner.BottomLeft
                 : position == TopLeft
                     ? GridCorner.TopLeft
@@ -141,7 +115,6 @@ namespace Game.Grid
                         : position == BottomRight
                             ? GridCorner.BottomRight
                             : GridCorner.None;
-        }
 
         public bool GetCanMoveInDirectionInsideBounds(Vector2Int position, GridDirection requestedDirection)
         {

@@ -7,9 +7,6 @@
         /// <summary>
         ///     same as the % operator, but always returns a positive value (as long as max is > 0)
         /// </summary>
-        public static int Loop(int value, int max)
-        {
-            return (value + max) % max;
-        }
+        public static int Loop(int value, int max) => (value + max) % max;
     }
 }

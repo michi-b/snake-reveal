@@ -27,10 +27,7 @@ namespace Game.Editor
         }
 
         [SettingsProvider]
-        public static SettingsProvider Create()
-        {
-            return new GameSettingsProvider("Project/Game", SettingsScope.Project);
-        }
+        public static SettingsProvider Create() => new GameSettingsProvider("Project/Game", SettingsScope.Project);
 
         private bool _areLayersExpanded = true;
     }

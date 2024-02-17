@@ -107,10 +107,7 @@ namespace Game.Lines
             Apply();
         }
 
-        public override string ToString()
-        {
-            return _line.ToString();
-        }
+        public override string ToString() => _line.ToString();
 
         public void Place(LineData lineData)
         {
@@ -156,36 +153,18 @@ namespace Game.Lines
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            bool IsSameY()
-            {
-                return position.y == Start.y;
-            }
+            bool IsSameY() => position.y == Start.y;
 
-            bool IsSameX()
-            {
-                return position.x == Start.x;
-            }
+            bool IsSameX() => position.x == Start.x;
         }
 
-        public GridDirection GetDirection(bool startToEnd = true)
-        {
-            return startToEnd ? _line.Direction : _line.Direction.Reverse();
-        }
+        public GridDirection GetDirection(bool startToEnd = true) => startToEnd ? _line.Direction : _line.Direction.Reverse();
 
-        public Vector2Int GetEnd(bool startToEnd = true)
-        {
-            return startToEnd ? _line.End : _line.Start;
-        }
+        public Vector2Int GetEnd(bool startToEnd = true) => startToEnd ? _line.End : _line.Start;
 
-        public Line GetNext(bool startToEnd = true)
-        {
-            return startToEnd ? Next : Previous;
-        }
+        public Line GetNext(bool startToEnd = true) => startToEnd ? Next : Previous;
 
-        public Line GetPrevious(bool startToEnd = true)
-        {
-            return startToEnd ? Previous : Next;
-        }
+        public Line GetPrevious(bool startToEnd = true) => startToEnd ? Previous : Next;
 
         public bool TryExtend(Vector2Int targetPosition)
         {
@@ -272,10 +251,7 @@ namespace Game.Lines
         }
 
 #endif
-        public int GetClockwiseTurnWeightFromPrevious()
-        {
-            return Previous!.Direction.GetTurn(Direction).GetClockwiseWeight();
-        }
+        public int GetClockwiseTurnWeightFromPrevious() => Previous!.Direction.GetTurn(Direction).GetClockwiseWeight();
 
         public BoundsInteraction GetBoundsInteraction()
         {

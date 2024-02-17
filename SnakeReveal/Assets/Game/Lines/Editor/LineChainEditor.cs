@@ -14,10 +14,7 @@ namespace Game.Lines.Editor
             _lastLineProperty = serializedObject.FindDirectChild(LineChain.LastFieldName);
         }
 
-        protected override int GetInitialSelectionIndex(int count)
-        {
-            return count - 1;
-        }
+        protected override int GetInitialSelectionIndex(int count) => count - 1;
 
         protected override void DrawProperties()
         {

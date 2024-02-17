@@ -152,10 +152,7 @@ namespace Game.Quads
             Apply();
         }
 
-        public override string ToString()
-        {
-            return _data.ToString();
-        }
+        public override string ToString() => _data.ToString();
 
 #if UNITY_EDITOR
         public void RegisterUndo(string operationName)

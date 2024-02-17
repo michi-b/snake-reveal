@@ -54,14 +54,8 @@ namespace Game.Quads
             _bottomLeftCorner += delta;
         }
 
-        public override string ToString()
-        {
-            return $"{BottomLeft} -> {TopRight}";
-        }
+        public override string ToString() => $"{BottomLeft} -> {TopRight}";
 
-        public int GetCellCount()
-        {
-            return _size.x * _size.y;
-        }
+        public int GetCellCount() => _size.x * _size.y;
     }
 }

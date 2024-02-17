@@ -174,10 +174,7 @@ namespace Game.Player.Simulation.States
             }
         }
 
-        private IPlayerSimulationState Reset()
-        {
-            return EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
-        }
+        private IPlayerSimulationState Reset() => EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
 
         private bool TryReconnect(out ShapeTravelState enteredShapeTravelState)
         {

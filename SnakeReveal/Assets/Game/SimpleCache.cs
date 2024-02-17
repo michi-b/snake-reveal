@@ -52,9 +52,6 @@ namespace Game
             return result;
         }
 
-        protected virtual TComponent Instantiate()
-        {
-            return Instantiate(_prefab);
-        }
+        protected virtual TComponent Instantiate() => Instantiate(_prefab);
     }
 }

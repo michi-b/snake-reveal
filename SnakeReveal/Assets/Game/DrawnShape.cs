@@ -21,15 +21,9 @@ namespace Game
         public int CoveredCellCount => _quadContainer.CoveredCellCount;
         public SimulationGrid Grid => _lineLoop.Grid;
 
-        public Turn GetTravelTurn(bool startToEnd)
-        {
-            return _lineLoop.GetTurn(startToEnd);
-        }
+        public Turn GetTravelTurn(bool startToEnd) => _lineLoop.GetTurn(startToEnd);
 
-        public Line GetLine(Vector2Int position)
-        {
-            return _lineLoop.TryGetFirstLineAt(position, out Line line) ? line : throw new InvalidOperationException("Actor is not on shape");
-        }
+        public Line GetLine(Vector2Int position) => _lineLoop.TryGetFirstLineAt(position, out Line line) ? line : throw new InvalidOperationException("Actor is not on shape");
 
         public bool TryGetReconnectionLine(PlayerActor actor, out Line line)
         {
@@ -88,10 +82,7 @@ namespace Game
             return false;
         }
 
-        private bool IsBreakoutDirection(GridDirection direction, Line line)
-        {
-            return direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
-        }
+        private bool IsBreakoutDirection(GridDirection direction, Line line) => direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
 
 #if UNITY_EDITOR
         public void EditModeRegenerateQuads()

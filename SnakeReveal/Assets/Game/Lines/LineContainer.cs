@@ -65,50 +65,26 @@ namespace Game.Lines
 #endif
 
 
-        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator() => GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         protected virtual void PostProcessEditModeLineChanges()
         {
             _clockwiseTurnWeight = EvaluateClockwiseTurnWeight();
         }
 
-        protected virtual int EvaluateClockwiseTurnWeight()
-        {
-            return AsSpan().SumClockwiseTurnWeight();
-        }
+        protected virtual int EvaluateClockwiseTurnWeight() => AsSpan().SumClockwiseTurnWeight();
 
-        public Vector3 GetWorldPosition(Vector2Int position)
-        {
-            return _grid.GetScenePosition(position).ToVector3(transform.position.z);
-        }
+        public Vector3 GetWorldPosition(Vector2Int position) => _grid.GetScenePosition(position).ToVector3(transform.position.z);
 
-        public LineEnumerator GetEnumerator()
-        {
-            return new LineEnumerator(Start, End);
-        }
+        public LineEnumerator GetEnumerator() => new(Start, End);
 
-        public LineSpan AsSpan()
-        {
-            return new LineSpan(Start, End);
-        }
+        public LineSpan AsSpan() => new(Start, End);
 
-        public ReverseLineSpan AsReverseSpan()
-        {
-            return new ReverseLineSpan(Start, End);
-        }
+        public ReverseLineSpan AsReverseSpan() => new(Start, End);
 
-        public bool ContainsLineAt(Vector2Int position)
-        {
-            return GetSingleColliderAt(position) != null;
-        }
+        public bool ContainsLineAt(Vector2Int position) => GetSingleColliderAt(position) != null;
 
         public bool TryGetFirstLineAt(Vector2Int position, out Line line)
         {
@@ -151,10 +127,7 @@ namespace Game.Lines
             return null;
         }
 
-        private Collider2D GetSingleColliderAt(Vector2Int position)
-        {
-            return Physics2D.OverlapPoint(position.GetScenePosition(Grid), 1 << gameObject.layer);
-        }
+        private Collider2D GetSingleColliderAt(Vector2Int position) => Physics2D.OverlapPoint(position.GetScenePosition(Grid), 1 << gameObject.layer);
 
         private Span<Collider2D> GetUpToTwoCollidersAt(Vector2Int position)
         {
@@ -166,19 +139,14 @@ namespace Game.Lines
             return new Span<Collider2D>(_findLinesBuffer, 0, count);
         }
 
-        private ContactFilter2D GetContactFilter()
-        {
-            return new ContactFilter2D
+        private ContactFilter2D GetContactFilter() =>
+            new()
             {
                 useLayerMask = true,
                 layerMask = 1 << gameObject.layer
             };
-        }
 
-        protected Line GetNewLine(Vector2Int start, Vector2Int end)
-        {
-            return GetNewLine(new LineData(start, end));
-        }
+        protected Line GetNewLine(Vector2Int start, Vector2Int end) => GetNewLine(new LineData(start, end));
 
         protected Line GetNewLine(LineData lineData)
         {

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using CustomPropertyDrawers;
-using Extensions;
+﻿using CustomPropertyDrawers;
 using Game.Enums;
-using Game.Enums.Extensions;
 using Game.Grid;
-using Game.Gui.AvailableDirectionsIndication;
 using Game.Gui.DebugInfo;
 using Game.Gui.GameInfo;
-using Game.Gui.GameMenu;
 using Game.Player;
 using Game.Player.Simulation;
 using UnityEngine;
@@ -24,8 +18,6 @@ namespace Game
         [SerializeField] private DrawingChain _drawingLineChain;
         [SerializeField] private DebugInfoGui _debugInfoGui;
         [SerializeField] private GameInfoGui _gameInfoGui;
-        [SerializeField] private GameMenu _gameMenu;
-        [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
@@ -38,41 +30,18 @@ namespace Game
 
         private int Ticks { get; set; }
 
-        private State CurrentState
-        {
-            get => _currentState;
-            set
-            {
-                Debug.Assert(value != _currentState);
+        public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
 
-                LogStateTransition(_currentState, value);
-                
-                if(value == State.WaitingForInput)
-                {
-                    _availableDirectionsIndication.Place(_playerActor.transform.localPosition);
-                    _playerActor.Direction = GridDirection.None;
-                    _availableDirectionsIndication.Directions = _playerSimulation.CurrentState.GetAvailableDirections();
-                }
-                
-                _availableDirectionsIndication.SetVisible(value == State.WaitingForInput);
-
-                _currentState = value;
-            }
-        }
-
-        private State _currentState = State.WaitingForInput;
+        public PlayerActor PlayerActor => _playerActor;
 
         protected virtual void Awake()
         {
             _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
             _debugInfoGui.TotalCellCount = _grid.GetCellCount();
 
-            _playerSimulation = new PlayerSimulation(_grid, _playerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
+            _playerSimulation = new PlayerSimulation(_grid, PlayerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
             UpdatePercentCompletionDisplay();
-
-            _currentState = State.Paused;
-            CurrentState = State.WaitingForInput;
 
 #if DEBUG
             _debugInfoGui.SimulationTicks = 0;
@@ -80,13 +49,8 @@ namespace Game
 #endif
         }
 
-        protected virtual void FixedUpdate()
+        public virtual void SimulationUpdate()
         {
-            if (!HandlePauseState())
-            {
-                return;
-            }
-
             if (Ticks == int.MaxValue)
             {
                 Debug.LogError("Ticks would overflow after after 206,2976188668982 days after game scene load, quitting...");
@@ -116,67 +80,12 @@ namespace Game
             }
         }
 
-        /// <returns>true if the simulation needs to run (NOT paused) at the moment</returns>
-        private bool HandlePauseState()
-        {
-            bool needsPause = _gameMenu.AnimatorState.IsSomewhatOpen;
-
-            switch (CurrentState)
-            {
-                case State.Running:
-                    if (needsPause)
-                    {
-                        CurrentState = State.Paused;
-                    }
-                    return true;
-                case State.Paused:
-                    if (!needsPause)
-                    {
-                        CurrentState = State.WaitingForInput;
-                    }
-                    return false;
-                case State.WaitingForInput:
-                    if (needsPause)
-                    {
-                        CurrentState = State.Paused;
-                    }
-                    else
-                    {
-                        GridDirection requestedDirection = _playerSimulation.Controls.GetRequestedDirection();
-                        if(requestedDirection != GridDirection.None)
-                        {
-                            GridDirections availableDirections = _playerSimulation.CurrentState.GetAvailableDirections();
-                            if (availableDirections.Contains(requestedDirection))
-                            {
-                                _playerActor.Direction = requestedDirection;
-                                CurrentState = State.Running;
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        public GridDirection GetRequestedDirection() => _playerSimulation.Controls.GetRequestedDirection();
 
         private void UpdatePercentCompletionDisplay()
         {
             _debugInfoGui.CoveredCellCount = _coveredCellCount;
             _gameInfoGui.PercentCompletion = (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
-        }
-
-        [Conditional("DEBUG")]
-        private static void LogStateTransition(State stateFrom, State stateTo)
-        {
-            Debug.Log($"Simulation changes state \"{stateFrom}\" => \"{stateTo}\"");
-        }
-
-        private enum State
-        {
-            Running,
-            Paused,
-            WaitingForInput
         }
     }
 }

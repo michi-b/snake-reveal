@@ -18,20 +18,12 @@ namespace Game.Lines
         }
 
         /// <inheritdoc cref="ReverseLineEnumerator(Line, Line)" />
-        public ReverseLineEnumerator GetEnumerator()
-        {
+        public ReverseLineEnumerator GetEnumerator() =>
             // ReSharper disable once Unity.NoNullPropagation
-            return new ReverseLineEnumerator(_start, _end);
-        }
+            new(_start, _end);
 
-        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator() => GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

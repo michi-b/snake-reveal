@@ -51,10 +51,7 @@ namespace Game.Lines.Editor
             }
         }
 
-        protected override int GetInitialSelectionIndex(int count)
-        {
-            return 0;
-        }
+        protected override int GetInitialSelectionIndex(int count) => 0;
 
         protected override void DrawProperties()
         {

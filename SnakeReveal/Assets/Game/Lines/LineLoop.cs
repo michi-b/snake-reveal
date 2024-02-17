@@ -21,10 +21,7 @@ namespace Game.Lines
         public override Line End => Start?.Previous;
         public Turn Turn => _turn;
 
-        public Turn GetTurn(bool startToEnd = true)
-        {
-            return startToEnd ? Turn : Turn.Reverse();
-        }
+        public Turn GetTurn(bool startToEnd = true) => startToEnd ? Turn : Turn.Reverse();
 
         protected override void PostProcessEditModeLineChanges()
         {
@@ -38,10 +35,7 @@ namespace Game.Lines
             };
         }
 
-        protected override int EvaluateClockwiseTurnWeight()
-        {
-            return base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
-        }
+        protected override int EvaluateClockwiseTurnWeight() => base.EvaluateClockwiseTurnWeight() + End.Direction.GetTurn(Start.Direction).GetClockwiseWeight();
 
 
         [Obsolete("Use the overload with the pre-evaluated insertion evaluation instead, and cache it to avoid allocations")]

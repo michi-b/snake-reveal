@@ -16,7 +16,7 @@ namespace Game.Player.Simulation.States
 
         private Line _currentLine;
         private DrawingState _drawingState;
-        
+
         // whether the player travels in shape turn (start to end of lines)
         private bool _isInTurn;
 
@@ -61,7 +61,7 @@ namespace Game.Player.Simulation.States
         {
             var result = GridDirections.None;
             result = result.WithDirection(_currentLine.GetDirection(_isInTurn));
-            
+
             if (TryGetCornerContinuationDirection(out GridDirection cornerContinuationDirection2))
             {
                 result = result.WithDirection(cornerContinuationDirection2);

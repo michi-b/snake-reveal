@@ -57,14 +57,8 @@ namespace Game.Quads.Quadrangulation
             return false;
         }
 
-        public int CompareTo(CurtainEndLine other)
-        {
-            return Y - other.Y;
-        }
+        public int CompareTo(CurtainEndLine other) => Y - other.Y;
 
-        public override string ToString()
-        {
-            return $"{(IsOpening ? "Opening" : "Closing")} {_curtain}";
-        }
+        public override string ToString() => $"{(IsOpening ? "Opening" : "Closing")} {_curtain}";
     }
 }

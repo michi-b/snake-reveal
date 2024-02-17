@@ -108,10 +108,7 @@ namespace Game.Player.Controls
             };
         }
 
-        private bool GetIsDirectionRequestActive(DirectionRequest directionRequest)
-        {
-            return GetInputAction(directionRequest).ReadValue<float>() > Threshold;
-        }
+        private bool GetIsDirectionRequestActive(DirectionRequest directionRequest) => GetInputAction(directionRequest).ReadValue<float>() > Threshold;
 
         private enum DirectionRequest
         {

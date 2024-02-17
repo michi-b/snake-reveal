@@ -33,14 +33,8 @@ namespace Game.Lines
             set => _direction = value;
         }
 
-        public override string ToString()
-        {
-            return $"{Start} -> {End} ({Direction})";
-        }
+        public override string ToString() => $"{Start} -> {End} ({Direction})";
 
-        public LineData Reverse()
-        {
-            return new LineData(End, Start, _direction.Reverse());
-        }
+        public LineData Reverse() => new(End, Start, _direction.Reverse());
     }
 }

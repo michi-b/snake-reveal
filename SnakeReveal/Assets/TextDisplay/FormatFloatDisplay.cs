@@ -12,9 +12,6 @@ namespace TextDisplay
             Renderer.Text = FormatValue(Value);
         }
 
-        protected virtual string FormatValue(float value)
-        {
-            return value.ToString(_format);
-        }
+        protected virtual string FormatValue(float value) => value.ToString(_format);
     }
 }

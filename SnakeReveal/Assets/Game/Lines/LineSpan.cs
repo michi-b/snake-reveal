@@ -19,21 +19,13 @@ namespace Game.Lines
         }
 
         /// <inheritdoc cref="LineEnumerator(Line, Line)" />
-        public LineEnumerator GetEnumerator()
-        {
+        public LineEnumerator GetEnumerator() =>
             // ReSharper disable once Unity.NoNullPropagation
-            return new LineEnumerator(_start, _end);
-        }
+            new(_start, _end);
 
-        IEnumerator<Line> IEnumerable<Line>.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator<Line> IEnumerable<Line>.GetEnumerator() => GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public int SumClockwiseTurnWeight()
         {
