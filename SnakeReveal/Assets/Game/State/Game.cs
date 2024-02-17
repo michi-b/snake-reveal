@@ -11,7 +11,7 @@ namespace Game.State
         [SerializeField] private GameMenu _gameMenu;
         [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
         [SerializeField] private DebugInfoGui _debugInfoGui;
-        
+
 
         private IGameState _currentState;
         private GameMenuState _gameMenuState;
@@ -36,17 +36,13 @@ namespace Game.State
         protected void Start()
         {
             _currentState = _waitingForSimulationInputState.Enter();
-#if DEBUG
             _debugInfoGui.GameState = _currentState.Name;
-#endif
         }
 
         protected virtual void FixedUpdate()
         {
             _currentState = _currentState.FixedUpdate();
-#if DEBUG
-            _debugInfoGui.GameState = _currentState.Name;   
-#endif
+            _debugInfoGui.GameState = _currentState.Name;
         }
     }
 }

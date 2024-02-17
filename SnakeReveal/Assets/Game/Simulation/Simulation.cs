@@ -14,7 +14,7 @@ namespace Game.Simulation
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private PlayerActor _playerActor;
         [SerializeField] private DrawnShape _drawnShape;
-        [SerializeField] private DrawingChain _drawingLineChain;
+        [SerializeField] private DrawingChain _drawing;
         [SerializeField] private DebugInfoGui _debugInfoGui;
         [SerializeField] private GameInfoGui _gameInfoGui;
 
@@ -28,24 +28,26 @@ namespace Game.Simulation
         private PlayerSimulation _playerSimulation;
 
         private int Ticks { get; set; }
+        public PlayerActor PlayerActor => _playerActor;
+        public SimulationGrid Grid => _grid;
+        public DrawnShape DrawnShape => _drawnShape;
+        public DrawingChain Drawing => _drawing;
 
         public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
-
-        public PlayerActor PlayerActor => _playerActor;
 
         protected virtual void Awake()
         {
             _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
             _debugInfoGui.TotalCellCount = _grid.GetCellCount();
 
-            _playerSimulation = new PlayerSimulation(_grid, PlayerActor, _drawnShape, _drawingLineChain, _monkeyTestPlayerSimulationWithRandomInputs);
+            _playerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
+
             _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
+
             UpdatePercentCompletionDisplay();
 
-#if DEBUG
             _debugInfoGui.SimulationTicks = 0;
             _debugInfoGui.SimulationTime = 0f;
-#endif
         }
 
         public virtual void SimulationUpdate()
@@ -59,16 +61,14 @@ namespace Game.Simulation
 
             Ticks++;
 
-#if DEBUG
             _debugInfoGui.SimulationTicks = Ticks;
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
-#endif
 
             IPlayerSimulationState oldState = _playerSimulation.CurrentState;
             // move player and update drawing
             _playerSimulation.Move();
             IPlayerSimulationState newState = _playerSimulation.CurrentState;
-            if(newState != oldState)
+            if (newState != oldState)
             {
                 _debugInfoGui.SimulationState = newState.Name;
             }

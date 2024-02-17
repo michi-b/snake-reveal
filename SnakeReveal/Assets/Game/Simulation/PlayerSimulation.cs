@@ -31,8 +31,12 @@ namespace Game.Simulation
             _actor.ApplyPosition();
         }
 
-        public PlayerSimulation(SimulationGrid grid, PlayerActor actor, DrawnShape shape, DrawingChain drawing, bool monkeyTestPlayerSimulationWithRandomInputs)
+        public PlayerSimulation(Simulation simulation, bool monkeyTestPlayerSimulationWithRandomInputs)
         {
+            SimulationGrid grid = simulation.Grid;
+            PlayerActor actor = simulation.PlayerActor;
+            DrawnShape shape = simulation.DrawnShape;
+            DrawingChain drawing = simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
             _actor = actor;
             Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();

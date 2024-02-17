@@ -4752,7 +4752,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2475543403994005839, guid: 9e9d4cb09823991499a89517c0be7872, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 2475543403994005839, guid: 9e9d4cb09823991499a89517c0be7872, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4784,11 +4784,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2475543403994005839, guid: 9e9d4cb09823991499a89517c0be7872, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2475543403994005839, guid: 9e9d4cb09823991499a89517c0be7872, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2475543403994005839, guid: 9e9d4cb09823991499a89517c0be7872, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5516,7 +5516,7 @@ MonoBehaviour:
   _grid: {fileID: 1501073790}
   _playerActor: {fileID: 4047278784638130996}
   _drawnShape: {fileID: 1861919012}
-  _drawingLineChain: {fileID: 258222848}
+  _drawing: {fileID: 258222848}
   _debugInfoGui: {fileID: 8080993425198223436}
   _gameInfoGui: {fileID: 340114633}
   _monkeyTestPlayerSimulationWithRandomInputs: 0
