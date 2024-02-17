@@ -9,10 +9,10 @@ using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation
 {
-    public class Simulation : MonoBehaviour
+    public class GameSimulation : MonoBehaviour
     {
         [SerializeField] private SimulationGrid _grid;
-        [SerializeField] private PlayerActor _playerActor;
+        [SerializeField] private PlayerActor _player;
         [SerializeField] private DrawnShape _drawnShape;
         [SerializeField] private DrawingChain _drawing;
         [SerializeField] private DebugInfoGui _debugInfoGui;
@@ -28,7 +28,7 @@ namespace Game.Simulation
         private PlayerSimulation _playerSimulation;
 
         private int Ticks { get; set; }
-        public PlayerActor PlayerActor => _playerActor;
+        public PlayerActor Player => _player;
         public SimulationGrid Grid => _grid;
         public DrawnShape DrawnShape => _drawnShape;
         public DrawingChain Drawing => _drawing;

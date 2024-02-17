@@ -7,7 +7,7 @@ namespace Game.State
 {
     public class Game : MonoBehaviour
     {
-        [SerializeField] private Simulation.Simulation _simulation;
+        [SerializeField] private Simulation.GameSimulation _simulation;
         [SerializeField] private GameMenu _gameMenu;
         [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
         [SerializeField] private DebugInfoGui _debugInfoGui;
@@ -18,7 +18,7 @@ namespace Game.State
         private WaitingForSimulationInputState _waitingForSimulationInputState;
         private SimulationRunningState _simulationRunningState;
 
-        public Simulation.Simulation Simulation => _simulation;
+        public Simulation.GameSimulation Simulation => _simulation;
         public GameMenu Menu => _gameMenu;
 
         public GameMenuState GameMenuState => _gameMenuState;

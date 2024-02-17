@@ -8,42 +8,58 @@ namespace Game.Simulation
 {
     public class PlayerSimulation
     {
-        private readonly PlayerActor _actor;
-
-        // whether the player in shape travel mode is traveling in the same direction as the shape turn
+        private readonly GameSimulation _game;
 
         private readonly ShapeTravelState _shapeTravelState;
+        private readonly DrawingState _drawingState;
 
         public IPlayerSimulationState CurrentState { get; private set; }
 
-        public int CoveredCellCount => _shapeTravelState.CoveredCellCount;
+        public int CoveredCellCount => ShapetravelState.CoveredCellCount;
 
         public IPlayerActorControls Controls { get; }
 
+        public GameSimulation Game => _game;
+
+        public PlayerActor Actor => _game.Player;
+
+        public DrawnShape Shape => _game.DrawnShape;
+
+        public DrawingChain Drawing => _game.Drawing;
+
+        public SimulationGrid Grid => _game.Grid;
+
+        public DrawingState DrawingState => _drawingState;
+
+        public ShapeTravelState ShapetravelState => _shapeTravelState;
+
         public void Move()
         {
-            for (int moveIndex = 0; moveIndex < _actor.Speed; moveIndex++)
+            for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
             {
                 CurrentState = CurrentState.Move(Controls.GetRequestedDirection());
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)
-            _actor.ApplyPosition();
+            _game.Player.ApplyPosition();
         }
 
-        public PlayerSimulation(Simulation simulation, bool monkeyTestPlayerSimulationWithRandomInputs)
+        public PlayerSimulation(GameSimulation simulation, bool monkeyTestPlayerSimulationWithRandomInputs)
         {
+            _game = simulation;
+
             SimulationGrid grid = simulation.Grid;
-            PlayerActor actor = simulation.PlayerActor;
+            PlayerActor actor = simulation.Player;
             DrawnShape shape = simulation.DrawnShape;
             DrawingChain drawing = simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
-            _actor = actor;
             Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
             Controls.Activate();
-            _shapeTravelState = new ShapeTravelState(_actor, shape);
-            var drawingState = new DrawingState(grid, _actor, shape, drawing, _shapeTravelState);
-            CurrentState = _shapeTravelState.Initialize(drawingState);
+
+            _shapeTravelState = new ShapeTravelState(this);
+            _drawingState = new DrawingState(this);
+
+            CurrentState = ShapetravelState.Initialize();
         }
     }
 }

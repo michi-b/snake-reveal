@@ -5514,7 +5514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _grid: {fileID: 1501073790}
-  _playerActor: {fileID: 4047278784638130996}
+  _player: {fileID: 4047278784638130996}
   _drawnShape: {fileID: 1861919012}
   _drawing: {fileID: 258222848}
   _debugInfoGui: {fileID: 8080993425198223436}

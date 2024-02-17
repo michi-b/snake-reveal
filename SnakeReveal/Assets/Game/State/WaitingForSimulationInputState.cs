@@ -27,13 +27,13 @@ namespace Game.State
                 return enteredGameMenuState;
             }
 
-            Simulation.Simulation simulation = _game.Simulation;
+            Simulation.GameSimulation simulation = _game.Simulation;
             GridDirection requestedDirection = simulation.GetRequestedDirection();
             if (requestedDirection != GridDirection.None)
             {
                 if (_availableDirections.Contains(requestedDirection))
                 {
-                    simulation.PlayerActor.Direction = requestedDirection;
+                    simulation.Player.Direction = requestedDirection;
                     Exit();
                     return _game.RunningState.Enter();
                 }
@@ -44,8 +44,8 @@ namespace Game.State
 
         public IGameState Enter()
         {
-            Simulation.Simulation simulation = _game.Simulation;
-            PlayerActor playerActor = simulation.PlayerActor;
+            Simulation.GameSimulation simulation = _game.Simulation;
+            PlayerActor playerActor = simulation.Player;
             _availableDirectionsIndication.Place(playerActor.transform.localPosition);
             playerActor.Direction = GridDirection.None;
             _availableDirections = simulation.GetAvailableDirections();

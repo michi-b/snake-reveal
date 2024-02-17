@@ -12,34 +12,32 @@ namespace Game.Simulation.States
 {
     public class DrawingState : IPlayerSimulationState
     {
-        private readonly SimulationGrid _grid;
-        private readonly PlayerActor _actor;
-        private readonly DrawingChain _drawing;
-        private readonly DrawnShape _shape;
-        private readonly ShapeTravelState _shapeTravelState;
         private Line _shapeBreakoutLine;
         private Vector2Int _shapeBreakoutPosition;
         private int _clockwiseTurnWeightSinceLastBounds;
         private GridSide _lastBoundsSide;
 
-        public DrawingState(SimulationGrid grid, PlayerActor actor, DrawnShape shape, DrawingChain drawing, ShapeTravelState shapeTravelState)
+        private readonly PlayerSimulation _simulation;
+
+        private SimulationGrid Grid => _simulation.Grid;
+        private PlayerActor Actor => _simulation.Actor;
+        private DrawingChain Drawing => _simulation.Drawing;
+        private DrawnShape Shape => _simulation.Shape;
+
+        public DrawingState(PlayerSimulation simulation)
         {
-            _grid = grid;
-            _actor = actor;
-            _shape = shape;
-            _drawing = drawing;
-            _shapeTravelState = shapeTravelState;
+            _simulation = simulation;
             ClearState();
         }
 
         public IPlayerSimulationState Move(GridDirection requestedDirection)
         {
             if (requestedDirection != GridDirection.None
-                && requestedDirection != _actor.Direction
-                && requestedDirection != _actor.Direction.Reverse()
-                && _actor.GetCanMoveInGridBounds(requestedDirection))
+                && requestedDirection != Actor.Direction
+                && requestedDirection != Actor.Direction.Reverse()
+                && Actor.GetCanMoveInGridBounds(requestedDirection))
             {
-                _actor.Direction = requestedDirection;
+                Actor.Direction = requestedDirection;
             }
 
             return Move();
@@ -50,16 +48,16 @@ namespace Game.Simulation.States
             ClearState();
 
             _shapeBreakoutLine = shapeBreakoutLine;
-            _actor.Position = _shapeBreakoutPosition = breakoutPosition;
-            _actor.Direction = breakoutDirection;
+            Actor.Position = _shapeBreakoutPosition = breakoutPosition;
+            Actor.Direction = breakoutDirection;
 
-            _drawing.Activate(_shapeBreakoutPosition, _actor.Position);
+            Drawing.Activate(_shapeBreakoutPosition, Actor.Position);
 
             // note that enemy collisions are not checked on first move, to avoid an infinite loop of re-entering drawing state
-            _actor.Move();
+            Actor.Move();
 
 #if DEBUG
-            Debug.Assert(!_drawing.Contains(_actor.Position));
+            Debug.Assert(!Drawing.Contains(Actor.Position));
 #endif
 
             ExtendDrawingToActor();
@@ -75,8 +73,8 @@ namespace Game.Simulation.States
         public GridDirections GetAvailableDirections()
         {
             var result = GridDirections.All;
-            result = result.WithoutDirection(_drawing.LastLine.GetDirection(false));
-            result = _actor.RestrictDirectionsToAvailableInBounds(result);
+            result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
+            result = Actor.RestrictDirectionsToAvailableInBounds(result);
             return result;
         }
 
@@ -84,48 +82,48 @@ namespace Game.Simulation.States
 
         private IPlayerSimulationState Move()
         {
-            if (!_actor.TryMoveCheckingEnemies())
+            if (!Actor.TryMoveCheckingEnemies())
             {
                 return Reset();
             }
 
             //collision with drawing line
-            if (_drawing.Contains(_actor.Position))
+            if (Drawing.Contains(Actor.Position))
             {
                 return Reset();
             }
 
             ExtendDrawingToActor();
 
-            GridSide boundsSide = _grid.GetBoundsSide(_actor.Position);
+            GridSide boundsSide = Grid.GetBoundsSide(Actor.Position);
             if (boundsSide != GridSide.None)
             {
                 // actor needs to turn, because next move would move him out of bounds
-                GridCorner boundsCorner = _grid.GetBoundsCorner(_actor.Position);
+                GridCorner boundsCorner = Grid.GetBoundsCorner(Actor.Position);
 
                 if (boundsCorner != GridCorner.None)
                 {
                     // if actor is exactly on a corner, turn inside the corner
-                    _actor.Direction = _actor.Direction.TurnInsideCorner(boundsCorner);
+                    Actor.Direction = Actor.Direction.TurnInsideCorner(boundsCorner);
                 }
-                else if (_actor.Direction.GetAxis() != boundsSide.GetLineAxis())
+                else if (Actor.Direction.GetAxis() != boundsSide.GetLineAxis())
                 {
                     if (_lastBoundsSide != GridSide.None)
                     {
                         // if actor was on bounds before, turn that way, that he cannot trap himself in a drawing loop
                         int boundsTurnWeight = _lastBoundsSide.GetClockwiseTurnWeight(boundsSide);
                         int relativeTurnWeight = _clockwiseTurnWeightSinceLastBounds - boundsTurnWeight;
-                        _actor.Direction = relativeTurnWeight switch
+                        Actor.Direction = relativeTurnWeight switch
                         {
-                            2 => _actor.Direction.Turn(Turn.Left),
-                            -2 => _actor.Direction.Turn(Turn.Right),
+                            2 => Actor.Direction.Turn(Turn.Left),
+                            -2 => Actor.Direction.Turn(Turn.Right),
                             _ => throw new ArgumentOutOfRangeException()
                         };
                     }
                     else
                     {
                         // direction on other axis can be chosen => assign latest direction on other axis
-                        _actor.Direction = _actor.GetLatestDirection(_actor.Direction.GetAxis().GetOther());
+                        Actor.Direction = Actor.GetLatestDirection(Actor.Direction.GetAxis().GetOther());
                     }
                 }
             }
@@ -140,7 +138,7 @@ namespace Game.Simulation.States
 
         private void ExtendDrawingToActor()
         {
-            _drawing.Extend(_actor.Position, out bool turned);
+            Drawing.Extend(Actor.Position, out bool turned);
 
             if (turned)
             {
@@ -155,18 +153,18 @@ namespace Game.Simulation.States
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private void TrackBoundsInteraction()
         {
-            switch (_drawing.LastLine.GetBoundsInteraction())
+            switch (Drawing.LastLine.GetBoundsInteraction())
             {
                 case Line.BoundsInteraction.None:
                     if (_lastBoundsSide != GridSide.None)
                     {
-                        _clockwiseTurnWeightSinceLastBounds += _drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
+                        _clockwiseTurnWeightSinceLastBounds += Drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
                     }
 
                     break;
                 case Line.BoundsInteraction.Exit:
                     _clockwiseTurnWeightSinceLastBounds = 0;
-                    _lastBoundsSide = _grid.GetBoundsSide(_drawing.LastLine.Start);
+                    _lastBoundsSide = Grid.GetBoundsSide(Drawing.LastLine.Start);
                     Debug.Assert(_lastBoundsSide != GridSide.None);
                     break;
                 case Line.BoundsInteraction.Enter:
@@ -177,15 +175,15 @@ namespace Game.Simulation.States
             }
         }
 
-        private IPlayerSimulationState Reset() => EnterDrawingAndMove(_shapeBreakoutLine, _drawing.StartPosition, _drawing.StartDirection);
+        private IPlayerSimulationState Reset() => EnterDrawingAndMove(_shapeBreakoutLine, Drawing.StartPosition, Drawing.StartDirection);
 
         private bool TryReconnect(out ShapeTravelState enteredShapeTravelState)
         {
-            if (_shape.TryGetReconnectionLine(_actor, out Line shapeCollisionLine))
+            if (Shape.TryGetReconnectionLine(Actor, out Line shapeCollisionLine))
             {
                 // insert drawing into shape and switch to shape travel
-                InsertionResult insertionResult = _shape.Insert(_drawing, _shapeBreakoutLine, shapeCollisionLine);
-                enteredShapeTravelState = _shapeTravelState.Enter(insertionResult);
+                InsertionResult insertionResult = Shape.Insert(Drawing, _shapeBreakoutLine, shapeCollisionLine);
+                enteredShapeTravelState = _simulation.ShapetravelState.Enter(insertionResult);
                 return true;
             }
 
@@ -195,7 +193,7 @@ namespace Game.Simulation.States
 
         private void ClearState()
         {
-            _drawing.Deactivate();
+            Drawing.Deactivate();
             _shapeBreakoutLine = null;
             _shapeBreakoutPosition = new Vector2Int(-1, -1);
             _clockwiseTurnWeightSinceLastBounds = 0;
