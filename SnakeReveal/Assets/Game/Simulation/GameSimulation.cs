@@ -66,8 +66,8 @@ namespace Game.Simulation
             _debugInfoGui.SimulationTicks = Ticks;
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
 
-            SimulationUpdateResult result = new SimulationUpdateResult();
-            
+            var result = new SimulationUpdateResult();
+
             // move player and update drawing
             IPlayerSimulationState oldState = _playerSimulation.CurrentState;
             _playerSimulation.Move(ref result);

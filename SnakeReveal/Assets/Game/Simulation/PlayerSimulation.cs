@@ -37,7 +37,7 @@ namespace Game.Simulation
         {
             for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
             {
-                CurrentState = CurrentState.Move(Controls.GetRequestedDirection(), ref result);
+                CurrentState = CurrentState.Update(Controls.GetRequestedDirection(), ref result);
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)

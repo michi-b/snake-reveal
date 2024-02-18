@@ -9,7 +9,7 @@ namespace Game.Player
         /// <param name="requestedDirection">The direction the player is requesting to move, which may be "None"</param>
         /// <param name="result"></param>
         /// <returns>The new current player simulation state, or just this if it did not change</returns>
-        public IPlayerSimulationState Move(GridDirection requestedDirection, ref SimulationUpdateResult result);
+        public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result);
 
         /// <summary>
         /// Evaluates the currently available directions for the player to move in.

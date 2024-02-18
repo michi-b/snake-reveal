@@ -3,5 +3,6 @@
     public struct SimulationUpdateResult
     {
         public bool PlayerDidCollideWithEnemy;
+        public bool PlayerDidCollideWithDrawing;
     }
 }

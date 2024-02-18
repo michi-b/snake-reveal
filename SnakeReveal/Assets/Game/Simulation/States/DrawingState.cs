@@ -6,7 +6,6 @@ using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation.States
 {
@@ -24,13 +23,15 @@ namespace Game.Simulation.States
         private DrawingChain Drawing => _simulation.Drawing;
         private DrawnShape Shape => _simulation.Shape;
 
+        public string Name => "Drawing";
+
         public DrawingState(PlayerSimulation simulation)
         {
             _simulation = simulation;
             ClearState();
         }
 
-        public IPlayerSimulationState Move(GridDirection requestedDirection, ref SimulationUpdateResult result)
+        public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result)
         {
             if (requestedDirection != GridDirection.None
                 && requestedDirection != Actor.Direction
@@ -43,10 +44,8 @@ namespace Game.Simulation.States
             return Move(ref result);
         }
 
-        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
+        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection, ref SimulationUpdateResult result)
         {
-            ClearState();
-
             _shapeBreakoutLine = shapeBreakoutLine;
             Actor.Position = _shapeBreakoutPosition = breakoutPosition;
             Actor.Direction = breakoutDirection;
@@ -62,23 +61,13 @@ namespace Game.Simulation.States
 
             ExtendDrawingToActor();
 
-            if (TryReconnect(out ShapeTravelState enteredShapeTravelState))
+            if (TryReconnect(out ShapeTravelState enteredShapeTravelState, ref result))
             {
                 return enteredShapeTravelState;
             }
 
             return this;
         }
-
-        public GridDirections GetAvailableDirections()
-        {
-            var result = GridDirections.All;
-            result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
-            result = Actor.RestrictDirectionsToAvailableInBounds(result);
-            return result;
-        }
-
-        public string Name => "Drawing";
 
         private IPlayerSimulationState Move(ref SimulationUpdateResult result)
         {
@@ -91,6 +80,7 @@ namespace Game.Simulation.States
             //collision with drawing line
             if (Drawing.Contains(Actor.Position))
             {
+                result.PlayerDidCollideWithDrawing = true;
                 return Reset();
             }
 
@@ -129,12 +119,28 @@ namespace Game.Simulation.States
                 }
             }
 
-            if (TryReconnect(out ShapeTravelState enteredShapeTravelState))
+            if (TryReconnect(out ShapeTravelState enteredShapeTravelState, ref result))
             {
+                ClearState();
                 return enteredShapeTravelState;
             }
 
             return this;
+        }
+
+        private IPlayerSimulationState Reset()
+        {
+            Actor.Position = Drawing.StartPosition;
+            ClearState();
+            return _simulation.ShapetravelState.ReEnter();
+        }
+
+        public GridDirections GetAvailableDirections()
+        {
+            var result = GridDirections.All;
+            result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
+            result = Actor.RestrictDirectionsToAvailableInBounds(result);
+            return result;
         }
 
         private void ExtendDrawingToActor()
@@ -176,15 +182,13 @@ namespace Game.Simulation.States
             }
         }
 
-        private IPlayerSimulationState Reset() => EnterDrawingAndMove(_shapeBreakoutLine, Drawing.StartPosition, Drawing.StartDirection);
-
-        private bool TryReconnect(out ShapeTravelState enteredShapeTravelState)
+        private bool TryReconnect(out ShapeTravelState enteredShapeTravelState, ref SimulationUpdateResult result)
         {
             if (Shape.TryGetReconnectionLine(Actor, out Line shapeCollisionLine))
             {
                 // insert drawing into shape and switch to shape travel
                 InsertionResult insertionResult = Shape.Insert(Drawing, _shapeBreakoutLine, shapeCollisionLine);
-                enteredShapeTravelState = _simulation.ShapetravelState.Enter(insertionResult);
+                enteredShapeTravelState = _simulation.ShapetravelState.Enter(insertionResult, ref result);
                 return true;
             }
 

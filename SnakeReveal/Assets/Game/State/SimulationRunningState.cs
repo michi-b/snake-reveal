@@ -22,7 +22,7 @@ namespace Game.State
 
             SimulationUpdateResult updateResult = _game.Simulation.SimulationUpdate();
 
-            return updateResult.PlayerDidCollideWithEnemy
+            return updateResult.PlayerDidCollideWithEnemy || updateResult.PlayerDidCollideWithDrawing
                 ? _game.WaitingForSimulationInputState.Enter()
                 : this;
         }

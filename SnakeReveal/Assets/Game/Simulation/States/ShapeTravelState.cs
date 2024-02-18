@@ -5,7 +5,6 @@ using Game.Enums.Extensions;
 using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation.States
@@ -17,7 +16,9 @@ namespace Game.Simulation.States
         private Line _currentLine;
 
         // whether the player travels in shape turn (start to end of lines)
-        private bool _isInTurn;
+        private bool _isInTurn = true;
+
+        private bool _isJustInitialized = true;
 
         private DrawnShape Shape => _simulation.Shape;
         private PlayerActor Actor => _simulation.Actor;
@@ -29,9 +30,11 @@ namespace Game.Simulation.States
             ClearState();
         }
 
-        /// <inheritdoc cref="IPlayerSimulationState.Move"/>>
-        public IPlayerSimulationState Move(GridDirection requestedDirection, ref SimulationUpdateResult result)
+        /// <inheritdoc cref="IPlayerSimulationState.Update"/>>
+        public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result)
         {
+            _isJustInitialized = false;
+
             AssertActorIsOnShape();
 
             bool isAtEndCorner = Actor.Position == _currentLine.GetEnd(_isInTurn);
@@ -39,8 +42,8 @@ namespace Game.Simulation.States
             if (Actor.GetCanMoveInGridBounds(requestedDirection)
                 && Shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isInTurn, out Line breakoutLine))
             {
-                // note: drawing state instantly moves and might return this state again on instant reconnection
-                return EnterDrawingAndMove(breakoutLine, Actor.Position, requestedDirection);
+                // note: drawing state instantly moves and might return to this state again on collision or instant reconnection
+                return _simulation.DrawingState.EnterDrawingAndMove(breakoutLine, Actor.Position, requestedDirection, ref result);
             }
 
             // if at line end, switch to next line and adjust direction
@@ -61,6 +64,11 @@ namespace Game.Simulation.States
         {
             var result = GridDirections.None;
             result = result.WithDirection(_currentLine.GetDirection(_isInTurn));
+
+            if (_isJustInitialized)
+            {
+                result = result.WithDirection(_currentLine.GetDirection(!_isInTurn));
+            }
 
             if (TryGetCornerContinuationDirection(out GridDirection cornerContinuationDirection2))
             {
@@ -103,25 +111,25 @@ namespace Game.Simulation.States
 
         public IPlayerSimulationState Initialize()
         {
-            Line continuation = Shape.GetLine(Actor.Position);
-            Debug.Assert(continuation != null, "Player actor is not on shape");
-            Actor.Initialize(continuation.Direction, continuation.Previous!.Direction);
-            return Enter(new InsertionResult(continuation, true));
+            _currentLine = Shape.GetLine(Actor.Position);
+            Debug.Assert(_currentLine != null, "Player actor is not on shape");
+            Actor.Initialize(_currentLine.Direction, _currentLine.Previous!.Direction);
+            return ReEnter();
         }
 
-        public ShapeTravelState Enter(InsertionResult insertion)
+        public ShapeTravelState ReEnter()
+        {
+            Actor.Direction = _currentLine.GetDirection(_isInTurn);
+            return this;
+        }
+
+        public ShapeTravelState Enter(InsertionResult insertion, ref SimulationUpdateResult result)
         {
             ClearState();
             _currentLine = insertion.Continuation;
             _isInTurn = insertion.IsStartToEnd;
             Actor.Direction = _currentLine.GetDirection(_isInTurn);
             return this;
-        }
-
-        private IPlayerSimulationState EnterDrawingAndMove(Line breakoutLine, Vector2Int actorPosition, GridDirection breakoutDirection)
-        {
-            ClearState();
-            return _simulation.DrawingState.EnterDrawingAndMove(breakoutLine, actorPosition, breakoutDirection);
         }
 
         private void ClearState()
