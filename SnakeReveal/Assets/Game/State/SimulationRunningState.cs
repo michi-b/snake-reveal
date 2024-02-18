@@ -1,4 +1,6 @@
-﻿namespace Game.State
+﻿using Game.Simulation;
+
+namespace Game.State
 {
     public class SimulationRunningState : IGameState
     {
@@ -18,9 +20,11 @@
                 return enteredGameMenuState;
             }
 
-            _game.Simulation.SimulationUpdate();
+            SimulationUpdateResult updateResult = _game.Simulation.SimulationUpdate();
 
-            return this;
+            return updateResult.PlayerDidCollideWithEnemy
+                ? _game.WaitingForSimulationInputState.Enter()
+                : this;
         }
 
         public IGameState Enter() => this;

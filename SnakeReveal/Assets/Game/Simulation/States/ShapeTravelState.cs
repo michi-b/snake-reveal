@@ -30,7 +30,7 @@ namespace Game.Simulation.States
         }
 
         /// <inheritdoc cref="IPlayerSimulationState.Move"/>>
-        public IPlayerSimulationState Move(GridDirection requestedDirection)
+        public IPlayerSimulationState Move(GridDirection requestedDirection, ref SimulationUpdateResult result)
         {
             AssertActorIsOnShape();
 

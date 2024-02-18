@@ -30,7 +30,7 @@ namespace Game.Simulation.States
             ClearState();
         }
 
-        public IPlayerSimulationState Move(GridDirection requestedDirection)
+        public IPlayerSimulationState Move(GridDirection requestedDirection, ref SimulationUpdateResult result)
         {
             if (requestedDirection != GridDirection.None
                 && requestedDirection != Actor.Direction
@@ -40,7 +40,7 @@ namespace Game.Simulation.States
                 Actor.Direction = requestedDirection;
             }
 
-            return Move();
+            return Move(ref result);
         }
 
         public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection)
@@ -80,10 +80,11 @@ namespace Game.Simulation.States
 
         public string Name => "Drawing";
 
-        private IPlayerSimulationState Move()
+        private IPlayerSimulationState Move(ref SimulationUpdateResult result)
         {
             if (!Actor.TryMoveCheckingEnemies())
             {
+                result.PlayerDidCollideWithEnemy = true;
                 return Reset();
             }
 

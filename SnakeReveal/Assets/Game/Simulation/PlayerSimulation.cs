@@ -33,11 +33,11 @@ namespace Game.Simulation
 
         public ShapeTravelState ShapetravelState => _shapeTravelState;
 
-        public void Move()
+        public void Move(ref SimulationUpdateResult result)
         {
             for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
             {
-                CurrentState = CurrentState.Move(Controls.GetRequestedDirection());
+                CurrentState = CurrentState.Move(Controls.GetRequestedDirection(), ref result);
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)

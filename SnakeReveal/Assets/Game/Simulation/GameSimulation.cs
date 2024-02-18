@@ -1,11 +1,12 @@
-﻿using CustomPropertyDrawers;
+﻿using System;
+using System.Globalization;
+using CustomPropertyDrawers;
 using Game.Enums;
 using Game.Grid;
 using Game.Gui.DebugInfo;
 using Game.Gui.GameInfo;
 using Game.Player;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation
 {
@@ -50,13 +51,14 @@ namespace Game.Simulation
             _debugInfoGui.SimulationTime = 0f;
         }
 
-        public virtual void SimulationUpdate()
+        public virtual SimulationUpdateResult SimulationUpdate()
         {
             if (Ticks == int.MaxValue)
             {
-                Debug.LogError("Ticks would overflow after after 206,2976188668982 days after game scene load, quitting...");
                 Application.Quit(ExitCodes.TicksCountOverflow);
-                return;
+                throw new InvalidOperationException("Ticks would overflow after after " +
+                                                    (int.MaxValue * Time.fixedDeltaTime / (60 * 60 * 24)).ToString(CultureInfo.InvariantCulture) +
+                                                    $"days after game scene load, quitting...");
             }
 
             Ticks++;
@@ -64,9 +66,11 @@ namespace Game.Simulation
             _debugInfoGui.SimulationTicks = Ticks;
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
 
-            IPlayerSimulationState oldState = _playerSimulation.CurrentState;
+            SimulationUpdateResult result = new SimulationUpdateResult();
+            
             // move player and update drawing
-            _playerSimulation.Move();
+            IPlayerSimulationState oldState = _playerSimulation.CurrentState;
+            _playerSimulation.Move(ref result);
             IPlayerSimulationState newState = _playerSimulation.CurrentState;
             if (newState != oldState)
             {
@@ -83,6 +87,8 @@ namespace Game.Simulation
                 _coveredCellCount = newCoveredCellCount;
                 UpdatePercentCompletionDisplay();
             }
+
+            return result;
         }
 
         public GridDirection GetRequestedDirection() => _playerSimulation.Controls.GetRequestedDirection();
