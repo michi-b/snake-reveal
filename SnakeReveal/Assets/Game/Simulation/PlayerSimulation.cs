@@ -61,5 +61,10 @@ namespace Game.Simulation
 
             CurrentState = ShapetravelState.Initialize();
         }
+
+        public void Resume()
+        {
+            CurrentState.Resume();
+        }
     }
 }

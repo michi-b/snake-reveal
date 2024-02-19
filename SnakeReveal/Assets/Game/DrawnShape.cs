@@ -82,7 +82,9 @@ namespace Game
             return false;
         }
 
-        private bool IsBreakoutDirection(GridDirection direction, Line line) => direction == line.Direction.Turn(_lineLoop.Turn.Reverse());
+        private bool IsBreakoutDirection(GridDirection direction, Line line) => direction == GetBreakoutDirection(line);
+
+        public GridDirection GetBreakoutDirection(Line line) => line.Direction.Turn(_lineLoop.Turn.Reverse());
 
 #if UNITY_EDITOR
         public void EditModeRegenerateQuads()

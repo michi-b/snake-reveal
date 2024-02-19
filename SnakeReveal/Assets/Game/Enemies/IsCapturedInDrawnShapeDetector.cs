@@ -27,13 +27,13 @@ namespace Game.Enemies
 
         protected void OnTriggerEnter2D(Collider2D other)
         {
-            bool entersCapture = ContactCaptures(other);
+            bool entersCapture = IsCapturingContact(other);
             if (entersCapture)
             {
                 _captureEnterContactCount++;
             }
 
-            if (ContactMaintainsCapture(other))
+            if (IsCaptureMaintainingContact(other))
             {
                 _captureMaintainContactCount++;
             }
@@ -46,12 +46,12 @@ namespace Game.Enemies
 
         protected void OnTriggerExit2D(Collider2D other)
         {
-            if (ContactCaptures(other))
+            if (IsCapturingContact(other))
             {
                 _captureEnterContactCount--;
             }
 
-            if (ContactMaintainsCapture(other))
+            if (IsCaptureMaintainingContact(other))
             {
                 _captureMaintainContactCount--;
             }
@@ -64,14 +64,14 @@ namespace Game.Enemies
 
         protected void OnTriggerStay2D(Collider2D contact)
         {
-            if (!IsCaptured && ContactCaptures(contact) && CapturesPivot(contact))
+            if (!IsCaptured && IsCapturingContact(contact) && CapturesPivot(contact))
             {
                 IsCaptured = true;
             }
         }
 
-        private static bool ContactCaptures(Component other) => GameSettings.instance.IsCapturedInDrawnCheckEnterLayers.Contains(other.gameObject.layer);
-        private static bool ContactMaintainsCapture(Component other) => GameSettings.instance.CaptureMaintainLayers.Contains(other.gameObject.layer);
+        private static bool IsCapturingContact(Component other) => GameSettings.instance.IsCapturedInDrawnCheckEnterLayers.Contains(other.gameObject.layer);
+        private static bool IsCaptureMaintainingContact(Component other) => GameSettings.instance.CaptureMaintainLayers.Contains(other.gameObject.layer);
 
         private bool CapturesPivot(Collider2D captureContact) => captureContact.OverlapPoint(transform.position);
     }

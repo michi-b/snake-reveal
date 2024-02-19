@@ -22,5 +22,9 @@ namespace Game.Player
         /// Name of the state for the debug info gui
         /// </summary>
         string Name { get; }
+
+        void Resume()
+        {
+        }
     }
 }

@@ -27,6 +27,10 @@ namespace Game.State
                 : this;
         }
 
-        public IGameState Enter() => this;
+        public IGameState Enter()
+        {
+            _game.Simulation.Resume();
+            return this;
+        }
     }
 }

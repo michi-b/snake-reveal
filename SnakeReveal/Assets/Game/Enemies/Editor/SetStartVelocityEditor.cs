@@ -7,7 +7,7 @@ namespace Game.Enemies.Editor
     [CustomEditor(typeof(SetStartVelocity))]
     public class SetStartVelocityEditor : UnityEditor.Editor
     {
-        public void OnSceneGUI()
+        public virtual void OnSceneGUI()
         {
             if (!Application.isPlaying)
             {

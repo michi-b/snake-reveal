@@ -98,5 +98,10 @@ namespace Game.Simulation
             _debugInfoGui.CoveredCellCount = _coveredCellCount;
             _gameInfoGui.PercentCompletion = (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
         }
+
+        public void Resume()
+        {
+            _playerSimulation.Resume();
+        }
     }
 }

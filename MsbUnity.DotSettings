@@ -113,7 +113,7 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=field/@KeyIndexDefined">False</s:Boolean>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=Field/@KeyIndexDefined">True</s:Boolean>
-	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=Field/Expression/@EntryValue">complete()</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=Field/Expression/@EntryValue">decapitalize(Property)</s:String>
 	
 	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=Field/Order/@EntryValue">2</s:Int64>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=Property/@KeyIndexDefined">True</s:Boolean>
@@ -136,8 +136,8 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Scope/=B9A08C2468276B4EA06236C33EB92BDA/Type/@EntryValue">MustBeInUnitySerializableType</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Shortcut/@EntryValue">ccomp</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
-	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Text/@EntryValue">private $Type$ $Field$;
-private $Type$ $Property$ =&gt; $Field$ ??= GetComponent&lt;$Type$&gt;();$END$</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Text/@EntryValue">private $Type$ _$Field$;
+private $Type$ $Property$ =&gt; _$Field$ ??= GetComponent&lt;$Type$&gt;();$END$</s:String>
 	
 	
 	

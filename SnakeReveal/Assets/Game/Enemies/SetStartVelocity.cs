@@ -4,9 +4,12 @@ using Utility;
 
 namespace Game.Enemies
 {
+    [RequireComponent(typeof(Rigidbody2D))]
     public class SetStartVelocity : MonoBehaviour
     {
         [SerializeField] private Vector2 _startVelocity;
+
+        public const string StartVelocityPropertyName = nameof(_startVelocity);
 
         public Vector2 StartVelocity
         {
@@ -16,7 +19,7 @@ namespace Game.Enemies
 
         protected virtual void Start()
         {
-            GetComponent<Rigidbody2D>().velocity = StartVelocity;
+            Rigidbody.velocity = StartVelocity;
         }
 
         protected void OnDrawGizmos()
@@ -32,5 +35,8 @@ namespace Game.Enemies
                 Gizmos.color = originalGizmosColor;
             }
         }
+
+        private Rigidbody2D _rigidbody;
+        protected Rigidbody2D Rigidbody => _rigidbody ??= GetComponent<Rigidbody2D>();
     }
 }

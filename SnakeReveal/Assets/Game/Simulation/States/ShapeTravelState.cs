@@ -5,6 +5,7 @@ using Game.Enums.Extensions;
 using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation.States
@@ -18,11 +19,14 @@ namespace Game.Simulation.States
         // whether the player travels in shape turn (start to end of lines)
         private bool _isInTurn = true;
 
-        private bool _isJustInitialized = true;
+        // kinda hacky, but this is used to determine if the player has never traveled, and if so, to allow travel in both directions (at game start)
+        private bool _hasNeverTraveled = true;
 
         private DrawnShape Shape => _simulation.Shape;
         private PlayerActor Actor => _simulation.Actor;
         public int CoveredCellCount => Shape.CoveredCellCount;
+
+        public string Name => "ShapeTravel";
 
         public ShapeTravelState(PlayerSimulation simulation)
         {
@@ -33,9 +37,9 @@ namespace Game.Simulation.States
         /// <inheritdoc cref="IPlayerSimulationState.Update"/>>
         public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result)
         {
-            _isJustInitialized = false;
-
             AssertActorIsOnShape();
+
+            _hasNeverTraveled = false;
 
             bool isAtEndCorner = Actor.Position == _currentLine.GetEnd(_isInTurn);
 
@@ -63,19 +67,19 @@ namespace Game.Simulation.States
         public GridDirections GetAvailableDirections()
         {
             var result = GridDirections.None;
-            result = result.WithDirection(_currentLine.GetDirection(_isInTurn));
 
-            if (_isJustInitialized)
+            Vector2Int position = Actor.Position;
+            AddContinuationDirectionInTurn(position, _isInTurn, ref result);
+
+            if (_hasNeverTraveled)
             {
-                result = result.WithDirection(_currentLine.GetDirection(!_isInTurn));
+                AddContinuationDirectionInTurn(position, !_isInTurn, ref result);
             }
 
-            if (TryGetCornerContinuationDirection(out GridDirection cornerContinuationDirection2))
-            {
-                result = result.WithDirection(cornerContinuationDirection2);
-            }
+            GridDirection breakoutDirection = Shape.GetBreakoutDirection(_currentLine);
 
-            GridDirection breakoutDirection = _currentLine.GetDirection(_isInTurn).Turn(Shape.GetTravelTurn(_isInTurn).Reverse());
+            //todo: at corners there are potentially more breakout directions available, and these need to be added
+
             result = result.WithDirection(breakoutDirection);
 
             result = Actor.RestrictDirectionsToAvailableInBounds(result);
@@ -83,19 +87,21 @@ namespace Game.Simulation.States
             return result;
         }
 
-        public string Name => "ShapeTravel";
-
-        private bool TryGetCornerContinuationDirection(out GridDirection direction)
+        private GridDirections GetContinuationDirectionsInTurn()
         {
-            if (Actor.Position != _currentLine.GetEnd(_isInTurn))
-            {
-                direction = GridDirection.None;
-                return false;
-            }
+            var result = GridDirections.None;
+            AddContinuationDirectionInTurn(Actor.Position, true, ref result);
+            return result;
+        }
 
-            Line next = _currentLine.GetNext(_isInTurn);
-            direction = next.GetDirection(_isInTurn);
-            return true;
+        private void AddContinuationDirectionInTurn(Vector2Int position, bool isInTurn, ref GridDirections directions)
+        {
+            directions = directions.WithDirection(_currentLine.GetDirection(isInTurn));
+            if (position == _currentLine.GetEnd(isInTurn))
+            {
+                Line next = _currentLine.GetNext(isInTurn);
+                directions = directions.WithDirection(next.GetDirection(isInTurn));
+            }
         }
 
         [Conditional("DEBUG")]
@@ -117,6 +123,17 @@ namespace Game.Simulation.States
             return ReEnter();
         }
 
+        public void Resume()
+        {
+            AssertActorIsOnShape();
+
+            // again kinda hacky -> on first state enter, reevaluate "isInTurn" flag with player direction
+            if (_hasNeverTraveled)
+            {
+                _isInTurn = GetContinuationDirectionsInTurn().Contains(Actor.Direction);
+            }
+        }
+
         public ShapeTravelState ReEnter()
         {
             Actor.Direction = _currentLine.GetDirection(_isInTurn);
@@ -135,7 +152,7 @@ namespace Game.Simulation.States
         private void ClearState()
         {
             _currentLine = null;
-            _isInTurn = false;
+            _isInTurn = true;
         }
     }
 }
