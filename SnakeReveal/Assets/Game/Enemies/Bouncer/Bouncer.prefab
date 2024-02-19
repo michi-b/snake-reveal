@@ -54,7 +54,7 @@ MonoBehaviour:
   _inDrawnShapeMaterial: {fileID: 2100000, guid: 7c101a194c5af0746824462643b092e1, type: 2}
   _inDrawnShapeExcludedCollidersMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1032
 --- !u!114 &8324670698458988333
 MonoBehaviour:
   m_ObjectHideFlags: 0

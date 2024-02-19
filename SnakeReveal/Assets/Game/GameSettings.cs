@@ -1,27 +1,24 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Game
 {
     [FilePath("ProjectSettings/GameSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     public class GameSettings : ScriptableSingleton<GameSettings>
     {
-        [SerializeField] private int _isCapturedInDrawnShapeCheckLayer;
+        [SerializeField] private LayerMask _captureEnterLayers;
 
-        public int IsCapturedInDrawnShapeCheckLayer
-        {
-            get => _isCapturedInDrawnShapeCheckLayer;
-            set
-            {
-                if (value != _isCapturedInDrawnShapeCheckLayer)
-                {
-                    _isCapturedInDrawnShapeCheckLayer = value;
-                    Save();
-                }
-            }
-        }
+        [SerializeField] private LayerMask _captureMaintainLayers;
 
-        private void Save()
+        public const string ShapeCaptureLayersPropertyName = nameof(_captureEnterLayers);
+        public const string ShapeEscapeLayersPropertyName = nameof(_captureMaintainLayers);
+
+        public LayerMask IsCapturedInDrawnCheckEnterLayers => _captureEnterLayers;
+
+        public LayerMask CaptureMaintainLayers => _captureMaintainLayers;
+
+        public void Save()
         {
             Save(true);
         }

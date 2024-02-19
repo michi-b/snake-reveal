@@ -1,3 +1,4 @@
+using Extensions;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,44 +9,54 @@ namespace Game.Enemies
     public class IsCapturedInDrawnShapeDetector : MonoBehaviour
     {
         [SerializeField] private UnityEvent<bool> _onIsCapturedChanged;
-        private int _contactCount;
+        private int _captureEnterContactCount;
+        private int _captureMaintainContactCount;
         private bool _isCaptured;
 
         [PublicAPI]
         public bool IsCaptured
         {
             get => _isCaptured;
-            set
+            private set
             {
-                if (_isCaptured != value)
-                {
-                    _isCaptured = value;
-                    _onIsCapturedChanged?.Invoke(value);
-                }
+                Debug.Assert(_isCaptured != value);
+                _isCaptured = value;
+                _onIsCapturedChanged?.Invoke(value);
             }
         }
 
         protected void OnTriggerEnter2D(Collider2D other)
         {
-            if (!GetIsDrawnShape(other))
+            bool entersCapture = ContactCaptures(other);
+            if (entersCapture)
             {
-                return;
+                _captureEnterContactCount++;
             }
 
-            _contactCount++;
-            CheckIsCaptured(other);
+            if (ContactMaintainsCapture(other))
+            {
+                _captureMaintainContactCount++;
+            }
+
+            if (!IsCaptured && entersCapture && CapturesPivot(other))
+            {
+                IsCaptured = true;
+            }
         }
 
         protected void OnTriggerExit2D(Collider2D other)
         {
-            if (!GetIsDrawnShape(other))
+            if (ContactCaptures(other))
             {
-                return;
+                _captureEnterContactCount--;
             }
 
-            _contactCount--;
-            Debug.Assert(_contactCount >= 0);
-            if (_contactCount == 0)
+            if (ContactMaintainsCapture(other))
+            {
+                _captureMaintainContactCount--;
+            }
+
+            if (IsCaptured && _captureEnterContactCount == 0 && _captureMaintainContactCount == 0)
             {
                 IsCaptured = false;
             }
@@ -53,22 +64,15 @@ namespace Game.Enemies
 
         protected void OnTriggerStay2D(Collider2D contact)
         {
-            if (!GetIsDrawnShape(contact))
-            {
-                return;
-            }
-
-            CheckIsCaptured(contact);
-        }
-
-        private static bool GetIsDrawnShape(Component other) => other.gameObject.layer == GameSettings.instance.IsCapturedInDrawnShapeCheckLayer;
-
-        private void CheckIsCaptured(Collider2D contact)
-        {
-            if (!IsCaptured && contact.OverlapPoint(transform.position))
+            if (!IsCaptured && ContactCaptures(contact) && CapturesPivot(contact))
             {
                 IsCaptured = true;
             }
         }
+
+        private static bool ContactCaptures(Component other) => GameSettings.instance.IsCapturedInDrawnCheckEnterLayers.Contains(other.gameObject.layer);
+        private static bool ContactMaintainsCapture(Component other) => GameSettings.instance.CaptureMaintainLayers.Contains(other.gameObject.layer);
+
+        private bool CapturesPivot(Collider2D captureContact) => captureContact.OverlapPoint(transform.position);
     }
 }
