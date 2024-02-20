@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8bb102b95615c54492609bd6c58ad6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isCapturedInDrawnShapeCheckLayer: 9
+  _captureEnterLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  _captureMaintainLayers:
+    serializedVersion: 2
+    m_Bits: 520

@@ -1,6 +1,8 @@
 using Extensions;
 using Game.Enums;
 using Game.Enums.Extensions;
+using Game.Grid.Bounds;
+using Generic;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
@@ -15,7 +17,11 @@ namespace Game.Grid
         [SerializeField] private Vector2 _lowerLeftCornerScenePosition;
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
-
+        [SerializeField] private GridBounds _bounds;
+        [SerializeField] private float _paddingThickness;
+        [SerializeField] private float _collidersThickness;
+        
+        
         public Vector2Int Size => _size;
 
         public Vector2 SceneCellSize => _sceneCellSize;
