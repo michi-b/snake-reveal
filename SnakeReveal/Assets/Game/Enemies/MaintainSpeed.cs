@@ -35,10 +35,11 @@ namespace Game.Enemies
         protected virtual void FixedUpdate()
         {
             float currentSpeed = Rigidbody.velocity.magnitude;
-            if(currentSpeed == 0)
+            if (currentSpeed == 0)
             {
                 currentSpeed = float.Epsilon;
             }
+
             if (Mathf.Abs(currentSpeed - Speed) > EnforceSpeedThreshold)
             {
                 Rigidbody.velocity = Rigidbody.velocity / currentSpeed * Speed;

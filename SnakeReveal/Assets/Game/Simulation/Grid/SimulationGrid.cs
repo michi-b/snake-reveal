@@ -19,11 +19,11 @@ namespace Game.Simulation.Grid
         [SerializeField] private GridBounds _bounds;
         [SerializeField, HideInInspector] private float _paddingThickness;
         [SerializeField, HideInInspector] private float _collidersThickness;
-        
+
         public const string SceneSizePropertyName = nameof(_sceneSize);
         public const string CollidersThicknessPropertyName = nameof(_collidersThickness);
         public const string PaddingThicknessPropertyName = nameof(_paddingThickness);
-        
+
         public Vector2Int Size => _size;
 
         public Vector2 SceneCellSize => _sceneCellSize;

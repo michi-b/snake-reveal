@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Lines.Insertion;

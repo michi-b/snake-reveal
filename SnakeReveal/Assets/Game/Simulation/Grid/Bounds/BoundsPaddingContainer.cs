@@ -4,6 +4,5 @@ namespace Game.Simulation.Grid.Bounds
 {
     public class BoundsPaddingContainer : BoundsContainer<BoundsQuad>
     {
-        
     }
 }

@@ -23,7 +23,11 @@ namespace Generic
 
         public TItem this[TEnum key]
         {
-            get => _items[GetIndex(key)];
+            get
+            {
+                int index = GetIndex(key);
+                return _items[index];
+            }
             set => _items[GetIndex(key)] = value;
         }
 

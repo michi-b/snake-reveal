@@ -11,10 +11,10 @@ namespace Game.Enums
     /// </remarks>
     public enum GridSide
     {
-        None = -1,
-        Bottom = 0,
-        Left = 1,
-        Top = 2,
-        Right = 3
+        None = 0,
+        Bottom = 1,
+        Left = 2,
+        Top = 3,
+        Right = 4
     }
 }
