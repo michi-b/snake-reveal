@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Game.Grid;
+using Game.Simulation.Grid;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;

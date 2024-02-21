@@ -1,6 +1,6 @@
-﻿using Game.Grid;
-using Game.Player;
+﻿using Game.Player;
 using Game.Player.Controls;
+using Game.Simulation.Grid;
 using Game.Simulation.States;
 using UnityEngine;
 

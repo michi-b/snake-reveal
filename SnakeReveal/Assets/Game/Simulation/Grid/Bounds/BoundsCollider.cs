@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Game.Grid.Bounds
+namespace Game.Simulation.Grid.Bounds
 {
     [RequireComponent(typeof(MeshFilter)), RequireComponent(typeof(MeshRenderer)), RequireComponent(typeof(BoxCollider2D))]
     public class BoundsCollider : BoundsQuad

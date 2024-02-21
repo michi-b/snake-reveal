@@ -2,7 +2,7 @@ using Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Grid.Editor
+namespace Game.Simulation.Grid.Editor
 {
     [CustomEditor(typeof(GridPlacement))]
     public class SimulationGridTransformEditor : UnityEditor.Editor

@@ -1,12 +1,12 @@
 using System;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Grid;
 using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
 using Game.Quads;
 using Game.Quads.Quadrangulation;
+using Game.Simulation.Grid;
 using UnityEngine;
 
 namespace Game

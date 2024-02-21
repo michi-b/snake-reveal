@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _captureEnterLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 512
   _captureMaintainLayers:
     serializedVersion: 2
     m_Bits: 520

@@ -1,4 +1,4 @@
-using Game.Grid;
+using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using UnityEngine;
 

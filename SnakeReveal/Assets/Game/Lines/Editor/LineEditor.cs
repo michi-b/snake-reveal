@@ -1,5 +1,5 @@
 ﻿using Editor;
-using Game.Grid;
+using Game.Simulation.Grid;
 using UnityEditor;
 using UnityEngine;
 

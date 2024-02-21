@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Extensions;
-using Game.Grid;
+using Game.Simulation.Grid;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;

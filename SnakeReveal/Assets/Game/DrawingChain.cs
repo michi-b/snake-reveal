@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Game.Enums;
-using Game.Grid;
 using Game.Lines;
+using Game.Simulation.Grid;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 

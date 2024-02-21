@@ -5,7 +5,7 @@ using System.Linq;
 using Editor;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Grid;
+using Game.Simulation.Grid;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;

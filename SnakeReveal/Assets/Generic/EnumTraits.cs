@@ -14,7 +14,7 @@ namespace Generic
             }
         }
 
-        private static readonly Dictionary<TEnum, int> _indexByValue = new Dictionary<TEnum, int>();
+        private static readonly Dictionary<TEnum, int> _indexByValue = new();
         public static TEnum[] Values { get; }
         public static int GetIndex(TEnum value) => _indexByValue[value];
         public static int Count => Values.Length;

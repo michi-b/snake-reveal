@@ -1,5 +1,5 @@
 ﻿using System;
-using Game.Grid;
+using Game.Simulation.Grid;
 using UnityEngine;
 
 namespace Extensions

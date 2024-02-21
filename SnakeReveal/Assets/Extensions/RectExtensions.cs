@@ -6,8 +6,6 @@ namespace Extensions
 {
     public static class RectExtensions
     {
-
-        
         public static Rect TakeFromTop(this ref Rect rect, float height)
         {
             var result = new Rect(rect.x, rect.y, rect.width, height);

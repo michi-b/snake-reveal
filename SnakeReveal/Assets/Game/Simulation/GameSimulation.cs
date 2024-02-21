@@ -2,10 +2,10 @@
 using System.Globalization;
 using CustomPropertyDrawers;
 using Game.Enums;
-using Game.Grid;
 using Game.Gui.DebugInfo;
 using Game.Gui.GameInfo;
 using Game.Player;
+using Game.Simulation.Grid;
 using UnityEngine;
 
 namespace Game.Simulation

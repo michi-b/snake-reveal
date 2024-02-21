@@ -1,6 +1,6 @@
-using Game.Grid.Bounds.Generic;
+using Game.Simulation.Grid.Bounds.Generic;
 
-namespace Game.Grid.Bounds
+namespace Game.Simulation.Grid.Bounds
 {
     public class BoundsPaddingContainer : BoundsContainer<BoundsQuad>
     {

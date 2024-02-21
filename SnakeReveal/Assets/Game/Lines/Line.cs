@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Extensions;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Grid;
+using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using UnityEngine;
 using Utility;
@@ -77,11 +77,9 @@ namespace Game.Lines
             }
         }
 
-        public GridAxis Orientation => _line.Direction.GetAxis();
+        private Vector3 StartWorldPosition => transform.position;
 
-        public Vector3 StartWorldPosition => transform.position;
-
-        public Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
+        private Vector3 EndWorldPosition => transform.position + _renderer.GetPosition(1);
 
         [CanBeNull]
         public Line Previous

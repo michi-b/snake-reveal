@@ -2,9 +2,8 @@ using Extensions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using Object = UnityEngine.Object;
 
-namespace Game.Grid
+namespace Game.Simulation.Grid
 {
     public class GridPlacement : MonoBehaviour
     {

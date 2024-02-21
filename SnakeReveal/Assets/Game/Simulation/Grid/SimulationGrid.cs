@@ -1,26 +1,28 @@
 using Extensions;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Grid.Bounds;
-using Generic;
+using Game.Simulation.Grid.Bounds;
 using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Game.Grid
+namespace Game.Simulation.Grid
 {
     public class SimulationGrid : MonoBehaviour
     {
-        [SerializeField] private Vector2 _sceneSize = new(10.8f, 10.8f);
+        [SerializeField, HideInInspector] private Vector2 _sceneSize = new(10.8f, 10.8f);
         [SerializeField] private Vector2Int _size = new(1024, 1024);
         [SerializeField] private Vector2 _sceneCellSize;
         [SerializeField] private Vector2 _lowerLeftCornerScenePosition;
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
         [SerializeField] private GridBounds _bounds;
-        [SerializeField] private float _paddingThickness;
-        [SerializeField] private float _collidersThickness;
+        [SerializeField, HideInInspector] private float _paddingThickness;
+        [SerializeField, HideInInspector] private float _collidersThickness;
         
+        public const string SceneSizePropertyName = nameof(_sceneSize);
+        public const string CollidersThicknessPropertyName = nameof(_collidersThickness);
+        public const string PaddingThicknessPropertyName = nameof(_paddingThickness);
         
         public Vector2Int Size => _size;
 
@@ -139,6 +141,29 @@ namespace Game.Grid
 
             // on bounds but not on corner => can choose direction that does not leave bounds
             return requestedDirection != boundsSide.GetOutsideDirection();
+        }
+
+        public void ApplyColliderThickness()
+        {
+            if (_bounds == null || _bounds.Colliders == null)
+            {
+                Debug.LogWarning("No colliders to apply thickness to");
+                return;
+            }
+
+            float paddingSize = _paddingThickness * 2f;
+            _bounds.Colliders.SetSize(_sceneSize + new Vector2(paddingSize, paddingSize), _collidersThickness);
+        }
+
+        public void ApplyPaddingThickness()
+        {
+            if (_bounds == null || _bounds.Padding == null)
+            {
+                Debug.LogWarning("No bounds to apply padding to");
+                return;
+            }
+
+            _bounds.Padding.SetSize(_sceneSize, _paddingThickness);
         }
     }
 }

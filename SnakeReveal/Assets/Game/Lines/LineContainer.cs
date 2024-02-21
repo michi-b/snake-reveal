@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Extensions;
 using Game.Enums;
-using Game.Grid;
+using Game.Simulation.Grid;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEditor;

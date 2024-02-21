@@ -1,5 +1,5 @@
 ﻿using Game.Enums.Utility;
-using Game.Grid;
+using Game.Simulation.Grid;
 using UnityEngine;
 
 namespace Game.Enums.Extensions
