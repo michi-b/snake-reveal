@@ -2,7 +2,7 @@ using System;
 using Attributes;
 using UnityEngine;
 
-namespace Game.Gui.GameMenu
+namespace Game.UI.GameMenu
 {
     [RequireComponent(typeof(Animator))]
     public class GameMenu : MonoBehaviour

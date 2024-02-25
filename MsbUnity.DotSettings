@@ -128,6 +128,8 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Field/=VARIABLENAME/@KeyIndexDefined">False</s:Boolean>
 	
 	
+	
+	
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Reformat/@EntryValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Scope/=8C7CCA9184497B4E8F5CA07D4C960DCD/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Scope/=8C7CCA9184497B4E8F5CA07D4C960DCD/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
@@ -137,7 +139,7 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Shortcut/@EntryValue">ccomp</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=6FBAA97826984A4F90C1AF61220E7BCE/Text/@EntryValue">private $Type$ _$Field$;
-private $Type$ $Property$ =&gt; _$Field$ ??= GetComponent&lt;$Type$&gt;();$END$</s:String>
+private $Type$ $Property$ =&gt; _$Field$ = _$Field$ == null ? GetComponent&lt;$Type$&gt;() : _$Field$;$END$</s:String>
 	
 	
 	

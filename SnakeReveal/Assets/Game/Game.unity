@@ -169,11 +169,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 2.8598034
+      value: 1.7672073
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -0.90638006
+      value: 0.9364714
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -333,11 +333,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 1.6182573
+      value: 0.6333846
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -2.5261123
+      value: -1.8970566
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -406,11 +406,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -2.5761702
+      value: -1.9450064
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 1.5373182
+      value: -0.4657794
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -479,11 +479,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -1.3044448
+      value: -0.9238103
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 2.7015595
+      value: 1.7738587
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -611,11 +611,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -1.2280669
+      value: -0.42229095
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 2.7371247
+      value: 1.9549093
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1037,11 +1037,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -2.6780143
+      value: -0.39271855
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -1.3521245
+      value: -1.9610641
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1115,11 +1115,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 2.9041736
+      value: 1.7121235
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -0.7521813
+      value: 1.0337471
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1493,11 +1493,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 2.666902
+      value: 1.5034254
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -1.3739119
+      value: -1.3189814
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1605,11 +1605,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -2.6568694
+      value: 1.1586586
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 1.3932143
+      value: 1.6301873
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1678,11 +1678,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 0.2999674
+      value: 0.033888455
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 2.9849656
+      value: 1.9997128
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -1996,11 +1996,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 2.8882532
+      value: 1.8991904
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -0.8111681
+      value: -0.6269579
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2285,11 +2285,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 0.754285
+      value: 0.92726684
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 2.9036276
+      value: 1.7720542
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2441,11 +2441,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -2.5717747
+      value: -1.3931948
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 1.5446599
+      value: -1.4349244
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2586,11 +2586,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 1.2730095
+      value: -0.8272893
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -2.7165136
+      value: -1.8208768
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2659,11 +2659,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: 2.6601217
+      value: 1.9429427
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: -1.386994
+      value: -0.4743135
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2826,11 +2826,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
-      value: -2.0013132
+      value: 1.2452006
       objectReference: {fileID: 0}
     - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.y
-      value: 2.2348928
+      value: 1.5650799
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x
@@ -2859,8 +2859,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1919637393}
   - component: {fileID: 1919637395}
-  - component: {fileID: 1919637394}
   - component: {fileID: 1919637396}
+  - component: {fileID: 1919637394}
   m_Layer: 5
   m_Name: GameInfoCanvas
   m_TagString: Untagged
@@ -2901,7 +2901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 3
+  m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -2916,7 +2916,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 1459220150195555090}
-  m_PlaneDistance: 2
+  m_PlaneDistance: 0.5
   m_PixelPerfect: 1
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -4033,6 +4033,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6404439499529875518, guid: e59d70664d672cd4bac97d7a3e15da16, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4328,6 +4352,14 @@ PrefabInstance:
     - target: {fileID: 436532155351939277, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
+      propertyPath: _startVelocity.x
+      value: 1.7463386
+      objectReference: {fileID: 0}
+    - target: {fileID: 2210418116927343822, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
+      propertyPath: _startVelocity.y
+      value: 0.97483426
       objectReference: {fileID: 0}
     - target: {fileID: 3320278463616820551, guid: 1d9ec47cf801c0f4cba11016945d054d, type: 3}
       propertyPath: _startVelocity.x

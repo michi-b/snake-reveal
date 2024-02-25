@@ -1,6 +1,6 @@
-using Game.Gui.AvailableDirectionsIndication;
-using Game.Gui.DebugInfo;
-using Game.Gui.GameMenu;
+using Game.UI.AvailableDirectionsIndication;
+using Game.UI.DebugInfo;
+using Game.UI.GameMenu;
 using UnityEngine;
 
 namespace Game.State

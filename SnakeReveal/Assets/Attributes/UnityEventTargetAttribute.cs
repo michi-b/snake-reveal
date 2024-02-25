@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Attributes
 {
-    [AttributeUsage(AttributeTargets.Method), MeansImplicitUse(ImplicitUseKindFlags.Access)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property), MeansImplicitUse(ImplicitUseKindFlags.Access)]
     public class UnityEventTargetAttribute : Attribute
     {
         public UnityEventTargetAttribute(string note = null)
