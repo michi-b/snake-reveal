@@ -13,7 +13,6 @@ namespace Game
         [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
         [SerializeField] private DebugInfoGui _debugInfoGui;
 
-
         private IGameState _currentState;
 
         public Simulation.GameSimulation Simulation => _simulation;
@@ -36,7 +35,10 @@ namespace Game
         protected void Start()
         {
             _currentState = WaitingForSimulationInputState.Enter();
+
+#if DEBUG
             _debugInfoGui.GameState = _currentState.Id.GetDisplayName();
+#endif
         }
 
         protected virtual void FixedUpdate()
@@ -45,8 +47,17 @@ namespace Game
             _currentState = _currentState.FixedUpdate();
             if (_currentState.Id != originalState)
             {
+
+#if DEBUG
                 _debugInfoGui.GameState = _currentState.Id.GetDisplayName();
+#endif
+                ApplyIsGameMenuAvailable();
             }
+        }
+        
+        void ApplyIsGameMenuAvailable()
+        {
+            _gameMenu.IsAvailable = _currentState.Id.GetIsGameMenuAvailable();
         }
     }
 }

@@ -78,8 +78,6 @@ namespace Game.Simulation.States
 
             GridDirection breakoutDirection = Shape.GetBreakoutDirection(_currentLine);
 
-            //todo: at corners there are potentially more breakout directions available, and these need to be added
-
             result = result.WithDirection(breakoutDirection);
 
             result = Actor.RestrictDirectionsToAvailableInBounds(result);

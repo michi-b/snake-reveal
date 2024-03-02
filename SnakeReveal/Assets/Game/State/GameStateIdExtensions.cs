@@ -14,5 +14,16 @@ namespace Game.State
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
+
+        public static bool GetIsGameMenuAvailable(this GameStateId state)
+        {
+            return state switch
+            {
+                GameStateId.GameMenu => true,
+                GameStateId.SimulationRunning => true,
+                GameStateId.WaitingForSimulationInput => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
+        }
     }
 }

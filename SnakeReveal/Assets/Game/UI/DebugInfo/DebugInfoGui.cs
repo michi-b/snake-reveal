@@ -15,7 +15,7 @@ namespace Game.UI.DebugInfo
         [SerializeField] private IntDisplay _targetCellCount;
 
 
-        public void Start()
+        protected virtual void Awake()
         {
 #if DEBUG
             gameObject.SetActive(true);
@@ -26,28 +26,45 @@ namespace Game.UI.DebugInfo
 
         public string GameState
         {
-            set => _gameState.Text = value;
+            set
+            {
+                AssertIsDebug();
+                _gameState.Text = value;
+            }
         }
 
         public string SimulationState
         {
-            set => _simulationState.Text = value;
+            set
+            {
+                AssertIsDebug();
+                _simulationState.Text = value;
+            }
         }
 
         public float SimulationTime
         {
-            set => _simulationTime.Value = value;
+            set
+            {
+                AssertIsDebug();
+                _simulationTime.Value = value;
+            }
         }
 
         public int SimulationTicks
         {
-            set => _simulationTicks.Value = value;
+            set
+            {
+                AssertIsDebug();
+                _simulationTicks.Value = value;
+            }
         }
 
         public int TotalCellCount
         {
             set
             {
+                AssertIsDebug();
                 _totalCellCount.Value = value;
                 UpdateCoveredCellPercentage();
             }
@@ -57,6 +74,7 @@ namespace Game.UI.DebugInfo
         {
             set
             {
+                AssertIsDebug();
                 _coveredCellCount.Value = value;
                 UpdateCoveredCellPercentage();
             }
@@ -64,12 +82,23 @@ namespace Game.UI.DebugInfo
 
         public int TargetCellCount
         {
-            set => _targetCellCount.Value = value;
+            set
+            {
+                AssertIsDebug();
+                _targetCellCount.Value = value;
+            }
         }
 
         private void UpdateCoveredCellPercentage()
         {
             _coveredCellPercentage.Value = (float)_coveredCellCount.Value / _totalCellCount.Value;
+        }
+
+        private void AssertIsDebug()
+        {
+#if !DEBUG
+            throw new InvalidOperationException("Debug info gui should bot be used in release builds.");
+#endif
         }
     }
 }

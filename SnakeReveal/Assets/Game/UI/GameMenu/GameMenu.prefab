@@ -262,6 +262,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isOpenAnimatorPropertyName: IsOpen
+  _gameMenuButton: {fileID: 4992353864374024549}
 --- !u!95 &3400730012536006806
 Animator:
   serializedVersion: 7

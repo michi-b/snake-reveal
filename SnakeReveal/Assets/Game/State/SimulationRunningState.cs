@@ -2,34 +2,31 @@
 
 namespace Game.State
 {
-    public class SimulationRunningState : IGameState
+    public class SimulationRunningState : GameState
     {
-        private readonly Game _game;
+        public override GameStateId Id => GameStateId.SimulationRunning;
 
-        public GameStateId Id => GameStateId.SimulationRunning;
-
-        public SimulationRunningState(Game game)
+        public SimulationRunningState(Game game) : base(game)
         {
-            _game = game;
         }
 
-        public IGameState FixedUpdate()
+        public override IGameState FixedUpdate()
         {
-            if (_game.GameMenuState.TryEnter(out GameMenuState enteredGameMenuState))
+            if(TryEnterCommonState(out IGameState newState))
             {
-                return enteredGameMenuState;
+                return newState;
             }
 
-            SimulationUpdateResult updateResult = _game.Simulation.SimulationUpdate();
+            SimulationUpdateResult updateResult = Game.Simulation.SimulationUpdate();
 
             return updateResult.PlayerDidCollideWithEnemy || updateResult.PlayerDidCollideWithDrawing
-                ? _game.WaitingForSimulationInputState.Enter()
+                ? Game.WaitingForSimulationInputState.Enter()
                 : this;
         }
 
         public IGameState Enter()
         {
-            _game.Simulation.Resume();
+            Game.Simulation.Resume();
             return this;
         }
     }

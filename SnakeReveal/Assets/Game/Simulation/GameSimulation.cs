@@ -39,8 +39,10 @@ namespace Game.Simulation
 
         protected virtual void Awake()
         {
+#if DEBUG
             _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
             _debugInfoGui.TotalCellCount = _grid.GetCellCount();
+#endif
 
             _playerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
 
@@ -48,8 +50,10 @@ namespace Game.Simulation
 
             UpdatePercentCompletionDisplay();
 
+#if DEBUG
             _debugInfoGui.SimulationTicks = 0;
             _debugInfoGui.SimulationTime = 0f;
+#endif
         }
 
         public virtual SimulationUpdateResult SimulationUpdate()
@@ -64,8 +68,10 @@ namespace Game.Simulation
 
             Ticks++;
 
+#if DEBUG
             _debugInfoGui.SimulationTicks = Ticks;
             _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
+#endif
 
             var result = new SimulationUpdateResult();
 
@@ -73,10 +79,12 @@ namespace Game.Simulation
             IPlayerSimulationState oldState = _playerSimulation.CurrentState;
             _playerSimulation.Move(ref result);
             IPlayerSimulationState newState = _playerSimulation.CurrentState;
+#if DEBUG
             if (newState != oldState)
             {
                 _debugInfoGui.SimulationState = newState.Name;
             }
+#endif
 
             // automatic physics simulation is disabled in Physics 2D project settings, and is triggered here instead
             // (ATM Physics 2D is what updates the enemies and resolves collisions mainly)
@@ -96,7 +104,9 @@ namespace Game.Simulation
 
         private void UpdatePercentCompletionDisplay()
         {
+#if DEBUG
             _debugInfoGui.CoveredCellCount = _coveredCellCount;
+#endif
             _gameInfoGui.PercentCompletion = (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
         }
 

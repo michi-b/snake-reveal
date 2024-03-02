@@ -1,24 +1,23 @@
 ﻿namespace Game.State
 {
-    public class GameMenuState : IGameState
+    public class GameMenuState : GameState
     {
-        private readonly Game _game;
+        public override GameStateId Id => GameStateId.GameMenu;
 
-        public GameStateId Id => GameStateId.GameMenu;
-
-        public GameMenuState(Game game)
+        public GameMenuState(Game game) : base(game)
         {
-            _game = game;
         }
 
-        public IGameState FixedUpdate() =>
-            _game.Menu.AnimatorState.IsSomewhatOpen
+        public override IGameState FixedUpdate()
+        {
+            return Game.Menu.AnimatorState.IsSomewhatOpen
                 ? this
-                : _game.WaitingForSimulationInputState.Enter();
+                : Game.WaitingForSimulationInputState.Enter();
+        }
 
         public bool TryEnter(out GameMenuState enteredState)
         {
-            if (_game.Menu.AnimatorState.IsSomewhatOpen)
+            if (Game.Menu.AnimatorState.IsSomewhatOpen)
             {
                 enteredState = this;
                 return true;

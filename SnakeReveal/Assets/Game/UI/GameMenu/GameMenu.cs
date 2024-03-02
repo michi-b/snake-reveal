@@ -1,12 +1,24 @@
 using System;
 using Attributes;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game.UI.GameMenu
 {
     [RequireComponent(typeof(Animator))]
     public class GameMenu : MonoBehaviour
     {
+        [SerializeField] private string _isOpenAnimatorPropertyName = "IsOpen";
+        [SerializeField] private Button _gameMenuButton;
+        
+        
+        private int _isOpenAnimatorPropertyId;
+        private bool _wantsToBeOpen;
+        
+        private Animator _animator;
+
+        private Animator Animator => _animator ??= GetComponent<Animator>();
+
         protected void Awake()
         {
             _isOpenAnimatorPropertyId = Animator.StringToHash(_isOpenAnimatorPropertyName);
@@ -30,18 +42,12 @@ namespace Game.UI.GameMenu
             AnimatorState = state;
         }
 
-        private Animator _animator;
-
-        private Animator Animator => _animator ??= GetComponent<Animator>();
-
-
-        [SerializeField] private string _isOpenAnimatorPropertyName = "IsOpen";
-
-        private int _isOpenAnimatorPropertyId;
-
-        private bool _wantsToBeOpen;
-
         public AnimatorControlledState AnimatorState { get; private set; }
+
+        public bool IsAvailable
+        {
+            set => _gameMenuButton.interactable = value;
+        }
 
         [Serializable]
         public struct AnimatorControlledState
