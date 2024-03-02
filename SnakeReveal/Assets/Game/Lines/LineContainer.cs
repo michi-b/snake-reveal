@@ -248,7 +248,7 @@ namespace Game.Lines
                 Undo.RegisterFullObjectHierarchyUndo(result.gameObject, "EditModeInstantiateLine - Initialize Line");
 
                 result.transform.parent = container.transform;
-                result.transform.ClearZ();
+                result.transform.ClearLocalZ();
                 result.Initialize(container._grid);
                 result.Place(new LineData(startPosition, endPosition));
 

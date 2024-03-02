@@ -7,6 +7,7 @@ using Game.Simulation.Grid;
 using Game.UI.DebugInfo;
 using Game.UI.GameInfo;
 using UnityEngine;
+using Utility;
 
 namespace Game.Simulation
 {
@@ -55,7 +56,7 @@ namespace Game.Simulation
         {
             if (Ticks == int.MaxValue)
             {
-                Application.Quit(ExitCodes.TicksCountOverflow);
+                ApplicationUtility.Quit(ExitCodes.TicksCountOverflow);
                 throw new InvalidOperationException("Ticks would overflow after after " +
                                                     (int.MaxValue * Time.fixedDeltaTime / (60 * 60 * 24)).ToString(CultureInfo.InvariantCulture) +
                                                     $"days after game scene load, quitting...");

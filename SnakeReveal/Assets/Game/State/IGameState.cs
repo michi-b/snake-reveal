@@ -3,6 +3,6 @@
     public interface IGameState
     {
         IGameState FixedUpdate();
-        string Name { get; }
+        public GameStateId Id { get; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Extensions
 {

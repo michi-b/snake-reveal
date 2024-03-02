@@ -11,7 +11,7 @@ namespace Game.State
         private readonly AvailableDirectionsIndication _availableDirectionsIndication;
         private GridDirections _availableDirections;
 
-        public string Name => "WaitingForSimulationInput";
+        public GameStateId Id => GameStateId.WaitingForSimulationInput;
 
         public WaitingForSimulationInputState(Game game, AvailableDirectionsIndication availableDirectionsIndication)
         {

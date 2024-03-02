@@ -8,8 +8,13 @@ namespace Extensions
         {
             target.localPosition = new Vector3(xy.x, xy.y, target.localPosition.z);
         }
+        
+        public static void SetWorldPositionXY(this Transform target, Vector2 xy)
+        {
+            target.position = new Vector3(xy.x, xy.y, target.position.z);
+        }
 
-        public static void ClearZ(this Transform target)
+        public static void ClearLocalZ(this Transform target)
         {
             target.SetLocalPositionZ(0f);
         }

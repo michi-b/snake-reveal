@@ -6,7 +6,7 @@ namespace Game.State
     {
         private readonly Game _game;
 
-        public string Name => "SimulationRunning";
+        public GameStateId Id => GameStateId.SimulationRunning;
 
         public SimulationRunningState(Game game)
         {

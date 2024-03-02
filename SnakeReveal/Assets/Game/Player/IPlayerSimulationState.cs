@@ -13,7 +13,7 @@ namespace Game.Player
 
         /// <summary>
         /// Evaluates the currently available directions for the player to move in.
-        /// This is used by <see cref="State.Game.WaitingForSimulationInputState"/> to know in which direction continuation is possible.
+        /// This is used by <see cref="Game.WaitingForSimulationInputState"/> to know in which direction continuation is possible.
         /// </summary>
         /// <returns>Currently available directions for the player to move in</returns>
         public GridDirections GetAvailableDirections();

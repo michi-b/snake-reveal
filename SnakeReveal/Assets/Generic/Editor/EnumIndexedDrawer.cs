@@ -1,4 +1,5 @@
-﻿using Extensions.Editor;
+﻿using Extensions;
+using Extensions.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,7 +36,7 @@ namespace Generic.Editor
                     SerializedProperty item = items.GetArrayElementAtIndex(i);
                     var itemLabel = new GUIContent(enumNames[i]);
                     float itemHeight = EditorGUI.GetPropertyHeight(item, itemLabel, IncludeChildren);
-                    Rect itemPosition = position.TakeSingleLineFromTop();
+                    Rect itemPosition = position.TakeFromTop(itemHeight);
                     EditorGUI.BeginProperty(itemPosition, itemLabel, item);
                     EditorGUI.PropertyField(itemPosition, item, itemLabel);
                 }

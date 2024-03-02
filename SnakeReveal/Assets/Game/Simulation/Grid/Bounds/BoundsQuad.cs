@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Extensions;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Game.Simulation.Grid.Bounds
@@ -13,7 +14,8 @@ namespace Game.Simulation.Grid.Bounds
         public void Place(Vector2 center, Vector2 size)
         {
             Transform thisTransform = transform;
-            thisTransform.position = new Vector3(center.x, center.y, 0f);
+            thisTransform.SetWorldPositionXY(center);
+            thisTransform.ClearLocalZ();
             thisTransform.localScale = new Vector3(size.x, size.y, 1f);
         }
     }

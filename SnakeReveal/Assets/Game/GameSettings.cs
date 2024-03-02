@@ -1,6 +1,5 @@
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Game
 {
