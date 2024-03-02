@@ -4,6 +4,7 @@
     {
         GameMenu,
         SimulationRunning,
-        WaitingForSimulationInput
+        WaitingForSimulationInput,
+        LevelComplete
     }
 }

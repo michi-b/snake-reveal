@@ -20,6 +20,9 @@ UnityEngine.Debug.Assert($EXPR$ != null, $MESSAGE$);</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=EnforceWhileStatementBraces/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator/@EntryIndexedValue">DO_NOT_SHOW</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=InvertIf/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SwitchStatementHandlesSomeKnownEnumValuesWithDefault/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SwitchStatementMissingSomeEnumCasesNoDefault/@EntryIndexedValue">WARNING</s:String>
 	
 	
 	

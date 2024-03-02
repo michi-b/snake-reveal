@@ -11,6 +11,7 @@ namespace Game.State
                 GameStateId.GameMenu => "Game Menu",
                 GameStateId.SimulationRunning => "Simulation Running",
                 GameStateId.WaitingForSimulationInput => "Waiting For Simulation Input",
+                GameStateId.LevelComplete => "Level Complete",
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }
@@ -22,6 +23,7 @@ namespace Game.State
                 GameStateId.GameMenu => true,
                 GameStateId.SimulationRunning => true,
                 GameStateId.WaitingForSimulationInput => true,
+                GameStateId.LevelComplete => false,
                 _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
             };
         }

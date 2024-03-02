@@ -19,6 +19,11 @@ namespace Game.State
 
             SimulationUpdateResult updateResult = Game.Simulation.SimulationUpdate();
 
+            if (updateResult.LevelComplete)
+            {
+                return Game.LevelCompleteState.Enter();
+            }
+            
             return updateResult.PlayerDidCollideWithEnemy || updateResult.PlayerDidCollideWithDrawing
                 ? Game.WaitingForSimulationInputState.Enter()
                 : this;

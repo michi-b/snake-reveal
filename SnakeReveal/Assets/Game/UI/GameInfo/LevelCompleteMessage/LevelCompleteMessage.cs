@@ -7,18 +7,8 @@ namespace Game.UI.GameInfo.LevelCompleteMessage
 {
     public class LevelCompleteMessage : MessageBox.MessageBox
     {
-        [SerializeField] private FloatDisplay _seconds;
-        [SerializeField] private FloatDisplay _coverage;
-
-        public float Seconds
-        {
-            set => _seconds.Value = value;
-        }
-
-        public float Coverage
-        {
-            set => _coverage.Value = value;
-        }
+        [SerializeField] private FloatDisplay _secondsDisplay;
+        [SerializeField] private FloatDisplay _coverageDisplay;
 
         [UnityEventTarget]
         public void OnRestartButtonClicked()
@@ -32,6 +22,13 @@ namespace Game.UI.GameInfo.LevelCompleteMessage
         {
             IsVisible = false;
             Application.Quit(ExitCodes.Success);
+        }
+
+        public void Show(float seconds, float coverage)
+        {
+            _secondsDisplay.Value = seconds;
+            _coverageDisplay.Value = coverage;
+            IsVisible = true;
         }
     }
 }

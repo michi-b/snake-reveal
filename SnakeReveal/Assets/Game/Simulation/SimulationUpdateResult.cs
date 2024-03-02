@@ -4,5 +4,6 @@
     {
         public bool PlayerDidCollideWithEnemy;
         public bool PlayerDidCollideWithDrawing;
+        public bool LevelComplete;
     }
 }

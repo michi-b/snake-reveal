@@ -132,7 +132,7 @@ namespace Game.Simulation.States
         {
             Actor.Position = Drawing.StartPosition;
             ClearState();
-            return _simulation.ShapetravelState.ReEnter();
+            return _simulation.ShapeTravelState.ReEnter();
         }
 
         public GridDirections GetAvailableDirections()
@@ -188,7 +188,7 @@ namespace Game.Simulation.States
             {
                 // insert drawing into shape and switch to shape travel
                 InsertionResult insertionResult = Shape.Insert(Drawing, _shapeBreakoutLine, shapeCollisionLine);
-                enteredShapeTravelState = _simulation.ShapetravelState.Enter(insertionResult, ref result);
+                enteredShapeTravelState = _simulation.ShapeTravelState.Enter(insertionResult, ref result);
                 return true;
             }
 

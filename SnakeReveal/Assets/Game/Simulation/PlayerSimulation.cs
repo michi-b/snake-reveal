@@ -10,12 +10,9 @@ namespace Game.Simulation
     {
         private readonly GameSimulation _game;
 
-        private readonly ShapeTravelState _shapeTravelState;
-        private readonly DrawingState _drawingState;
-
         public IPlayerSimulationState CurrentState { get; private set; }
 
-        public int CoveredCellCount => ShapetravelState.CoveredCellCount;
+        public int CoveredCellCount => ShapeTravelState.CoveredCellCount;
 
         public IPlayerActorControls Controls { get; }
 
@@ -29,9 +26,9 @@ namespace Game.Simulation
 
         public SimulationGrid Grid => _game.Grid;
 
-        public DrawingState DrawingState => _drawingState;
+        public DrawingState DrawingState { get; }
 
-        public ShapeTravelState ShapetravelState => _shapeTravelState;
+        public ShapeTravelState ShapeTravelState { get; }
 
         public void Move(ref SimulationUpdateResult result)
         {
@@ -56,10 +53,10 @@ namespace Game.Simulation
             Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
             Controls.Activate();
 
-            _shapeTravelState = new ShapeTravelState(this);
-            _drawingState = new DrawingState(this);
+            ShapeTravelState = new ShapeTravelState(this);
+            DrawingState = new DrawingState(this);
 
-            CurrentState = ShapetravelState.Initialize();
+            CurrentState = ShapeTravelState.Initialize();
         }
 
         public void Resume()

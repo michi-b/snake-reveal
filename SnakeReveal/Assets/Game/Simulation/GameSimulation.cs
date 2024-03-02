@@ -37,6 +37,13 @@ namespace Game.Simulation
 
         public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
 
+        public float GetPercentCompletion() => (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
+
+        public float GetSimulationTime()
+        {
+            return Ticks * Time.fixedDeltaTime;
+        }
+
         protected virtual void Awake()
         {
 #if DEBUG
@@ -70,7 +77,7 @@ namespace Game.Simulation
 
 #if DEBUG
             _debugInfoGui.SimulationTicks = Ticks;
-            _debugInfoGui.SimulationTime = Ticks * Time.fixedDeltaTime;
+            _debugInfoGui.SimulationTime = GetSimulationTime();
 #endif
 
             var result = new SimulationUpdateResult();
@@ -97,17 +104,20 @@ namespace Game.Simulation
                 UpdatePercentCompletionDisplay();
             }
 
+            result.LevelComplete = newCoveredCellCount > _targetCellCount;
+
             return result;
         }
 
         public GridDirection GetRequestedDirection() => _playerSimulation.Controls.GetRequestedDirection();
+
 
         private void UpdatePercentCompletionDisplay()
         {
 #if DEBUG
             _debugInfoGui.CoveredCellCount = _coveredCellCount;
 #endif
-            _gameInfoGui.PercentCompletion = (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
+            _gameInfoGui.PercentCompletion = GetPercentCompletion();
         }
 
         public void Resume()

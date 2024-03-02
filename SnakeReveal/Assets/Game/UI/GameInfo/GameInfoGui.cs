@@ -7,9 +7,13 @@ namespace Game.UI.GameInfo
     {
         [SerializeField] private FloatDisplay _percentCompletionDisplay;
 
+        [SerializeField] private LevelCompleteMessage.LevelCompleteMessage _levelLevelCompleteMessage;
+
         public float PercentCompletion
         {
             set => _percentCompletionDisplay.Value = value;
         }
+
+        public LevelCompleteMessage.LevelCompleteMessage LevelCompleteMessage => _levelLevelCompleteMessage;
     }
 }

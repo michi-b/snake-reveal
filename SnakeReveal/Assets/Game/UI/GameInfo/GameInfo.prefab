@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _percentCompletionDisplay: {fileID: 2060790084822107138}
+  _levelLevelCompleteMessage: {fileID: 557865752138362227}
 --- !u!1 &3524543028717448810
 GameObject:
   m_ObjectHideFlags: 0
@@ -683,6 +684,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13668b32f559df74a903c197186dab9f, type: 3}
+--- !u!114 &557865752138362227 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3414295554867187857, guid: 13668b32f559df74a903c197186dab9f, type: 3}
+  m_PrefabInstance: {fileID: 2945332464813211106}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8135f81997bbb4d911051d1ef84e4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6189062952872492850 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}

@@ -541,8 +541,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isVisible: 0
-  _seconds: {fileID: 3615632449425506934}
-  _coverage: {fileID: 5766784756347347834}
+  _secondsDisplay: {fileID: 3615632449425506934}
+  _coverageDisplay: {fileID: 5766784756347347834}
 --- !u!1001 &3638750308823343755
 PrefabInstance:
   m_ObjectHideFlags: 0
