@@ -49,7 +49,7 @@ namespace Game.Gui.GameMenu
             AnimatorState = state;
         }
 
-        public bool IsToggleEnabled
+        public bool SetCanOpen
         {
             set
             {
@@ -63,6 +63,11 @@ namespace Game.Gui.GameMenu
                 }
 
                 _gameMenuButton.interactable = value;
+
+                if (!value)
+                {
+                    SetOpen(false);
+                }
             }
         }
 

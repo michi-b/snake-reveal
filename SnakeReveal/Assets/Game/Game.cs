@@ -55,7 +55,7 @@ namespace Game
 
         private void ApplyIsGameMenuAvailable()
         {
-            Gui.GameMenu.IsToggleEnabled = _currentState.Id.GetIsGameMenuAvailable();
+            Gui.GameMenu.SetCanOpen = _currentState.Id.GetIsGameMenuAvailable();
         }
     }
 }
