@@ -2,6 +2,7 @@ using Attributes;
 using TextDisplay.Abstractions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Utility;
 
 namespace Game.UI.GameInfo.LevelCompleteMessage
 {
@@ -21,7 +22,7 @@ namespace Game.UI.GameInfo.LevelCompleteMessage
         public void OnCloseAppButtonClicked()
         {
             IsVisible = false;
-            Application.Quit(ExitCodes.Success);
+            ApplicationUtility.Quit(ExitCodes.Success);
         }
 
         public void Show(float seconds, float coverage)

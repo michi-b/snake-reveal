@@ -2,6 +2,7 @@ using System;
 using Attributes;
 using UnityEngine;
 using UnityEngine.UI;
+using Utility;
 
 namespace Game.UI.GameMenu
 {
@@ -10,14 +11,16 @@ namespace Game.UI.GameMenu
     {
         [SerializeField] private string _isOpenAnimatorPropertyName = "IsOpen";
         [SerializeField] private Button _gameMenuButton;
-        
-        
+
+
         private int _isOpenAnimatorPropertyId;
         private bool _wantsToBeOpen;
-        
+
         private Animator _animator;
 
         private Animator Animator => _animator ??= GetComponent<Animator>();
+
+        public AnimatorControlledState AnimatorState { get; private set; }
 
         protected void Awake()
         {
@@ -30,10 +33,10 @@ namespace Game.UI.GameMenu
             SetOpen(!_wantsToBeOpen);
         }
 
-        private void SetOpen(bool value)
+        [UnityEventTarget("Abort Level Button")]
+        public void AbortLevel()
         {
-            _wantsToBeOpen = value;
-            Animator.SetBool(_isOpenAnimatorPropertyId, _wantsToBeOpen);
+            ApplicationUtility.Quit(ExitCodes.Success);
         }
 
         [UnityAnimationEventTarget]
@@ -42,11 +45,15 @@ namespace Game.UI.GameMenu
             AnimatorState = state;
         }
 
-        public AnimatorControlledState AnimatorState { get; private set; }
-
-        public bool IsAvailable
+        public bool IsOpenButtonEnabled
         {
             set => _gameMenuButton.interactable = value;
+        }
+
+        private void SetOpen(bool value)
+        {
+            _wantsToBeOpen = value;
+            Animator.SetBool(_isOpenAnimatorPropertyId, _wantsToBeOpen);
         }
 
         [Serializable]

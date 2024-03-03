@@ -268,5 +268,18 @@ namespace Game.Lines
             Exit,
             OnBounds
         }
+
+        public bool GetIsStartToEnd(Vector2Int start, Vector2Int end)
+        {
+            return Direction switch
+            {
+                GridDirection.None => throw new ArgumentOutOfRangeException(),
+                GridDirection.Right => start.x < end.x,
+                GridDirection.Up => start.y < end.y,
+                GridDirection.Left => start.x > end.x,
+                GridDirection.Down => start.y > end.y,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
     }
 }

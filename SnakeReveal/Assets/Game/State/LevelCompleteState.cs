@@ -12,13 +12,13 @@ namespace Game.State
         public LevelCompleteState Enter()
         {
             GameSimulation simulation = Game.Simulation;
-            
+
             float simulationTime = simulation.GetSimulationTime();
             float percentCompletion = simulation.GetPercentCompletion();
 
             LevelCompleteMessage levelCompleteMessage = Game.InfoGui.LevelCompleteMessage;
             levelCompleteMessage.Show(simulationTime, percentCompletion);
-            
+
             return this;
         }
 

@@ -39,10 +39,7 @@ namespace Game.Simulation
 
         public float GetPercentCompletion() => (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
 
-        public float GetSimulationTime()
-        {
-            return Ticks * Time.fixedDeltaTime;
-        }
+        public float GetSimulationTime() => Ticks * Time.fixedDeltaTime;
 
         protected virtual void Awake()
         {

@@ -12,7 +12,7 @@ namespace Game.State
 
         public override GameStateId Id => GameStateId.WaitingForSimulationInput;
 
-        public WaitingForSimulationInputState(Game game, AvailableDirectionsIndication availableDirectionsIndication) 
+        public WaitingForSimulationInputState(Game game, AvailableDirectionsIndication availableDirectionsIndication)
             : base(game)
         {
             _availableDirectionsIndication = availableDirectionsIndication;
@@ -20,7 +20,7 @@ namespace Game.State
 
         public override IGameState FixedUpdate()
         {
-            if(TryEnterCommonState(out IGameState newState))
+            if (TryEnterCommonState(out IGameState newState))
             {
                 return newState;
             }

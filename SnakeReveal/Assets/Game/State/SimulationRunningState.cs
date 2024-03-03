@@ -12,7 +12,7 @@ namespace Game.State
 
         public override IGameState FixedUpdate()
         {
-            if(TryEnterCommonState(out IGameState newState))
+            if (TryEnterCommonState(out IGameState newState))
             {
                 return newState;
             }
@@ -23,7 +23,7 @@ namespace Game.State
             {
                 return Game.LevelCompleteState.Enter();
             }
-            
+
             return updateResult.PlayerDidCollideWithEnemy || updateResult.PlayerDidCollideWithDrawing
                 ? Game.WaitingForSimulationInputState.Enter()
                 : this;

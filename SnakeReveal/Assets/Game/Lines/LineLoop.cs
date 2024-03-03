@@ -62,10 +62,20 @@ namespace Game.Lines
 
             if (breakoutLine == reinsertionLine)
             {
-                // crate new line after chain
-                reinsertionLine = GetNewLine(reinsertionLine.Data);
-                reinsertionLine.Next = breakoutLine.Next;
-                breakoutLine.Next!.Previous = reinsertionLine;
+                if (breakoutLine.GetIsStartToEnd(linesToInsert[0].Start, linesToInsert[^1].End))
+                {
+                    // crate new line after chain
+                    reinsertionLine = GetNewLine(reinsertionLine.Data);
+                    reinsertionLine.Next = breakoutLine.Next;
+                    breakoutLine.Next!.Previous = reinsertionLine;
+                }
+                else
+                {
+                    foreach (Line inBetweenLine in new LineSpan(breakoutLine.Next, reinsertionLine.Previous))
+                    {
+                        Cache.Return(inBetweenLine);
+                    }
+                }
             }
             else
             {

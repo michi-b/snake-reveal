@@ -25,7 +25,7 @@ namespace Game
         public WaitingForSimulationInputState WaitingForSimulationInputState { get; private set; }
 
         public SimulationRunningState RunningState { get; private set; }
-        
+
         public LevelCompleteState LevelCompleteState { get; private set; }
 
         public GameInfoGui InfoGui => _gameInfoGui;
@@ -53,17 +53,16 @@ namespace Game
             _currentState = _currentState.FixedUpdate();
             if (_currentState.Id != originalState)
             {
-
 #if DEBUG
                 _debugInfoGui.GameState = _currentState.Id.GetDisplayName();
 #endif
                 ApplyIsGameMenuAvailable();
             }
         }
-        
-        void ApplyIsGameMenuAvailable()
+
+        private void ApplyIsGameMenuAvailable()
         {
-            _gameMenu.IsAvailable = _currentState.Id.GetIsGameMenuAvailable();
+            _gameMenu.IsOpenButtonEnabled = _currentState.Id.GetIsGameMenuAvailable();
         }
     }
 }

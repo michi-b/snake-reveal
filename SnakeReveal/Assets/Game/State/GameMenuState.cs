@@ -8,12 +8,10 @@
         {
         }
 
-        public override IGameState FixedUpdate()
-        {
-            return Game.Menu.AnimatorState.IsSomewhatOpen
+        public override IGameState FixedUpdate() =>
+            Game.Menu.AnimatorState.IsSomewhatOpen
                 ? this
                 : Game.WaitingForSimulationInputState.Enter();
-        }
 
         public bool TryEnter(out GameMenuState enteredState)
         {
