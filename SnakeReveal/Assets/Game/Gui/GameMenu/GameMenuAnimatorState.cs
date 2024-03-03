@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.UI.GameMenu
+namespace Game.Gui.GameMenu
 {
     public class GameMenuAnimatorState : StateMachineBehaviour
     {

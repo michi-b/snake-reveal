@@ -1,8 +1,6 @@
+using Game.Gui;
+using Game.Gui.AvailableDirectionsIndication;
 using Game.State;
-using Game.UI.AvailableDirectionsIndication;
-using Game.UI.DebugInfo;
-using Game.UI.GameInfo;
-using Game.UI.GameMenu;
 using UnityEngine;
 
 namespace Game
@@ -10,15 +8,13 @@ namespace Game
     public class Game : MonoBehaviour
     {
         [SerializeField] private Simulation.GameSimulation _simulation;
-        [SerializeField] private GameMenu _gameMenu;
-        [SerializeField] private AvailableDirectionsIndication _availableDirectionsIndication;
-        [SerializeField] private GameInfoGui _gameInfoGui;
-        [SerializeField] private DebugInfoGui _debugInfoGui;
+        [SerializeField] private GuiContainer _gui;
 
         private IGameState _currentState;
 
         public Simulation.GameSimulation Simulation => _simulation;
-        public GameMenu Menu => _gameMenu;
+
+        public GuiContainer Gui => _gui;
 
         public GameMenuState GameMenuState { get; private set; }
 
@@ -28,12 +24,10 @@ namespace Game
 
         public LevelCompleteState LevelCompleteState { get; private set; }
 
-        public GameInfoGui InfoGui => _gameInfoGui;
-
         protected virtual void Awake()
         {
             GameMenuState = new GameMenuState(this);
-            WaitingForSimulationInputState = new WaitingForSimulationInputState(this, _availableDirectionsIndication);
+            WaitingForSimulationInputState = new WaitingForSimulationInputState(this, Gui.AvailableDirectionsIndication);
             RunningState = new SimulationRunningState(this);
             LevelCompleteState = new LevelCompleteState(this);
         }
@@ -43,7 +37,7 @@ namespace Game
             _currentState = WaitingForSimulationInputState.Enter();
 
 #if DEBUG
-            _debugInfoGui.GameState = _currentState.Id.GetDisplayName();
+            Gui.DebugInfo.GameState = _currentState.Id.GetDisplayName();
 #endif
         }
 
@@ -54,7 +48,7 @@ namespace Game
             if (_currentState.Id != originalState)
             {
 #if DEBUG
-                _debugInfoGui.GameState = _currentState.Id.GetDisplayName();
+                Gui.DebugInfo.GameState = _currentState.Id.GetDisplayName();
 #endif
                 ApplyIsGameMenuAvailable();
             }
@@ -62,7 +56,7 @@ namespace Game
 
         private void ApplyIsGameMenuAvailable()
         {
-            _gameMenu.IsOpenButtonEnabled = _currentState.Id.GetIsGameMenuAvailable();
+            Gui.GameMenu.IsOpenButtonEnabled = _currentState.Id.GetIsGameMenuAvailable();
         }
     }
 }

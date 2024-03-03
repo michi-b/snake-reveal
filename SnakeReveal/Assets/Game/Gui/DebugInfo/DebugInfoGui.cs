@@ -1,7 +1,11 @@
 using TextDisplay.Abstractions;
 using UnityEngine;
 
-namespace Game.UI.DebugInfo
+#if !DEBUG
+using System; // InvalidOperationException
+#endif
+
+namespace Game.Gui.DebugInfo
 {
     public class DebugInfoGui : MonoBehaviour
     {
@@ -94,7 +98,7 @@ namespace Game.UI.DebugInfo
             _coveredCellPercentage.Value = (float)_coveredCellCount.Value / _totalCellCount.Value;
         }
 
-        private void AssertIsDebug()
+        private static void AssertIsDebug()
         {
 #if !DEBUG
             throw new InvalidOperationException("Debug info gui should bot be used in release builds.");

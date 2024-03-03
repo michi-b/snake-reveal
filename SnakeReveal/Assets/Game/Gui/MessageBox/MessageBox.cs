@@ -2,7 +2,7 @@ using Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace Game.UI.MessageBox
+namespace Game.Gui.MessageBox
 {
     [RequireComponent(typeof(Animator))]
     public class MessageBox : MonoBehaviour

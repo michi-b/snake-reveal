@@ -1,5 +1,5 @@
-﻿using Game.Simulation;
-using Game.UI.GameInfo.LevelCompleteMessage;
+﻿using Game.Gui.GameInfo.LevelCompleteMessage;
+using Game.Simulation;
 
 namespace Game.State
 {
@@ -16,7 +16,7 @@ namespace Game.State
             float simulationTime = simulation.GetSimulationTime();
             float percentCompletion = simulation.GetPercentCompletion();
 
-            LevelCompleteMessage levelCompleteMessage = Game.InfoGui.LevelCompleteMessage;
+            LevelCompleteMessage levelCompleteMessage = Game.Gui.GameInfo.LevelCompleteMessage;
             levelCompleteMessage.Show(simulationTime, percentCompletion);
 
             return this;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utility;
 
-namespace Game.UI.GameInfo.LevelCompleteMessage
+namespace Game.Gui.GameInfo.LevelCompleteMessage
 {
     public class LevelCompleteMessage : MessageBox.MessageBox
     {

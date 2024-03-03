@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UndoUtility = Utility.UndoUtility;
 
-namespace Game.UI.AvailableDirectionsIndication
+namespace Game.Gui.AvailableDirectionsIndication
 {
     public class AvailableDirectionsIndication : MonoBehaviour
     {

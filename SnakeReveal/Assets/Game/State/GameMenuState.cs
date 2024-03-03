@@ -9,13 +9,13 @@
         }
 
         public override IGameState FixedUpdate() =>
-            Game.Menu.AnimatorState.IsSomewhatOpen
+            Game.Gui.GameMenu.AnimatorState.IsSomewhatOpen
                 ? this
                 : Game.WaitingForSimulationInputState.Enter();
 
         public bool TryEnter(out GameMenuState enteredState)
         {
-            if (Game.Menu.AnimatorState.IsSomewhatOpen)
+            if (Game.Gui.GameMenu.AnimatorState.IsSomewhatOpen)
             {
                 enteredState = this;
                 return true;

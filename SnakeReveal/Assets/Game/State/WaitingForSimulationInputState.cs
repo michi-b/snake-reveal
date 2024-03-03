@@ -1,7 +1,7 @@
 ﻿using Game.Enums;
 using Game.Enums.Extensions;
+using Game.Gui.AvailableDirectionsIndication;
 using Game.Player;
-using Game.UI.AvailableDirectionsIndication;
 
 namespace Game.State
 {

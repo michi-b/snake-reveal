@@ -1,3 +1,4 @@
+using System;
 using Extensions;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -9,9 +10,18 @@ namespace Game.Enemies
     public class IsCapturedInDrawnShapeDetector : MonoBehaviour
     {
         [SerializeField] private UnityEvent<bool> _onIsCapturedChanged;
+        [SerializeField] private LayerMask _captureEnterLayers;
+        [SerializeField] private LayerMask _captureMaintainLayers;
+
         private int _captureEnterContactCount;
         private int _captureMaintainContactCount;
         private bool _isCaptured;
+
+        protected void Reset()
+        {
+            _captureEnterLayers = LayerMask.GetMask("ShapeQuads");
+            _captureMaintainLayers = LayerMask.GetMask("ShapeQuads", "Enemies");
+        }
 
         [PublicAPI]
         public bool IsCaptured
@@ -27,8 +37,8 @@ namespace Game.Enemies
 
         protected void OnTriggerEnter2D(Collider2D other)
         {
-            bool entersCapture = IsCapturingContact(other);
-            if (entersCapture)
+            bool isCaptureEnterContact = IsCapturingContact(other);
+            if (isCaptureEnterContact)
             {
                 _captureEnterContactCount++;
             }
@@ -38,7 +48,7 @@ namespace Game.Enemies
                 _captureMaintainContactCount++;
             }
 
-            if (!IsCaptured && entersCapture && CapturesPivot(other))
+            if (!IsCaptured && isCaptureEnterContact && CapturesPivot(other))
             {
                 IsCaptured = true;
             }
@@ -70,9 +80,8 @@ namespace Game.Enemies
             }
         }
 
-        private static bool IsCapturingContact(Component other) => GameSettings.instance.IsCapturedInDrawnCheckEnterLayers.Contains(other.gameObject.layer);
-        private static bool IsCaptureMaintainingContact(Component other) => GameSettings.instance.CaptureMaintainLayers.Contains(other.gameObject.layer);
-
+        private bool IsCapturingContact(Component other) => _captureEnterLayers.Contains(other.gameObject.layer);
+        private bool IsCaptureMaintainingContact(Component other) => _captureMaintainLayers.Contains(other.gameObject.layer);
         private bool CapturesPivot(Collider2D captureContact) => captureContact.OverlapPoint(transform.position);
     }
 }

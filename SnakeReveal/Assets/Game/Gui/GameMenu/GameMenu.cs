@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utility;
 
-namespace Game.UI.GameMenu
+namespace Game.Gui.GameMenu
 {
     [RequireComponent(typeof(Animator))]
     public class GameMenu : MonoBehaviour

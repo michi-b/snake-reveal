@@ -82,6 +82,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _captureEnterLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  _captureMaintainLayers:
+    serializedVersion: 2
+    m_Bits: 520
 --- !u!114 &2210418116927343822
 MonoBehaviour:
   m_ObjectHideFlags: 0

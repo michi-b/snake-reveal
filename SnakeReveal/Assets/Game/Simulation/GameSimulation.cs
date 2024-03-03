@@ -2,10 +2,9 @@
 using System.Globalization;
 using CustomPropertyDrawers;
 using Game.Enums;
+using Game.Gui;
 using Game.Player;
 using Game.Simulation.Grid;
-using Game.UI.DebugInfo;
-using Game.UI.GameInfo;
 using UnityEngine;
 using Utility;
 
@@ -17,8 +16,7 @@ namespace Game.Simulation
         [SerializeField] private PlayerActor _player;
         [SerializeField] private DrawnShape _drawnShape;
         [SerializeField] private DrawingChain _drawing;
-        [SerializeField] private DebugInfoGui _debugInfoGui;
-        [SerializeField] private GameInfoGui _gameInfoGui;
+        [SerializeField] private GuiContainer _gui;
 
         [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
@@ -43,9 +41,10 @@ namespace Game.Simulation
 
         protected virtual void Awake()
         {
+            _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
 #if DEBUG
-            _debugInfoGui.TargetCellCount = _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
-            _debugInfoGui.TotalCellCount = _grid.GetCellCount();
+            _gui.DebugInfo.TargetCellCount = _targetCellCount;
+            _gui.DebugInfo.TotalCellCount = _grid.GetCellCount();
 #endif
 
             _playerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
@@ -55,8 +54,8 @@ namespace Game.Simulation
             UpdatePercentCompletionDisplay();
 
 #if DEBUG
-            _debugInfoGui.SimulationTicks = 0;
-            _debugInfoGui.SimulationTime = 0f;
+            _gui.DebugInfo.SimulationTicks = 0;
+            _gui.DebugInfo.SimulationTime = 0f;
 #endif
         }
 
@@ -73,8 +72,8 @@ namespace Game.Simulation
             Ticks++;
 
 #if DEBUG
-            _debugInfoGui.SimulationTicks = Ticks;
-            _debugInfoGui.SimulationTime = GetSimulationTime();
+            _gui.DebugInfo.SimulationTicks = Ticks;
+            _gui.DebugInfo.SimulationTime = GetSimulationTime();
 #endif
 
             var result = new SimulationUpdateResult();
@@ -86,7 +85,7 @@ namespace Game.Simulation
 #if DEBUG
             if (newState != oldState)
             {
-                _debugInfoGui.SimulationState = newState.Name;
+                _gui.DebugInfo.SimulationState = newState.Name;
             }
 #endif
 
@@ -112,9 +111,9 @@ namespace Game.Simulation
         private void UpdatePercentCompletionDisplay()
         {
 #if DEBUG
-            _debugInfoGui.CoveredCellCount = _coveredCellCount;
+            _gui.DebugInfo.CoveredCellCount = _coveredCellCount;
 #endif
-            _gameInfoGui.PercentCompletion = GetPercentCompletion();
+            _gui.GameInfo.PercentCompletion = GetPercentCompletion();
         }
 
         public void Resume()

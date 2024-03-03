@@ -80,15 +80,16 @@ namespace Game.Quads
             Apply();
         }
 
-#if UNITY_EDITOR
+        [Conditional("UNITY_EDITOR")]
         public void PersonalizeMesh()
         {
+#if UNITY_EDITOR
             Undo.RecordObject(this, "Personalize Mesh");
             _mesh = Instantiate(_mesh);
             _mesh.name = gameObject.name;
             _meshFilter.sharedMesh = _mesh;
-        }
 #endif
+        }
 
         [ContextMenu("Initialize")]
         public void ContextMenuInitialize()
