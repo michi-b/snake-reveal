@@ -13,8 +13,7 @@ namespace Game.Simulation.States
     {
         private Line _shapeBreakoutLine;
         private Vector2Int _shapeBreakoutPosition;
-        private int _clockwiseTurnWeightSinceLastBounds;
-        private GridSide _lastBoundsSide;
+        private Turn _lastBoundsTravelTurn;
 
         private readonly PlayerSimulation _simulation;
 
@@ -89,32 +88,23 @@ namespace Game.Simulation.States
             GridSide boundsSide = Grid.GetBoundsSide(Actor.Position);
             if (boundsSide != GridSide.None)
             {
-                // actor needs to turn, because next move would move him out of bounds
-                GridCorner boundsCorner = Grid.GetBoundsCorner(Actor.Position);
+                // actor might be forced to turn on bounds to avoid him moving out of bounds next step
 
+                GridCorner boundsCorner = Grid.GetBoundsCorner(Actor.Position);
                 if (boundsCorner != GridCorner.None)
                 {
                     // if actor is exactly on a corner, turn inside the corner
                     Actor.Direction = Actor.Direction.TurnInsideCorner(boundsCorner);
                 }
-                else if (Actor.Direction.GetAxis() != boundsSide.GetLineAxis())
+                else
                 {
-                    if (_lastBoundsSide != GridSide.None)
+                    if (Actor.Direction.GetAxis() != boundsSide.GetLineAxis())
                     {
-                        // if actor was on bounds before, turn that way, that he cannot trap himself in a drawing loop
-                        int boundsTurnWeight = _lastBoundsSide.GetClockwiseTurnWeight(boundsSide);
-                        int relativeTurnWeight = _clockwiseTurnWeightSinceLastBounds - boundsTurnWeight;
-                        Actor.Direction = relativeTurnWeight switch
-                        {
-                            2 => Actor.Direction.Turn(Turn.Left),
-                            -2 => Actor.Direction.Turn(Turn.Right),
-                            _ => throw new ArgumentOutOfRangeException()
-                        };
-                    }
-                    else
-                    {
-                        // direction on other axis can be chosen => assign latest direction on other axis
-                        Actor.Direction = Actor.GetLatestDirection(Actor.Direction.GetAxis().GetOther());
+                        Actor.Direction = _lastBoundsTravelTurn != Turn.None
+                            // if actor was on bounds before, turn that way, that he cannot trap himself in a drawing loop
+                            ? boundsSide.GetDirection(_lastBoundsTravelTurn)
+                            // direction on other axis can be chosen => assign latest direction on other axis
+                            : Actor.GetLatestDirection(Actor.Direction.GetAxis().GetOther());
                     }
                 }
             }
@@ -155,30 +145,38 @@ namespace Game.Simulation.States
         }
 
         /// <summary>
-        /// update <see cref="_lastBoundsSide"/> and <see cref="_clockwiseTurnWeightSinceLastBounds"/>
+        /// update <see cref="_lastBoundsTravelTurn"/> if last line was traveling on bounds
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private void TrackBoundsInteraction()
         {
-            switch (Drawing.LastLine.GetBoundsInteraction())
+            // if player was traveling on bounds before, he is forced to always travel in that same turn (until reconnection)
+            // because otherwise he would trap himself
+            if (_lastBoundsTravelTurn != Turn.None)
             {
-                case Line.BoundsInteraction.None:
-                    if (_lastBoundsSide != GridSide.None)
-                    {
-                        _clockwiseTurnWeightSinceLastBounds += Drawing.LastLine.GetClockwiseTurnWeightFromPrevious();
-                    }
+                return;
+            }
 
-                    break;
-                case Line.BoundsInteraction.Exit:
-                    _clockwiseTurnWeightSinceLastBounds = 0;
-                    _lastBoundsSide = Grid.GetBoundsSide(Drawing.LastLine.Start);
-                    Debug.Assert(_lastBoundsSide != GridSide.None);
-                    break;
-                case Line.BoundsInteraction.Enter:
-                case Line.BoundsInteraction.OnBounds:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            Line lastLine = Drawing.LastLine;
+            if (lastLine.GetBoundsInteraction() == Line.BoundsInteraction.Exit)
+            {
+                Line boundsLine = lastLine.Previous;
+#if DEBUG
+                Debug.Assert(boundsLine != null, "boundsLine != null");
+#endif
+
+                GridSide gridSide = Grid.GetBoundsSide(boundsLine);
+
+                bool isClockwise = gridSide switch
+                {
+                    GridSide.None => throw new ArgumentOutOfRangeException(),
+                    GridSide.Bottom => boundsLine.Direction == GridDirection.Left,
+                    GridSide.Left => boundsLine.Direction == GridDirection.Up,
+                    GridSide.Top => boundsLine.Direction == GridDirection.Right,
+                    GridSide.Right => boundsLine.Direction == GridDirection.Down,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+                _lastBoundsTravelTurn = isClockwise ? Turn.Right : Turn.Left;
             }
         }
 
@@ -201,8 +199,7 @@ namespace Game.Simulation.States
             Drawing.Deactivate();
             _shapeBreakoutLine = null;
             _shapeBreakoutPosition = new Vector2Int(-1, -1);
-            _clockwiseTurnWeightSinceLastBounds = 0;
-            _lastBoundsSide = GridSide.None;
+            _lastBoundsTravelTurn = Turn.None;
         }
     }
 }

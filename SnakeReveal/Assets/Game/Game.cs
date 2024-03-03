@@ -1,5 +1,4 @@
 using Game.Gui;
-using Game.Gui.AvailableDirectionsIndication;
 using Game.State;
 using UnityEngine;
 

@@ -1,6 +1,8 @@
+using System;
 using Extensions;
 using Game.Enums;
 using Game.Enums.Extensions;
+using Game.Lines;
 using Game.Simulation.Grid.Bounds;
 using JetBrains.Annotations;
 using Unity.Mathematics;
@@ -28,10 +30,6 @@ namespace Game.Simulation.Grid
 
         public Vector2 SceneCellSize => _sceneCellSize;
         public Vector2Int CenterPosition => _size / 2;
-        private static Vector2Int BottomLeft => Vector2Int.zero;
-        private Vector2Int TopLeft => new(0, _size.y);
-        private Vector2Int TopRight => _size;
-        private Vector2Int BottomRight => new(_size.x, 0);
 
         public int GetCellCount() => _size.x * _size.y;
 
@@ -102,27 +100,58 @@ namespace Game.Simulation.Grid
 
         public bool GetIsOnBounds(Vector2Int position) => position.x == 0 || position.x == _size.x || position.y == 0 || position.y == _size.y;
 
-        public GridSide GetBoundsSide(Vector2Int position) =>
-            position.x == 0
-                ? GridSide.Left
-                : position.x == _size.x
-                    ? GridSide.Right
-                    : position.y == 0
-                        ? GridSide.Bottom
-                        : position.y == _size.y
-                            ? GridSide.Top
-                            : GridSide.None;
+        public GridSide GetBoundsSide(Line line)
+        {
+            return line.Direction.GetAxis() switch
+            {
+                GridAxis.Horizontal => line.Start.y == 0
+                    ? GridSide.Bottom
+                    : line.Start.y == _size.y
+                        ? GridSide.Top
+                        : GridSide.None,
+                GridAxis.Vertical => line.Start.x == 0
+                    ? GridSide.Left
+                    : line.Start.x == _size.x
+                        ? GridSide.Right
+                        : GridSide.None,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
 
-        public GridCorner GetBoundsCorner(Vector2Int position) =>
-            position == BottomLeft
-                ? GridCorner.BottomLeft
-                : position == TopLeft
-                    ? GridCorner.TopLeft
-                    : position == TopRight
-                        ? GridCorner.TopRight
-                        : position == BottomRight
-                            ? GridCorner.BottomRight
-                            : GridCorner.None;
+        /// <returns>the bounds side of the position, which might be either adjacent side on corners (undefined)</returns>
+        public GridSide GetBoundsSide(Vector2Int actorPosition) =>
+            actorPosition.x == 0 ? GridSide.Left :
+            actorPosition.x == _size.x ? GridSide.Right :
+            actorPosition.y == 0 ? GridSide.Bottom :
+            actorPosition.y == _size.y ? GridSide.Top : GridSide.None;
+
+        public GridCorner GetBoundsCorner(Vector2Int position)
+        {
+            if (position.x == 0)
+            {
+                if (position.y == 0)
+                {
+                    return GridCorner.BottomLeft;
+                }
+                else if (position.y == _size.y)
+                {
+                    return GridCorner.TopLeft;
+                }
+            }
+            else if (position.x == _size.x)
+            {
+                if (position.y == 0)
+                {
+                    return GridCorner.BottomRight;
+                }
+                else if (position.y == _size.y)
+                {
+                    return GridCorner.TopRight;
+                }
+            }
+
+            return GridCorner.None;
+        }
 
         public bool GetCanMoveInDirectionInsideBounds(Vector2Int position, GridDirection requestedDirection)
         {
@@ -133,14 +162,7 @@ namespace Game.Simulation.Grid
                 return true;
             }
 
-            if (GetBoundsCorner(position) != GridCorner.None)
-            {
-                // on corner => cannot choose Direction
-                return false;
-            }
-
-            // on bounds but not on corner => can choose direction that does not leave bounds
-            return requestedDirection != boundsSide.GetOutsideDirection();
+            return GetBoundsCorner(position) == GridCorner.None && requestedDirection != boundsSide.GetOutsideDirection();
         }
 
         public void ApplyColliderThickness()
