@@ -1,5 +1,6 @@
 using System;
 using Attributes;
+using Gam.Gui.GameMenu;
 using UnityEngine;
 using UnityEngine.UI;
 using Utility;
@@ -12,11 +13,11 @@ namespace Game.Gui.GameMenu
         [SerializeField] private string _isOpenAnimatorPropertyName = "IsOpen";
         [SerializeField] private Button _gameMenuButton;
 
-
         private int _isOpenAnimatorPropertyId;
         private bool _wantsToBeOpen;
 
         private Animator _animator;
+        private GameMenuControls _keyboardControls;
 
         private Animator Animator => _animator ??= GetComponent<Animator>();
 
@@ -25,6 +26,9 @@ namespace Game.Gui.GameMenu
         protected void Awake()
         {
             _isOpenAnimatorPropertyId = Animator.StringToHash(_isOpenAnimatorPropertyName);
+            _keyboardControls = new GameMenuControls();
+            _keyboardControls.GameMenu.Toggle.performed += _ => Toggle();
+            _keyboardControls.Enable();
         }
 
         [UnityEventTarget("Game menu toggle button")]
@@ -45,9 +49,21 @@ namespace Game.Gui.GameMenu
             AnimatorState = state;
         }
 
-        public bool IsOpenButtonEnabled
+        public bool IsToggleEnabled
         {
-            set => _gameMenuButton.interactable = value;
+            set
+            {
+                if (value)
+                {
+                    _keyboardControls.Enable();
+                }
+                else
+                {
+                    _keyboardControls.Disable();
+                }
+
+                _gameMenuButton.interactable = value;
+            }
         }
 
         private void SetOpen(bool value)

@@ -16,8 +16,6 @@ namespace Game.Simulation
 
         public IPlayerActorControls Controls { get; }
 
-        public GameSimulation Game => _game;
-
         public PlayerActor Actor => _game.Player;
 
         public DrawnShape Shape => _game.DrawnShape;
