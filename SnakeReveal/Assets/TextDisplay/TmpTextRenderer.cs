@@ -9,14 +9,15 @@ namespace TextDisplay
     {
         [SerializeField] private TMP_Text _renderer;
 
+        public override string Text
+        {
+            get => _renderer.text;
+            set => _renderer.text = value; 
+        }
+
         protected void Reset()
         {
             _renderer = GetComponent<TMP_Text>();
-        }
-
-        protected override void Apply()
-        {
-            _renderer.text = Text;
         }
     }
 }

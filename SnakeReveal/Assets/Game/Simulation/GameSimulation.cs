@@ -32,6 +32,8 @@ namespace Game.Simulation
         public SimulationGrid Grid => _grid;
         public DrawnShape DrawnShape => _drawnShape;
         public DrawingChain Drawing => _drawing;
+        
+        public GuiContainer Gui => _gui;
 
         public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
 
@@ -105,7 +107,7 @@ namespace Game.Simulation
             return result;
         }
 
-        public GridDirection GetRequestedDirection() => _playerSimulation.Controls.GetRequestedDirection();
+        public GridDirection GetRequestedDirection() => _playerSimulation.Controls.EvaluateRequestedDirection();
 
 
         private void UpdatePercentCompletionDisplay()

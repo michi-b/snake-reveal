@@ -1,3 +1,4 @@
+using TextDisplay;
 using TextDisplay.Abstractions;
 using UnityEngine;
 
@@ -17,7 +18,9 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private IntDisplay _coveredCellCount;
         [SerializeField] private FloatDisplay _coveredCellPercentage;
         [SerializeField] private IntDisplay _targetCellCount;
-
+        [SerializeField] private BoolDisplay _isTouching;
+        [SerializeField] private Vector2Display _touchStartPosition;
+        [SerializeField] private Vector2Display _touchCurrentPosition;
 
         protected virtual void Awake()
         {
@@ -90,6 +93,33 @@ namespace Game.Gui.DebugInfo
             {
                 AssertIsDebug();
                 _targetCellCount.Value = value;
+            }
+        }
+
+        public bool IsTouching
+        {
+            set
+            {
+                AssertIsDebug();
+                _isTouching.Value = value;
+            }
+        }
+
+        public Vector2 TouchStartPosition
+        {
+            set
+            {
+                AssertIsDebug();
+                _touchStartPosition.Value = value;
+            }
+        }
+
+        public Vector2 TouchCurrentPosition
+        {
+            set
+            {
+                AssertIsDebug();
+                _touchCurrentPosition.Value = value;
             }
         }
 

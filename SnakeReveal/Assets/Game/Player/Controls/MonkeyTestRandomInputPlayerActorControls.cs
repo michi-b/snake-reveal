@@ -17,7 +17,7 @@ namespace Game.Player.Controls
             _enabled = false;
         }
 
-        public GridDirection GetRequestedDirection()
+        public GridDirection EvaluateRequestedDirection()
         {
             if (!_enabled)
             {

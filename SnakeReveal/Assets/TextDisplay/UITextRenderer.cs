@@ -9,14 +9,15 @@ namespace TextDisplay
     {
         [SerializeField] private Text _renderer;
 
+        public override string Text
+        {
+            get => _renderer.text;
+            set => _renderer.text = value;
+        }
+
         protected void Reset()
         {
             _renderer = GetComponent<Text>();
-        }
-
-        protected override void Apply()
-        {
-            _renderer.text = Text;
         }
     }
 }

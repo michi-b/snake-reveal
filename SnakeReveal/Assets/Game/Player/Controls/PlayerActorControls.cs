@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
+using Game.Gui;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 namespace Game.Player.Controls
 {
@@ -9,113 +12,121 @@ namespace Game.Player.Controls
     {
         private const float Threshold = 0.5f;
 
-        private static readonly DirectionRequest[] DirectionRequestOptions =
+        private static readonly GridDirection[] DirectionKeys =
         {
-            DirectionRequest.KeyUp,
-            DirectionRequest.KeyRight,
-            DirectionRequest.KeyDown,
-            DirectionRequest.KeyLeft
+            GridDirection.Up,
+            GridDirection.Right,
+            GridDirection.Down,
+            GridDirection.Left
         };
+        
+        private SwipeEvaluation _swipeEvaluation;
 
-        private readonly List<DirectionRequest> _directionRequests = new(4);
+        private readonly List<GridDirection> _heldDirectionKeys = new(4);
 
         public void OnRight(InputAction.CallbackContext context)
         {
-            RegisterDirectionRequest(context, DirectionRequest.KeyRight);
+            RegisterDirectionKey(context, GridDirection.Right);
         }
 
         public void OnUp(InputAction.CallbackContext context)
         {
-            RegisterDirectionRequest(context, DirectionRequest.KeyUp);
+            RegisterDirectionKey(context, GridDirection.Up);
         }
 
         public void OnLeft(InputAction.CallbackContext context)
         {
-            RegisterDirectionRequest(context, DirectionRequest.KeyLeft);
+            RegisterDirectionKey(context, GridDirection.Left);
         }
 
         public void OnDown(InputAction.CallbackContext context)
         {
-            RegisterDirectionRequest(context, DirectionRequest.KeyDown);
+            RegisterDirectionKey(context, GridDirection.Down);
         }
+
+        public void OnPrimaryTouchContact(InputAction.CallbackContext context)
+        {
+            var touchPosition = PlayerActor.PrimaryTouchPosition.ReadValue<Vector2>();
+            
+            if(context.started)
+            {
+                _swipeEvaluation.NotifyTouchStart(touchPosition);
+            }
+            else if(context.canceled)
+            {
+                _swipeEvaluation.NotifyTouchEnd(touchPosition);
+            }
+        }
+
+        public void OnPrimaryTouchPosition(InputAction.CallbackContext context)
+        {
+            _swipeEvaluation.NotifyTouchMove(context.ReadValue<Vector2>());
+         }
 
         public void Activate()
         {
             Enable();
-
-            foreach (DirectionRequest directionRequest in DirectionRequestOptions)
-            {
-                if (GetIsDirectionRequestActive(directionRequest))
-                {
-                    _directionRequests.Add(directionRequest);
-                }
-            }
         }
 
         public void Deactivate()
         {
             Disable();
-
-            _directionRequests.Clear();
+            _heldDirectionKeys.Clear();
+            _swipeEvaluation.Clear();
         }
 
-        public GridDirection GetRequestedDirection()
+        public GridDirection EvaluateRequestedDirection()
         {
-            if (_directionRequests.Count == 0)
+            if (_heldDirectionKeys.Count == 0)
             {
                 return GridDirection.None;
             }
 
-            DirectionRequest latestDirectionRequest = _directionRequests[^1];
-            return latestDirectionRequest switch
+            GridDirection latestDirectionKey = _heldDirectionKeys[^1];
+            
+            return latestDirectionKey switch
             {
-                DirectionRequest.KeyUp => GridDirection.Up,
-                DirectionRequest.KeyRight => GridDirection.Right,
-                DirectionRequest.KeyDown => GridDirection.Down,
-                DirectionRequest.KeyLeft => GridDirection.Left,
-                _ => throw new ArgumentOutOfRangeException(nameof(latestDirectionRequest), latestDirectionRequest, null)
+                GridDirection.Up => GridDirection.Up,
+                GridDirection.Right => GridDirection.Right,
+                GridDirection.Down => GridDirection.Down,
+                GridDirection.Left => GridDirection.Left,
+                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(latestDirectionKey), latestDirectionKey, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(latestDirectionKey), latestDirectionKey, null)
             };
         }
 
-        public static PlayerActorControls Create()
+        public static PlayerActorControls Create(GuiContainer simulationGui)
         {
+            TouchSimulation.Enable();
             var instance = new PlayerActorControls();
+            instance._swipeEvaluation = new SwipeEvaluation(simulationGui.DebugInfo);
             instance.PlayerActor.SetCallbacks(instance);
             return instance;
         }
 
-        private void RegisterDirectionRequest(InputAction.CallbackContext context, DirectionRequest direction)
+        private void RegisterDirectionKey(InputAction.CallbackContext context, GridDirection direction)
         {
             if (context.performed)
             {
-                _directionRequests.Add(direction);
+                _heldDirectionKeys.Add(direction);
             }
             else if (context.canceled)
             {
-                _directionRequests.Remove(direction);
+                _heldDirectionKeys.Remove(direction);
             }
         }
 
-        private InputAction GetInputAction(DirectionRequest directionRequest)
+        private InputAction GetInputAction(GridDirection directionKey)
         {
-            return directionRequest switch
+            return directionKey switch
             {
-                DirectionRequest.KeyUp => m_PlayerActor_Up,
-                DirectionRequest.KeyRight => m_PlayerActor_Right,
-                DirectionRequest.KeyDown => m_PlayerActor_Down,
-                DirectionRequest.KeyLeft => m_PlayerActor_Left,
-                _ => throw new ArgumentOutOfRangeException(nameof(directionRequest), directionRequest, null)
+                GridDirection.Up => m_PlayerActor_Up,
+                GridDirection.Right => m_PlayerActor_Right,
+                GridDirection.Down => m_PlayerActor_Down,
+                GridDirection.Left => m_PlayerActor_Left,
+                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(directionKey), directionKey, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(directionKey), directionKey, null)
             };
-        }
-
-        private bool GetIsDirectionRequestActive(DirectionRequest directionRequest) => GetInputAction(directionRequest).ReadValue<float>() > Threshold;
-
-        private enum DirectionRequest
-        {
-            KeyUp,
-            KeyRight,
-            KeyDown,
-            KeyLeft
         }
     }
 }

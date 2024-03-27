@@ -6,6 +6,6 @@ namespace Game.Player.Controls
     {
         void Activate();
         void Deactivate();
-        public GridDirection GetRequestedDirection();
+        public GridDirection EvaluateRequestedDirection();
     }
 }
