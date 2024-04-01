@@ -32,7 +32,7 @@ namespace Game.Simulation
         public SimulationGrid Grid => _grid;
         public DrawnShape DrawnShape => _drawnShape;
         public DrawingChain Drawing => _drawing;
-        
+
         public GuiContainer Gui => _gui;
 
         public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
@@ -59,6 +59,11 @@ namespace Game.Simulation
             _gui.DebugInfo.SimulationTicks = 0;
             _gui.DebugInfo.SimulationTime = 0f;
 #endif
+        }
+
+        protected void OnDestroy()
+        {
+            _playerSimulation.Dispose();
         }
 
         public virtual SimulationUpdateResult SimulationUpdate()

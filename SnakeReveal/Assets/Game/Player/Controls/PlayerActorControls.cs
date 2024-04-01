@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
-using Game.Gui;
-using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 
@@ -10,16 +8,6 @@ namespace Game.Player.Controls
 {
     public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions, IPlayerActorControls
     {
-        private const float Threshold = 0.5f;
-
-        private static readonly GridDirection[] DirectionKeys =
-        {
-            GridDirection.Up,
-            GridDirection.Right,
-            GridDirection.Down,
-            GridDirection.Left
-        };
-        
         private SwipeEvaluation _swipeEvaluation;
 
         private readonly List<GridDirection> _heldDirectionKeys = new(4);
@@ -44,25 +32,6 @@ namespace Game.Player.Controls
             RegisterDirectionKey(context, GridDirection.Down);
         }
 
-        public void OnPrimaryTouchContact(InputAction.CallbackContext context)
-        {
-            var touchPosition = PlayerActor.PrimaryTouchPosition.ReadValue<Vector2>();
-            
-            if(context.started)
-            {
-                _swipeEvaluation.NotifyTouchStart(touchPosition);
-            }
-            else if(context.canceled)
-            {
-                _swipeEvaluation.NotifyTouchEnd(touchPosition);
-            }
-        }
-
-        public void OnPrimaryTouchPosition(InputAction.CallbackContext context)
-        {
-            _swipeEvaluation.NotifyTouchMove(context.ReadValue<Vector2>());
-         }
-
         public void Activate()
         {
             Enable();
@@ -72,7 +41,6 @@ namespace Game.Player.Controls
         {
             Disable();
             _heldDirectionKeys.Clear();
-            _swipeEvaluation.Clear();
         }
 
         public GridDirection EvaluateRequestedDirection()
@@ -83,7 +51,7 @@ namespace Game.Player.Controls
             }
 
             GridDirection latestDirectionKey = _heldDirectionKeys[^1];
-            
+
             return latestDirectionKey switch
             {
                 GridDirection.Up => GridDirection.Up,
@@ -95,13 +63,19 @@ namespace Game.Player.Controls
             };
         }
 
-        public static PlayerActorControls Create(GuiContainer simulationGui)
+        public static PlayerActorControls Create()
         {
             TouchSimulation.Enable();
             var instance = new PlayerActorControls();
-            instance._swipeEvaluation = new SwipeEvaluation(simulationGui.DebugInfo);
+            instance._swipeEvaluation = new SwipeEvaluation();
             instance.PlayerActor.SetCallbacks(instance);
             return instance;
+        }
+
+        public void Destroy()
+        {
+            Dispose();
+            _swipeEvaluation.Dispose();
         }
 
         private void RegisterDirectionKey(InputAction.CallbackContext context, GridDirection direction)
@@ -114,19 +88,6 @@ namespace Game.Player.Controls
             {
                 _heldDirectionKeys.Remove(direction);
             }
-        }
-
-        private InputAction GetInputAction(GridDirection directionKey)
-        {
-            return directionKey switch
-            {
-                GridDirection.Up => m_PlayerActor_Up,
-                GridDirection.Right => m_PlayerActor_Right,
-                GridDirection.Down => m_PlayerActor_Down,
-                GridDirection.Left => m_PlayerActor_Left,
-                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(directionKey), directionKey, null),
-                _ => throw new ArgumentOutOfRangeException(nameof(directionKey), directionKey, null)
-            };
         }
     }
 }

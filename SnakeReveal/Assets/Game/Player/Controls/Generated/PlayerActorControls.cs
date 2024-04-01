@@ -64,24 +64,6 @@ namespace Game.Player.Controls
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""PrimaryTouchContact"",
-                    ""type"": ""PassThrough"",
-                    ""id"": ""43c5a9e9-e106-40ba-b6ff-8d9e26cd4ae0"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""PrimaryTouchPosition"",
-                    ""type"": ""PassThrough"",
-                    ""id"": ""75247dd7-11a2-45ac-8c7c-df8b1af25a3c"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -128,28 +110,6 @@ namespace Game.Player.Controls
                     ""action"": ""Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""749afba1-015c-49b7-9960-50af1ead0887"",
-                    ""path"": ""<Touchscreen>/primaryTouch/press"",
-                    ""interactions"": ""Press"",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PrimaryTouchContact"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a6bfeb06-8db9-481c-81d3-a4e9684f920d"",
-                    ""path"": ""<Touchscreen>/primaryTouch/position"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PrimaryTouchPosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -162,8 +122,6 @@ namespace Game.Player.Controls
             m_PlayerActor_Up = m_PlayerActor.FindAction("Up", throwIfNotFound: true);
             m_PlayerActor_Left = m_PlayerActor.FindAction("Left", throwIfNotFound: true);
             m_PlayerActor_Down = m_PlayerActor.FindAction("Down", throwIfNotFound: true);
-            m_PlayerActor_PrimaryTouchContact = m_PlayerActor.FindAction("PrimaryTouchContact", throwIfNotFound: true);
-            m_PlayerActor_PrimaryTouchPosition = m_PlayerActor.FindAction("PrimaryTouchPosition", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -229,8 +187,6 @@ namespace Game.Player.Controls
         private readonly InputAction m_PlayerActor_Up;
         private readonly InputAction m_PlayerActor_Left;
         private readonly InputAction m_PlayerActor_Down;
-        private readonly InputAction m_PlayerActor_PrimaryTouchContact;
-        private readonly InputAction m_PlayerActor_PrimaryTouchPosition;
         public struct PlayerActorActions
         {
             private @PlayerActorControls m_Wrapper;
@@ -239,8 +195,6 @@ namespace Game.Player.Controls
             public InputAction @Up => m_Wrapper.m_PlayerActor_Up;
             public InputAction @Left => m_Wrapper.m_PlayerActor_Left;
             public InputAction @Down => m_Wrapper.m_PlayerActor_Down;
-            public InputAction @PrimaryTouchContact => m_Wrapper.m_PlayerActor_PrimaryTouchContact;
-            public InputAction @PrimaryTouchPosition => m_Wrapper.m_PlayerActor_PrimaryTouchPosition;
             public InputActionMap Get() { return m_Wrapper.m_PlayerActor; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -262,12 +216,6 @@ namespace Game.Player.Controls
                 @Down.started += instance.OnDown;
                 @Down.performed += instance.OnDown;
                 @Down.canceled += instance.OnDown;
-                @PrimaryTouchContact.started += instance.OnPrimaryTouchContact;
-                @PrimaryTouchContact.performed += instance.OnPrimaryTouchContact;
-                @PrimaryTouchContact.canceled += instance.OnPrimaryTouchContact;
-                @PrimaryTouchPosition.started += instance.OnPrimaryTouchPosition;
-                @PrimaryTouchPosition.performed += instance.OnPrimaryTouchPosition;
-                @PrimaryTouchPosition.canceled += instance.OnPrimaryTouchPosition;
             }
 
             private void UnregisterCallbacks(IPlayerActorActions instance)
@@ -284,12 +232,6 @@ namespace Game.Player.Controls
                 @Down.started -= instance.OnDown;
                 @Down.performed -= instance.OnDown;
                 @Down.canceled -= instance.OnDown;
-                @PrimaryTouchContact.started -= instance.OnPrimaryTouchContact;
-                @PrimaryTouchContact.performed -= instance.OnPrimaryTouchContact;
-                @PrimaryTouchContact.canceled -= instance.OnPrimaryTouchContact;
-                @PrimaryTouchPosition.started -= instance.OnPrimaryTouchPosition;
-                @PrimaryTouchPosition.performed -= instance.OnPrimaryTouchPosition;
-                @PrimaryTouchPosition.canceled -= instance.OnPrimaryTouchPosition;
             }
 
             public void RemoveCallbacks(IPlayerActorActions instance)
@@ -313,8 +255,6 @@ namespace Game.Player.Controls
             void OnUp(InputAction.CallbackContext context);
             void OnLeft(InputAction.CallbackContext context);
             void OnDown(InputAction.CallbackContext context);
-            void OnPrimaryTouchContact(InputAction.CallbackContext context);
-            void OnPrimaryTouchPosition(InputAction.CallbackContext context);
         }
     }
 }

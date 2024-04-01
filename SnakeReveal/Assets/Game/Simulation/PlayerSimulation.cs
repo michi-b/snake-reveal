@@ -1,4 +1,5 @@
-﻿using Game.Player;
+﻿using System;
+using Game.Player;
 using Game.Player.Controls;
 using Game.Simulation.Grid;
 using Game.Simulation.States;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace Game.Simulation
 {
-    public class PlayerSimulation
+    public class PlayerSimulation : IDisposable
     {
         private readonly GameSimulation _game;
 
@@ -48,7 +49,7 @@ namespace Game.Simulation
             DrawnShape shape = simulation.DrawnShape;
             DrawingChain drawing = simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
-            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create(simulation.Gui);
+            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
             Controls.Activate();
 
             ShapeTravelState = new ShapeTravelState(this);
@@ -60,6 +61,11 @@ namespace Game.Simulation
         public void Resume()
         {
             CurrentState.Resume();
+        }
+
+        public void Dispose()
+        {
+            Controls.Dispose();
         }
     }
 }

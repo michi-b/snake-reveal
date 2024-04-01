@@ -1,6 +1,7 @@
-using TextDisplay;
 using TextDisplay.Abstractions;
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 #if !DEBUG
 using System; // InvalidOperationException
@@ -18,9 +19,9 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private IntDisplay _coveredCellCount;
         [SerializeField] private FloatDisplay _coveredCellPercentage;
         [SerializeField] private IntDisplay _targetCellCount;
-        [SerializeField] private BoolDisplay _isTouching;
-        [SerializeField] private Vector2Display _touchStartPosition;
-        [SerializeField] private Vector2Display _touchCurrentPosition;
+        [SerializeField] private BoolDisplay _touch0Active;
+        [SerializeField] private Vector2Display _touch0Start;
+        [SerializeField] private Vector2Display _touch0Current;
 
         protected virtual void Awake()
         {
@@ -29,6 +30,34 @@ namespace Game.Gui.DebugInfo
 #else
             gameObject.SetActive(false);
 #endif
+        }
+
+        protected void FixedUpdate()
+        {
+            if (EnhancedTouchSupport.enabled)
+            {
+                Finger finger = Touch.fingers[0];
+
+                _touch0Active.Value = finger.currentTouch.valid;
+
+                Touch touch = finger.currentTouch.valid ? finger.currentTouch : finger.lastTouch;
+                if (touch.valid)
+                {
+                    _touch0Start.Value = touch.startScreenPosition;
+                    _touch0Current.Value = touch.screenPosition;
+                }
+                else
+                {
+                    _touch0Start.Value = default;
+                    _touch0Current.Value = default;
+                }
+            }
+            else
+            {
+                _touch0Start.Value = default;
+                _touch0Current.Value = default;
+                _touch0Active.Value = default;
+            }
         }
 
         public string GameState
@@ -93,33 +122,6 @@ namespace Game.Gui.DebugInfo
             {
                 AssertIsDebug();
                 _targetCellCount.Value = value;
-            }
-        }
-
-        public bool IsTouching
-        {
-            set
-            {
-                AssertIsDebug();
-                _isTouching.Value = value;
-            }
-        }
-
-        public Vector2 TouchStartPosition
-        {
-            set
-            {
-                AssertIsDebug();
-                _touchStartPosition.Value = value;
-            }
-        }
-
-        public Vector2 TouchCurrentPosition
-        {
-            set
-            {
-                AssertIsDebug();
-                _touchCurrentPosition.Value = value;
             }
         }
 

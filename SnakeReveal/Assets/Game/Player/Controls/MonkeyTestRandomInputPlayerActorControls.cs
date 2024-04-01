@@ -1,5 +1,6 @@
-﻿using Game.Enums;
-using UnityEngine;
+﻿using System;
+using Game.Enums;
+using Random = UnityEngine.Random;
 
 namespace Game.Player.Controls
 {
@@ -25,6 +26,10 @@ namespace Game.Player.Controls
             }
 
             return (GridDirection)Random.Range(1, 5); // 1 - 4, which is all directions except None
+        }
+
+        void IDisposable.Dispose()
+        {
         }
     }
 }

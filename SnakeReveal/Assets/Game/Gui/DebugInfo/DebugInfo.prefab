@@ -69,9 +69,9 @@ MonoBehaviour:
   _coveredCellCount: {fileID: 8598958257562932619}
   _coveredCellPercentage: {fileID: 3820461126450242768}
   _targetCellCount: {fileID: 6188648957136326950}
-  _isTouching: {fileID: 4830028984768227070}
-  _touchStartPosition: {fileID: 6846490672134750891}
-  _touchCurrentPosition: {fileID: 658110477415689266}
+  _touch0Active: {fileID: 4830028984768227070}
+  _touch0Start: {fileID: 6846490672134750891}
+  _touch0Current: {fileID: 658110477415689266}
 --- !u!114 &6441993594452064465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,7 +471,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3349985582282776877, guid: 24f1f46d2826fb848b16416cb3770e33, type: 3}
       propertyPath: m_Name
-      value: TouchCurrentPosition
+      value: Touch0Current
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -504,7 +504,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6708365338601671774, guid: 3fe83fc51dea4d14580d3939189ccf4d, type: 3}
       propertyPath: m_Name
-      value: TouchStartPosition
+      value: Touch0Start
       objectReference: {fileID: 0}
     - target: {fileID: 7531175145184508014, guid: 3fe83fc51dea4d14580d3939189ccf4d, type: 3}
       propertyPath: m_Pivot.x
@@ -839,7 +839,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1612033616856835893, guid: 1d34ced3ba35766438dda9750630ee51, type: 3}
       propertyPath: m_Name
-      value: IsTouching
+      value: Touch0Active
       objectReference: {fileID: 0}
     - target: {fileID: 2577155576725312261, guid: 1d34ced3ba35766438dda9750630ee51, type: 3}
       propertyPath: m_Pivot.x

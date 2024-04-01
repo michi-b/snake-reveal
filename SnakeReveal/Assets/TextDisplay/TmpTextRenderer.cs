@@ -12,7 +12,7 @@ namespace TextDisplay
         public override string Text
         {
             get => _renderer.text;
-            set => _renderer.text = value; 
+            set => _renderer.text = value;
         }
 
         protected void Reset()

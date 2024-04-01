@@ -1,8 +1,9 @@
-﻿using Game.Enums;
+﻿using System;
+using Game.Enums;
 
 namespace Game.Player.Controls
 {
-    public interface IPlayerActorControls
+    public interface IPlayerActorControls : IDisposable
     {
         void Activate();
         void Deactivate();
