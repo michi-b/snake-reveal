@@ -49,7 +49,7 @@ namespace Game.Simulation
             DrawnShape shape = simulation.DrawnShape;
             DrawingChain drawing = simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
-            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create();
+            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create(_game.Gui.DebugInfo);
             Controls.Activate();
 
             ShapeTravelState = new ShapeTravelState(this);

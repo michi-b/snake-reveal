@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Enums;
+using Game.Gui.DebugInfo;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 
@@ -63,11 +64,11 @@ namespace Game.Player.Controls
             };
         }
 
-        public static PlayerActorControls Create()
+        public static PlayerActorControls Create(DebugInfoGui debugInfoGui)
         {
             TouchSimulation.Enable();
             var instance = new PlayerActorControls();
-            instance._swipeEvaluation = new SwipeEvaluation();
+            instance._swipeEvaluation = new SwipeEvaluation(debugInfoGui);
             instance.PlayerActor.SetCallbacks(instance);
             return instance;
         }

@@ -21,6 +21,7 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private IntDisplay _targetCellCount;
         [SerializeField] private BoolDisplay _touch0Active;
         [SerializeField] private Vector2Display _touch0Start;
+        [SerializeField] private Vector2Display _swipe0Start;
         [SerializeField] private Vector2Display _touch0Current;
 
         protected virtual void Awake()
@@ -124,6 +125,15 @@ namespace Game.Gui.DebugInfo
                 _targetCellCount.Value = value;
             }
         }
+        
+        public Vector2 Swipe0Start
+        {
+            set
+            {
+                AssertIsDebug();
+                _swipe0Start.Value = value;
+            }
+        }
 
         private void UpdateCoveredCellPercentage()
         {
@@ -133,7 +143,7 @@ namespace Game.Gui.DebugInfo
         private static void AssertIsDebug()
         {
 #if !DEBUG
-            throw new InvalidOperationException("Debug info gui should bot be used in release builds.");
+            throw new InvalidOperationException("Debug info gui should bot be used in release code.");
 #endif
         }
     }
