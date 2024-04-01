@@ -140,9 +140,18 @@ namespace Game.Lines
                     ? nextLineAfterInsertion
                     : nextLineAfterInsertion.Next;
 
+#if DEBUG
+            foreach (Line line in this)
+            {
+                Debug.Assert(line.Previous != null);
+                Debug.Assert(line.Next != null);
+                Debug.Assert(line.Direction != GridDirection.None);
+            }
+#endif
+
             return new InsertionResult(continuation, insertion.IsStartToEnd);
 
-            // assumes the given line has zero lenght, and that the line before and after have the same direction
+            // assumes the given line has zero length, and that the line before and after have the same direction
             // -> merge the three lines into one and return the merged line
             // by removing the given line and the line after, and connecting the line before to the line after the (formerly) three lines
             Line DissolveZeroLengthLine(Line line)
@@ -151,13 +160,9 @@ namespace Game.Lines
                 Line next = line.Next!;
                 Line newNext = next.Next!;
 #if DEBUG
-                if (line.Direction != GridDirection.None
-                    || previous == null
-                    || next == null
-                    || line.Next!.Direction != previous.Direction)
-                {
-                    throw new ArgumentException(nameof(line), nameof(line));
-                }
+                Debug.Assert(previous != null);
+                Debug.Assert(next != null);
+                Debug.Assert(next.Direction == previous.Direction);
 #endif
                 Destroy(line.gameObject);
                 Destroy(next.gameObject);

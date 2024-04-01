@@ -19,7 +19,7 @@ namespace Game.Lines
     /// <summary>
     ///     minimal immutable struct to cache information of line container lines
     /// </summary>
-    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D))]
+    [RequireComponent(typeof(LineRenderer)), RequireComponent(typeof(EdgeCollider2D)), DebuggerDisplay("{_line,nq}")]
     public class Line : MonoBehaviour
     {
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };

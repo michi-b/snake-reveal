@@ -13,7 +13,7 @@ namespace Game.Simulation.States
     {
         private Line _shapeBreakoutLine;
         private Vector2Int _shapeBreakoutPosition;
-        private Turn _lastBoundsTravelTurn;
+        private Turn _boundsTravelTurn;
 
         private readonly PlayerSimulation _simulation;
 
@@ -30,45 +30,7 @@ namespace Game.Simulation.States
             ClearState();
         }
 
-        public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result)
-        {
-            if (requestedDirection != GridDirection.None
-                && requestedDirection != Actor.Direction
-                && requestedDirection != Actor.Direction.Reverse()
-                && Actor.GetCanMoveInGridBounds(requestedDirection))
-            {
-                Actor.Direction = requestedDirection;
-            }
-
-            return Move(ref result);
-        }
-
-        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, Vector2Int breakoutPosition, GridDirection breakoutDirection, ref SimulationUpdateResult result)
-        {
-            _shapeBreakoutLine = shapeBreakoutLine;
-            Actor.Position = _shapeBreakoutPosition = breakoutPosition;
-            Actor.Direction = breakoutDirection;
-
-            Drawing.Activate(_shapeBreakoutPosition, Actor.Position);
-
-            // note that enemy collisions are not checked on first move, to avoid an infinite loop of re-entering drawing state
-            Actor.Move();
-
-#if DEBUG
-            Debug.Assert(!Drawing.Contains(Actor.Position));
-#endif
-
-            ExtendDrawingToActor();
-
-            if (TryReconnect(out ShapeTravelState enteredShapeTravelState, ref result))
-            {
-                return enteredShapeTravelState;
-            }
-
-            return this;
-        }
-
-        private IPlayerSimulationState Move(ref SimulationUpdateResult result)
+        public IPlayerSimulationState Update(ref SimulationUpdateResult result, bool maintainDirection)
         {
             if (!Actor.TryMoveCheckingEnemies())
             {
@@ -100,9 +62,9 @@ namespace Game.Simulation.States
                 {
                     if (Actor.Direction.GetAxis() != boundsSide.GetLineAxis())
                     {
-                        Actor.Direction = _lastBoundsTravelTurn != Turn.None
+                        Actor.Direction = _boundsTravelTurn != Turn.None
                             // if actor was on bounds before, turn that way, that he cannot trap himself in a drawing loop
-                            ? boundsSide.GetDirection(_lastBoundsTravelTurn)
+                            ? boundsSide.GetDirection(_boundsTravelTurn)
                             // direction on other axis can be chosen => assign latest direction on other axis
                             : Actor.GetLatestDirection(Actor.Direction.GetAxis().GetOther());
                     }
@@ -112,6 +74,30 @@ namespace Game.Simulation.States
             if (TryReconnect(out ShapeTravelState enteredShapeTravelState, ref result))
             {
                 ClearState();
+                return enteredShapeTravelState;
+            }
+
+            return this;
+        }
+
+        public IPlayerSimulationState EnterDrawingAndMove(Line shapeBreakoutLine, ref SimulationUpdateResult result)
+        {
+            _shapeBreakoutLine = shapeBreakoutLine;
+            _shapeBreakoutPosition = Actor.Position;
+
+            Drawing.Activate(_shapeBreakoutPosition, Actor.Position);
+
+            // note that enemy collisions are not checked on first move, to avoid an infinite loop of re-entering drawing state
+            Actor.Move();
+
+#if DEBUG
+            Debug.Assert(!Drawing.Contains(Actor.Position));
+#endif
+
+            ExtendDrawingToActor();
+
+            if (TryReconnect(out ShapeTravelState enteredShapeTravelState, ref result))
+            {
                 return enteredShapeTravelState;
             }
 
@@ -128,8 +114,12 @@ namespace Game.Simulation.States
         public GridDirections GetAvailableDirections()
         {
             var result = GridDirections.All;
+            
+            // exclude inverted direction of last line (player cannot do a 180° turn)
             result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
-            result = Actor.RestrictDirectionsToAvailableInBounds(result);
+            
+            result = Actor.RestrictDirectionsInBounds(result);
+            
             return result;
         }
 
@@ -145,19 +135,22 @@ namespace Game.Simulation.States
         }
 
         /// <summary>
-        /// update <see cref="_lastBoundsTravelTurn"/> if last line was traveling on bounds
+        /// update <see cref="_boundsTravelTurn"/> if last line was traveling on bounds
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private void TrackBoundsInteraction()
         {
             // if player was traveling on bounds before, he is forced to always travel in that same turn (until reconnection)
             // because otherwise he would trap himself
-            if (_lastBoundsTravelTurn != Turn.None)
+            
+            // if bounds travel turn is already set, there is no need to reevaluate it
+            if (_boundsTravelTurn != Turn.None)
             {
                 return;
             }
 
             Line lastLine = Drawing.LastLine;
+            // if last line exited bounds, set bounds travel turn depending on the direction of the line before that
             if (lastLine.GetBoundsInteraction() == Line.BoundsInteraction.Exit)
             {
                 Line boundsLine = lastLine.Previous;
@@ -176,7 +169,8 @@ namespace Game.Simulation.States
                     GridSide.Right => boundsLine.Direction == GridDirection.Down,
                     _ => throw new ArgumentOutOfRangeException()
                 };
-                _lastBoundsTravelTurn = isClockwise ? Turn.Right : Turn.Left;
+                
+                _boundsTravelTurn = isClockwise ? Turn.Right : Turn.Left;
             }
         }
 
@@ -199,7 +193,7 @@ namespace Game.Simulation.States
             Drawing.Deactivate();
             _shapeBreakoutLine = null;
             _shapeBreakoutPosition = new Vector2Int(-1, -1);
-            _lastBoundsTravelTurn = Turn.None;
+            _boundsTravelTurn = Turn.None;
         }
     }
 }

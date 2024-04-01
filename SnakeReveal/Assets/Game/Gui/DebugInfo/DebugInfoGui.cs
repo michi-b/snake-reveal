@@ -1,3 +1,5 @@
+using Game.Player.Controls;
+using Game.Player.Controls.Touch.Extensions;
 using TextDisplay.Abstractions;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -35,23 +37,15 @@ namespace Game.Gui.DebugInfo
 
         protected void FixedUpdate()
         {
-            if (EnhancedTouchSupport.enabled)
+            if (EnhancedTouchSupport.enabled && Touch.fingers.Count > 0)
             {
                 Finger finger = Touch.fingers[0];
 
-                _touch0Active.Value = finger.currentTouch.valid;
+                FingerTouchInteraction touchInteraction = finger.GetTouchInteraction();
 
-                Touch touch = finger.currentTouch.valid ? finger.currentTouch : finger.lastTouch;
-                if (touch.valid)
-                {
-                    _touch0Start.Value = touch.startScreenPosition;
-                    _touch0Current.Value = touch.screenPosition;
-                }
-                else
-                {
-                    _touch0Start.Value = default;
-                    _touch0Current.Value = default;
-                }
+                _touch0Active.Value = (touchInteraction & FingerTouchInteraction.IsTouching) != 0;
+                _touch0Start.Value = finger.GetLatestScreenPosition();
+                _touch0Current.Value = finger.GetLatestStartScreenPosition();
             }
             else
             {

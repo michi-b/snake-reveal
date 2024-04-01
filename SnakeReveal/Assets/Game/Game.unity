@@ -2535,7 +2535,7 @@ MonoBehaviour:
   _drawnShape: {fileID: 5038847886010888813}
   _drawing: {fileID: 4018085519374998696}
   _gui: {fileID: 1019295530}
-  _monkeyTestPlayerSimulationWithRandomInputs: 0
+  _monkeyTestPlayerSimulationWithRandomInputs: 1
   _targetCoverage: 0.8
 --- !u!20 &1459220150195555090
 Camera:

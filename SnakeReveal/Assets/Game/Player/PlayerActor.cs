@@ -65,6 +65,10 @@ namespace Game.Player
             {
                 if (value != _direction)
                 {
+#if DEBUG && false
+                    Debug.Log($"Player actor direction change: {_direction} -> {value}");
+#endif
+                    
                     _direction = value;
                     if (value != GridDirection.None)
                     {
@@ -155,6 +159,6 @@ namespace Game.Player
 
         public bool GetCanMoveInGridBounds(GridDirection requestedDirection) => _grid.GetCanMoveInDirectionInsideBounds(Position, requestedDirection);
 
-        public GridDirections RestrictDirectionsToAvailableInBounds(GridDirections directions) => directions.RestrictInBounds(_grid, Position);
+        public GridDirections RestrictDirectionsInBounds(GridDirections directions) => directions.RestrictInBounds(_grid, Position);
     }
 }

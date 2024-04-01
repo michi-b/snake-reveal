@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Game.Enums;
 using UnityEngine;
@@ -130,7 +131,7 @@ namespace Game.Lines.Insertion
             }
         }
 
-        public readonly struct InsertionLoopView
+        public readonly struct InsertionLoopView : IEnumerable<LineData>
         {
             private readonly InsertionEvaluation _evaluation;
 
@@ -142,6 +143,10 @@ namespace Game.Lines.Insertion
             }
 
             public InsertionLoopEnumerator GetEnumerator() => new(_evaluation._linesToInsert, _evaluation._insertionConnection);
+
+            IEnumerator<LineData> IEnumerable<LineData>.GetEnumerator() => GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<LineData>)this).GetEnumerator();
         }
     }
 }

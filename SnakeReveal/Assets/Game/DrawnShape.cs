@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Lines;
@@ -37,6 +38,11 @@ namespace Game
             _insertionEvaluation.Evaluate(_lineLoop.Turn, drawing.Lines, breakoutLine, reinsertionLine);
 
             InsertionResult insertionResult = _lineLoop.Insert(_insertionEvaluation);
+
+#if DEBUG
+            LineData[] insertionLoop = _insertionEvaluation.Loop.ToArray();
+            Debug.Assert(insertionLoop[^1].End == insertionLoop[0].Start, "Insertion loop is not closed");
+#endif
 
             _quadContainer.AddRange(_quadrangulation.Evaluate(_insertionEvaluation.Loop));
 

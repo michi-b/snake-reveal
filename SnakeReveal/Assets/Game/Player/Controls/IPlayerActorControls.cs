@@ -6,7 +6,6 @@ namespace Game.Player.Controls
     public interface IPlayerActorControls : IDisposable
     {
         void Activate();
-        void Deactivate();
-        public GridDirection EvaluateRequestedDirection();
+        public GridDirection GetDirectionChange(GridDirections availableDirections);
     }
 }

@@ -35,31 +35,24 @@ namespace Game.Simulation.States
         }
 
         /// <inheritdoc cref="IPlayerSimulationState.Update"/>>
-        public IPlayerSimulationState Update(GridDirection requestedDirection, ref SimulationUpdateResult result)
+        public IPlayerSimulationState Update(ref SimulationUpdateResult result, bool maintainDirection)
         {
             AssertActorIsOnShape();
 
             _hasNeverTraveled = false;
 
-            bool isAtEndCorner = Actor.Position == _currentLine.GetEnd(_isInTurn);
-
-            if (Actor.GetCanMoveInGridBounds(requestedDirection)
-                && Shape.TryGetBreakoutLine(requestedDirection, _currentLine, isAtEndCorner, _isInTurn, out Line breakoutLine))
+            if (maintainDirection && Shape.TryGetBreakoutLine(Actor.Direction, _currentLine, IsAtLineEnd, _isInTurn, out Line breakoutLine))
             {
                 // note: drawing state instantly moves and might return to this state again on collision or instant reconnection
-                return _simulation.DrawingState.EnterDrawingAndMove(breakoutLine, Actor.Position, requestedDirection, ref result);
-            }
-
-            // if at line end, switch to next line and adjust direction
-            if (isAtEndCorner)
-            {
-                _currentLine = _currentLine.GetNext(_isInTurn);
-                GridDirection currentLineDirection = _currentLine.GetDirection(_isInTurn);
-                Actor.Direction = currentLineDirection;
+                return _simulation.DrawingState.EnterDrawingAndMove(breakoutLine, ref result);
             }
 
             Actor.Move();
+
+            EvaluateActorAtLineEnd();
+
             AssertActorIsOnShape();
+
             return this;
         }
 
@@ -73,6 +66,7 @@ namespace Game.Simulation.States
 
             if (_hasNeverTraveled)
             {
+                // only if the player has never moved, he can choose a direction on the starting line
                 AddContinuationDirectionInTurn(position, !_isInTurn, ref result);
             }
 
@@ -80,7 +74,7 @@ namespace Game.Simulation.States
 
             result = result.WithDirection(breakoutDirection);
 
-            result = Actor.RestrictDirectionsToAvailableInBounds(result);
+            result = Actor.RestrictDirectionsInBounds(result);
 
             return result;
         }
@@ -101,6 +95,21 @@ namespace Game.Simulation.States
                 directions = directions.WithDirection(next.GetDirection(isInTurn));
             }
         }
+
+        /// <summary>
+        /// If at line end, switch to next line and adjust direction
+        /// </summary>
+        private void EvaluateActorAtLineEnd()
+        {
+            if (IsAtLineEnd)
+            {
+                _currentLine = _currentLine.GetNext(_isInTurn);
+                GridDirection currentLineDirection = _currentLine.GetDirection(_isInTurn);
+                Actor.Direction = currentLineDirection;
+            }
+        }
+
+        private bool IsAtLineEnd => Actor.Position == _currentLine.GetEnd(_isInTurn);
 
         [Conditional("DEBUG")]
         private void AssertActorIsOnShape()
@@ -141,9 +150,9 @@ namespace Game.Simulation.States
         public ShapeTravelState Enter(InsertionResult insertion, ref SimulationUpdateResult result)
         {
             ClearState();
-            _currentLine = insertion.Continuation;
             _isInTurn = insertion.IsStartToEnd;
-            Actor.Direction = _currentLine.GetDirection(_isInTurn);
+            _currentLine = insertion.Continuation;
+            EvaluateActorAtLineEnd();
             return this;
         }
 

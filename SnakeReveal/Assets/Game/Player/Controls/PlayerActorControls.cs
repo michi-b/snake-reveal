@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Game.Enums;
+using Game.Enums.Extensions;
 using Game.Gui.DebugInfo;
+using Game.Player.Controls.Touch;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 
@@ -36,32 +37,34 @@ namespace Game.Player.Controls
         public void Activate()
         {
             Enable();
+            _swipeEvaluation.IsTracking = true;
         }
 
         public void Deactivate()
         {
+            _swipeEvaluation.IsTracking = false;
             Disable();
             _heldDirectionKeys.Clear();
         }
 
-        public GridDirection EvaluateRequestedDirection()
+        public GridDirection GetDirectionChange(GridDirections availableDirections)
         {
-            if (_heldDirectionKeys.Count == 0)
+            if (_swipeEvaluation.TryConsumeSwipe(availableDirections, out GridDirection swipeDirection))
             {
-                return GridDirection.None;
+                return swipeDirection;
             }
 
-            GridDirection latestDirectionKey = _heldDirectionKeys[^1];
-
-            return latestDirectionKey switch
+            // get first available direction from key presses
+            for (int i = _heldDirectionKeys.Count - 1; i >= 0; i--)
             {
-                GridDirection.Up => GridDirection.Up,
-                GridDirection.Right => GridDirection.Right,
-                GridDirection.Down => GridDirection.Down,
-                GridDirection.Left => GridDirection.Left,
-                GridDirection.None => throw new ArgumentOutOfRangeException(nameof(latestDirectionKey), latestDirectionKey, null),
-                _ => throw new ArgumentOutOfRangeException(nameof(latestDirectionKey), latestDirectionKey, null)
-            };
+                if (availableDirections.Contains(_heldDirectionKeys[i]))
+                {
+                    return _heldDirectionKeys[i];
+                }
+            }
+
+            // if no requested direction is available, return none
+            return GridDirection.None;
         }
 
         public static PlayerActorControls Create(DebugInfoGui debugInfoGui)

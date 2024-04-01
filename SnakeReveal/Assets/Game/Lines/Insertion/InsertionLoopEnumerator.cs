@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Game.Lines.Insertion
 {
-    public struct InsertionLoopEnumerator
+    public struct InsertionLoopEnumerator : IEnumerator<LineData>
     {
         private enum State
         {
@@ -65,6 +66,8 @@ namespace Game.Lines.Insertion
             _state = State.Initial;
             _index = -1;
         }
+
+        object IEnumerator.Current => Current;
 
         public LineData Current => _state switch
         {

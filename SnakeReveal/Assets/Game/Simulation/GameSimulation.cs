@@ -112,7 +112,7 @@ namespace Game.Simulation
             return result;
         }
 
-        public GridDirection GetRequestedDirection() => _playerSimulation.Controls.EvaluateRequestedDirection();
+        public GridDirection GetInputDirection(GridDirections availableDirections) => _playerSimulation.Controls.GetDirectionChange(availableDirections);
 
 
         private void UpdatePercentCompletionDisplay()
