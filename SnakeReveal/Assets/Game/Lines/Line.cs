@@ -25,11 +25,15 @@ namespace Game.Lines
         private static readonly List<Vector2> ColliderPointsUpdateBuffer = new() { Vector2.zero, Vector2.right };
 
         [SerializeField] private SimulationGrid _grid;
+
         [SerializeField] private LineRenderer _renderer;
+
         [SerializeField] private EdgeCollider2D _collider;
 
         [SerializeField] private LineData _line;
+
         [SerializeField, CanBeNull] private Line _previous;
+
         [SerializeField, CanBeNull] private Line _next;
 
         public Line(Vector2Int start, Vector2Int end)
@@ -156,13 +160,13 @@ namespace Game.Lines
             bool IsSameX() => position.x == Start.x;
         }
 
-        public GridDirection GetDirection(bool startToEnd = true) => startToEnd ? _line.Direction : _line.Direction.Reverse();
+        public GridDirection GetDirection(bool inDirection = true) => inDirection ? _line.Direction : _line.Direction.Reverse();
 
-        public Vector2Int GetEnd(bool startToEnd = true) => startToEnd ? _line.End : _line.Start;
+        public Vector2Int GetEnd(bool inDirection = true) => inDirection ? _line.End : _line.Start;
 
-        public Line GetNext(bool startToEnd = true) => startToEnd ? Next : Previous;
+        public Line GetNext(bool inDirection = true) => inDirection ? Next : Previous;
 
-        public Line GetPrevious(bool startToEnd = true) => startToEnd ? Previous : Next;
+        public Turn GetTurn(Line to) => Direction.GetTurn(to.Direction);
 
         public bool TryExtend(Vector2Int targetPosition)
         {
@@ -193,6 +197,7 @@ namespace Game.Lines
         }
 
 #if UNITY_EDITOR
+
         public void RegisterUndoWithNeighbors(string operationName)
         {
             if (_previous != null)
@@ -222,10 +227,13 @@ namespace Game.Lines
             _next!.RegisterUndo(nameof(EditModeStitchToNext) + " - next");
             next._previous = this;
         }
+
 #endif
 
-// Selection and HandleUtility class ar in editor assembly, therefore this preprocessor switch is required
+        // Selection and HandleUtility class ar in editor assembly, therefore this preprocessor switch is required
 #if UNITY_EDITOR
+
+
         protected void OnDrawGizmosSelected()
         {
             if (!Selection.Contains(gameObject) || _grid == null)
@@ -249,7 +257,6 @@ namespace Game.Lines
         }
 
 #endif
-        public int GetClockwiseTurnWeightFromPrevious() => Previous!.Direction.GetTurn(Direction).GetClockwiseWeight();
 
         public BoundsInteraction GetBoundsInteraction()
         {

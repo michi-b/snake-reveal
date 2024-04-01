@@ -48,10 +48,11 @@ namespace Game.Lines
             _start = _end = line;
         }
 
-        public void Extend(Vector2Int actorPosition, out bool turned)
+        /// <returns>whether a new line was added (a turn was needed)</returns>
+        public bool Extend(Vector2Int actorPosition)
         {
-            turned = !End.TryExtend(actorPosition);
-            if (turned)
+            bool isTurn = !End.TryExtend(actorPosition);
+            if (isTurn)
             {
                 Line newEnd = GetNewLine(End.End, actorPosition);
 
@@ -61,6 +62,8 @@ namespace Game.Lines
                 _end = newEnd;
                 End.Validate();
             }
+
+            return isTurn;
         }
     }
 }

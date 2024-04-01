@@ -119,7 +119,7 @@ namespace Game.Gui.DebugInfo
                 _targetCellCount.Value = value;
             }
         }
-        
+
         public Vector2 Swipe0Start
         {
             set

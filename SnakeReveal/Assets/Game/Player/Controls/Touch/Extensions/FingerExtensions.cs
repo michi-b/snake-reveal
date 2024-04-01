@@ -12,13 +12,15 @@ namespace Game.Player.Controls.Touch.Extensions
             {
                 result |= FingerTouchInteraction.IsTouching;
             }
-            if(finger.lastTouch.valid)
+
+            if (finger.lastTouch.valid)
             {
                 result |= FingerTouchInteraction.HasTouched;
             }
+
             return result;
         }
-        
+
         public static Vector2 GetLatestScreenPosition(this Finger finger)
         {
             return finger.GetTouchInteraction() switch

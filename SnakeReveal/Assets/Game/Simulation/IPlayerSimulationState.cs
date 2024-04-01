@@ -4,11 +4,15 @@ namespace Game.Simulation
 {
     public interface IPlayerSimulationState
     {
+        /// <summary>
+        /// Name of the state for the debug info gui
+        /// </summary>
+        string Name { get; }
+
         /// <summary>Tick the simulation (once per fixed update, while this state is active)</summary>
         /// <param name="result"></param>
-        /// <param name="maintainDirection"></param>
         /// <returns>The new current player simulation state, or just this if it did not change</returns>
-        public IPlayerSimulationState Update(ref SimulationUpdateResult result, bool maintainDirection);
+        public IPlayerSimulationState Update(ref SimulationUpdateResult result);
 
         /// <summary>
         /// Evaluates the currently available directions for the player to move in.
@@ -16,11 +20,6 @@ namespace Game.Simulation
         /// </summary>
         /// <returns>Currently available directions for the player to move in</returns>
         public GridDirections GetAvailableDirections();
-
-        /// <summary>
-        /// Name of the state for the debug info gui
-        /// </summary>
-        string Name { get; }
 
         void Resume()
         {

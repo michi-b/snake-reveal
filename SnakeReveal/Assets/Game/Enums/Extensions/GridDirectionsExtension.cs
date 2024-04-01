@@ -26,5 +26,20 @@ namespace Game.Enums.Extensions
 
             return directions;
         }
+
+        public static GridDirections WithDirectionsBetween(this GridDirections directions, GridDirection start, GridDirection end, Turn turn)
+        {
+            if (start == end)
+            {
+                return directions;
+            }
+
+            for (GridDirection current = start.Turn(turn); current != end; current = current.Turn(turn))
+            {
+                directions = directions.WithDirection(current);
+            }
+
+            return directions;
+        }
     }
 }

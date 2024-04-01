@@ -45,10 +45,11 @@ namespace Game
             return _lineChain.ContainsLineAt(position);
         }
 
-        public void Extend(Vector2Int actorPosition, out bool turned)
+        /// <inheritdoc cref="LineChain.Extend"/>
+        public bool Extend(Vector2Int actorPosition)
         {
             AssertIsActive();
-            _lineChain.Extend(actorPosition, out turned);
+            return _lineChain.Extend(actorPosition);
         }
 
         [Conditional("DEBUG")]

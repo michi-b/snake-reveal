@@ -162,7 +162,7 @@ namespace Game.Lines
 #if DEBUG
                 Debug.Assert(previous != null);
                 Debug.Assert(next != null);
-                Debug.Assert(next.Direction == previous.Direction);
+                Debug.Assert(next.Direction == previous.Direction, $"Next direction: {next.Direction} is not equal to previous direction: {previous.Direction}");
 #endif
                 Destroy(line.gameObject);
                 Destroy(next.gameObject);

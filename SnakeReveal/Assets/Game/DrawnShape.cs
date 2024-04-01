@@ -49,38 +49,71 @@ namespace Game
             return insertionResult;
         }
 
-        public bool TryGetBreakoutLine(GridDirection direction, Line activeLine, bool isAtEndCorner, bool startToEnd, out Line breakoutLine)
+        public bool TryGetBreakoutLine(Vector2Int position, GridDirection direction, Line line, out Line breakoutLine)
         {
-            if (isAtEndCorner)
+#if DEBUG
+            Debug.Assert(line.Contains(position));
+#endif
+
+            if (position == line.Start)
             {
-                Line next = startToEnd ? activeLine.Next! : activeLine.Previous!;
-                GridDirection currentDirection = activeLine.GetDirection(startToEnd);
-                GridDirection nextDirection = next.GetDirection(startToEnd);
-                Turn cornerTurn = currentDirection.GetTurn(nextDirection);
-                Turn travelTurn = GetTravelTurn(startToEnd);
-                if (cornerTurn == travelTurn) // open corner
+                if (TryGetBreakoutLineAtCorner(direction, line, false, out breakoutLine))
                 {
-                    if (IsBreakoutDirection(direction, activeLine))
-                    {
-                        breakoutLine = activeLine;
-                        return true;
-                    }
-
-                    if (IsBreakoutDirection(direction, next))
-                    {
-                        breakoutLine = next;
-                        return true;
-                    }
+                    return true;
                 }
+            }
+            else if (position == line.End)
+            {
+                if (TryGetBreakoutLineAtCorner(direction, line, true, out breakoutLine))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (GetBreakoutDirection(line) == direction)
+                {
+                    breakoutLine = line;
+                    return true;
+                }
+            }
 
+            breakoutLine = null;
+            return false;
+        }
+
+        private bool TryGetBreakoutLineAtCorner(GridDirection direction, Line line, bool atEnd, out Line breakoutLine)
+        {
+            Line lineBeforeCorner;
+            Line lineAfterCorner;
+            if (atEnd)
+            {
+                lineBeforeCorner = line;
+                lineAfterCorner = line.Next!;
+            }
+            else
+            {
+                lineBeforeCorner = line.Previous!;
+                lineAfterCorner = line;
+            }
+
+            if (lineBeforeCorner.GetTurn(lineAfterCorner) != _lineLoop.Turn)
+            {
                 // closed corner
                 breakoutLine = null;
                 return false;
             }
 
-            if (IsBreakoutDirection(direction, activeLine))
+            // open corner
+            if (direction == GetBreakoutDirection(lineBeforeCorner))
             {
-                breakoutLine = activeLine;
+                breakoutLine = lineBeforeCorner;
+                return true;
+            }
+
+            if (direction == GetBreakoutDirection(lineAfterCorner))
+            {
+                breakoutLine = lineAfterCorner;
                 return true;
             }
 
@@ -88,9 +121,7 @@ namespace Game
             return false;
         }
 
-        private bool IsBreakoutDirection(GridDirection direction, Line line) => direction == GetBreakoutDirection(line);
-
-        public GridDirection GetBreakoutDirection(Line line) => line.Direction.Turn(_lineLoop.Turn.Reverse());
+        private GridDirection GetBreakoutDirection(Line line) => line.Direction.Turn(_lineLoop.Turn.Reverse());
 
 #if UNITY_EDITOR
         public void EditModeRegenerateQuads()

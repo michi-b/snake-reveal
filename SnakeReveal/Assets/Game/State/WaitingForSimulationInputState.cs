@@ -26,9 +26,9 @@ namespace Game.State
             }
 
             Simulation.GameSimulation simulation = Game.Simulation;
-            
+
             GridDirection requestedDirection = simulation.GetInputDirection(_availableDirections);
-            
+
             if (requestedDirection != GridDirection.None)
             {
                 if (_availableDirections.Contains(requestedDirection))

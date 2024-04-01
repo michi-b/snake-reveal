@@ -30,8 +30,12 @@ namespace Game.Simulation.States
             ClearState();
         }
 
-        public IPlayerSimulationState Update(ref SimulationUpdateResult result, bool maintainDirection)
+        public IPlayerSimulationState Update(ref SimulationUpdateResult result)
         {
+#if DEBUG
+            Debug.Assert(Actor.Direction != Drawing.LastLine.Direction.Reverse());
+#endif
+
             if (!Actor.TryMoveCheckingEnemies())
             {
                 result.PlayerDidCollideWithEnemy = true;
@@ -104,6 +108,18 @@ namespace Game.Simulation.States
             return this;
         }
 
+        public GridDirections GetAvailableDirections()
+        {
+            var result = GridDirections.All;
+
+            // exclude inverted direction of last line (player cannot do a 180° turn)
+            result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
+
+            result = Actor.RestrictDirectionsInBounds(result);
+
+            return result;
+        }
+
         private IPlayerSimulationState Reset()
         {
             Actor.Position = Drawing.StartPosition;
@@ -111,26 +127,11 @@ namespace Game.Simulation.States
             return _simulation.ShapeTravelState.ReEnter();
         }
 
-        public GridDirections GetAvailableDirections()
-        {
-            var result = GridDirections.All;
-            
-            // exclude inverted direction of last line (player cannot do a 180° turn)
-            result = result.WithoutDirection(Drawing.LastLine.GetDirection(false));
-            
-            result = Actor.RestrictDirectionsInBounds(result);
-            
-            return result;
-        }
-
         private void ExtendDrawingToActor()
         {
-            Drawing.Extend(Actor.Position, out bool turned);
-
-            if (turned)
+            if (Drawing.Extend(Actor.Position))
             {
-                // increment clockwise turn weight since last line on bounds
-                TrackBoundsInteraction();
+                TrackBoundsInteractionAfterTurn();
             }
         }
 
@@ -138,11 +139,11 @@ namespace Game.Simulation.States
         /// update <see cref="_boundsTravelTurn"/> if last line was traveling on bounds
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private void TrackBoundsInteraction()
+        private void TrackBoundsInteractionAfterTurn()
         {
             // if player was traveling on bounds before, he is forced to always travel in that same turn (until reconnection)
             // because otherwise he would trap himself
-            
+
             // if bounds travel turn is already set, there is no need to reevaluate it
             if (_boundsTravelTurn != Turn.None)
             {
@@ -169,7 +170,7 @@ namespace Game.Simulation.States
                     GridSide.Right => boundsLine.Direction == GridDirection.Down,
                     _ => throw new ArgumentOutOfRangeException()
                 };
-                
+
                 _boundsTravelTurn = isClockwise ? Turn.Right : Turn.Left;
             }
         }

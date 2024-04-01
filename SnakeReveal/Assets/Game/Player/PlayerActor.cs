@@ -68,7 +68,7 @@ namespace Game.Player
 #if DEBUG && false
                     Debug.Log($"Player actor direction change: {_direction} -> {value}");
 #endif
-                    
+
                     _direction = value;
                     if (value != GridDirection.None)
                     {

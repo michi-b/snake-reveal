@@ -31,23 +31,22 @@ namespace Game.Simulation
 
         public ShapeTravelState ShapeTravelState { get; }
 
-        private bool _isFirstMove = true;
-
         public void Move(ref SimulationUpdateResult result)
         {
             for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
             {
-                GridDirections availableDirections = CurrentState.GetAvailableDirections().WithoutDirection(Actor.Direction);
-                GridDirection inputDirection = _game.GetInputDirection(availableDirections);
-                bool inputDirectionChanged = inputDirection != GridDirection.None;
-                if (inputDirectionChanged)
+                GridDirections validInputDirections = CurrentState.GetAvailableDirections().WithoutDirection(Actor.Direction);
+                GridDirection inputDirection = _game.GetInputDirection(validInputDirections);
+                
+                if (inputDirection != GridDirection.None)
                 {
+#if DEBUG
+                    Debug.Assert(validInputDirections.Contains(inputDirection));
+#endif
                     Actor.Direction = inputDirection;
                 }
 
-                CurrentState = CurrentState.Update(ref result, inputDirectionChanged || _isFirstMove);
-                
-                _isFirstMove = false;
+                CurrentState = CurrentState.Update(ref result);
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)
@@ -74,7 +73,6 @@ namespace Game.Simulation
 
         public void Resume()
         {
-            _isFirstMove = true;
             CurrentState.Resume();
         }
 
