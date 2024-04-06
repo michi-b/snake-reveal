@@ -12,26 +12,53 @@ namespace Game.Simulation.Grid
 {
     public class SimulationGrid : MonoBehaviour
     {
-        [SerializeField, HideInInspector] private Vector2 _sceneSize = new(10.8f, 10.8f);
         [SerializeField] private Vector2Int _size = new(1024, 1024);
         [SerializeField] private Vector2 _sceneCellSize;
         [SerializeField] private Vector2 _lowerLeftCornerScenePosition;
         [SerializeField] private int _gizmoCellSizeMultiplier = 32;
         [SerializeField] private Color _gizmoColor = new(0.7f, 0.7f, 0.7f, 0.5f);
         [SerializeField] private GridBounds _bounds;
+        [SerializeField, HideInInspector] private Vector2 _sceneSize = new(10.8f, 10.8f);
         [SerializeField, HideInInspector] private float _paddingThickness;
         [SerializeField, HideInInspector] private float _collidersThickness;
 
-        public const string SceneSizePropertyName = nameof(_sceneSize);
-        public const string CollidersThicknessPropertyName = nameof(_collidersThickness);
-        public const string PaddingThicknessPropertyName = nameof(_paddingThickness);
+        [SerializeField, HideInInspector] private Camera _camera;
+        [SerializeField, HideInInspector] private float _orthographicHeight;
+        [SerializeField, HideInInspector] private float _sceneAspect;
 
+        public const string SceneSizePropertyName = nameof(_sceneSize);
+        public const string PaddingThicknessPropertyName = nameof(_paddingThickness);
+        public const string CollidersThicknessPropertyName = nameof(_collidersThickness);
+
+        public const string CameraPropertyName = nameof(_camera);
+        public const string OrthographicHeightPropertyName = nameof(_orthographicHeight);
+        public const string SceneAspectPropertyName = nameof(_sceneAspect);
+
+        public Camera Camera => _camera;
         public Vector2Int Size => _size;
 
         public Vector2 SceneCellSize => _sceneCellSize;
         public Vector2Int CenterPosition => _size / 2;
 
         public int GetCellCount() => _size.x * _size.y;
+
+        protected void Update()
+        {
+            AdjustCamera();
+        }
+
+        public void AdjustCamera()
+        {
+            float orthographicHeight = _sceneAspect > _camera.aspect
+                ? _orthographicHeight * _sceneAspect / _camera.aspect
+                : _orthographicHeight;
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (orthographicHeight != _camera.orthographicSize)
+            {
+                _camera.orthographicSize = orthographicHeight;
+            }
+        }
 
         protected void OnDrawGizmos()
         {

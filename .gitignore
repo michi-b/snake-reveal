@@ -60,9 +60,7 @@ sysinfo.txt
 *.aab
 *.unitypackage
 *.app
-
-# Crashlytics generated file
-DreamSnake/crashlytics-build.properties
+*/.utmp/
 
 # Packed Addressables
 */[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*

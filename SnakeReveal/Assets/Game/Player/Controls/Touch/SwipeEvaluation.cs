@@ -10,7 +10,7 @@ namespace Game.Player.Controls.Touch
 {
     public class SwipeEvaluation : IDisposable
     {
-        private const float SwipeThreshold = 50f;
+        private const float SwipeThreshold = 100f;
 
         private readonly DebugInfoGui _debugInfoGui;
         private readonly Vector2[] _swipeStarts;
