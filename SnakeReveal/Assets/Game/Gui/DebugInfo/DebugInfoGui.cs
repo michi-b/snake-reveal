@@ -1,5 +1,8 @@
+using System;
 using Game.Player.Controls;
+using Game.Player.Controls.Touch;
 using Game.Player.Controls.Touch.Extensions;
+using Game.Simulation;
 using TextDisplay.Abstractions;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -13,18 +16,20 @@ namespace Game.Gui.DebugInfo
 {
     public class DebugInfoGui : MonoBehaviour
     {
+        [SerializeField] private Game _game;
+        
         [SerializeField] private TextRenderer _gameState;
         [SerializeField] private TextRenderer _simulationState;
         [SerializeField] private IntDisplay _simulationTicks;
         [SerializeField] private FloatDisplay _simulationTime;
         [SerializeField] private IntDisplay _totalCellCount;
         [SerializeField] private IntDisplay _coveredCellCount;
-        [SerializeField] private FloatDisplay _coveredCellPercentage;
         [SerializeField] private IntDisplay _targetCellCount;
         [SerializeField] private BoolDisplay _touch0Active;
         [SerializeField] private Vector2Display _touch0Start;
         [SerializeField] private Vector2Display _swipe0Start;
         [SerializeField] private Vector2Display _touch0Current;
+
 
         protected virtual void Awake()
         {
@@ -35,7 +40,7 @@ namespace Game.Gui.DebugInfo
 #endif
         }
 
-        protected void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             if (EnhancedTouchSupport.enabled && Touch.fingers.Count > 0)
             {
@@ -55,83 +60,28 @@ namespace Game.Gui.DebugInfo
             }
         }
 
-        public string GameState
+        protected virtual void Update()
         {
-            set
+            _gameState.Text = _game.State.Name;
+            
+            GameSimulation gameSimulation = _game.Simulation;
+            
+            _simulationState.Text = gameSimulation.PlayerSimulation.CurrentState.Name;
+            
+            _simulationTicks.Value = gameSimulation.Ticks;
+            _simulationTime.Value = gameSimulation.GetSimulationTime();
+            
+            _targetCellCount.Value = gameSimulation.TargetCellCount;
+            _totalCellCount.Value = gameSimulation.Grid.GetCellCount();
+            _coveredCellCount.Value = gameSimulation.CoveredCellCount;
+            
+            PlayerSimulation playerSimulation = gameSimulation.PlayerSimulation;
+            IPlayerActorControls controls = playerSimulation.Controls;
+            if(controls is PlayerActorControls playerActorControls)
             {
-                AssertIsDebug();
-                _gameState.Text = value;
+                SwipeEvaluation swipeEvaluation = playerActorControls.SwipeEvaluation;
+                _swipe0Start.Value = swipeEvaluation.GetSwipeStart(0);
             }
-        }
-
-        public string SimulationState
-        {
-            set
-            {
-                AssertIsDebug();
-                _simulationState.Text = value;
-            }
-        }
-
-        public float SimulationTime
-        {
-            set
-            {
-                AssertIsDebug();
-                _simulationTime.Value = value;
-            }
-        }
-
-        public int SimulationTicks
-        {
-            set
-            {
-                AssertIsDebug();
-                _simulationTicks.Value = value;
-            }
-        }
-
-        public int TotalCellCount
-        {
-            set
-            {
-                AssertIsDebug();
-                _totalCellCount.Value = value;
-                UpdateCoveredCellPercentage();
-            }
-        }
-
-        public int CoveredCellCount
-        {
-            set
-            {
-                AssertIsDebug();
-                _coveredCellCount.Value = value;
-                UpdateCoveredCellPercentage();
-            }
-        }
-
-        public int TargetCellCount
-        {
-            set
-            {
-                AssertIsDebug();
-                _targetCellCount.Value = value;
-            }
-        }
-
-        public Vector2 Swipe0Start
-        {
-            set
-            {
-                AssertIsDebug();
-                _swipe0Start.Value = value;
-            }
-        }
-
-        private void UpdateCoveredCellPercentage()
-        {
-            _coveredCellPercentage.Value = (float)_coveredCellCount.Value / _totalCellCount.Value;
         }
 
         private static void AssertIsDebug()

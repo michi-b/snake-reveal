@@ -10,9 +10,9 @@ namespace Game.Player.Controls
 {
     public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions, IPlayerActorControls
     {
-        private SwipeEvaluation _swipeEvaluation;
-
         private readonly List<GridDirection> _heldDirectionKeys = new(4);
+
+        public SwipeEvaluation SwipeEvaluation { get; private set; }
 
         public void OnRight(InputAction.CallbackContext context)
         {
@@ -37,19 +37,19 @@ namespace Game.Player.Controls
         public void Activate()
         {
             Enable();
-            _swipeEvaluation.IsTracking = true;
+            SwipeEvaluation.IsTracking = true;
         }
 
         public void Deactivate()
         {
-            _swipeEvaluation.IsTracking = false;
+            SwipeEvaluation.IsTracking = false;
             Disable();
             _heldDirectionKeys.Clear();
         }
 
         public GridDirection GetDirectionChange(GridDirections availableDirections)
         {
-            if (_swipeEvaluation.TryConsumeSwipe(availableDirections, out GridDirection swipeDirection))
+            if (SwipeEvaluation.TryConsumeSwipe(availableDirections, out GridDirection swipeDirection))
             {
                 return swipeDirection;
             }
@@ -71,7 +71,7 @@ namespace Game.Player.Controls
         {
             TouchSimulation.Enable();
             var instance = new PlayerActorControls();
-            instance._swipeEvaluation = new SwipeEvaluation(debugInfoGui);
+            instance.SwipeEvaluation = new SwipeEvaluation(debugInfoGui);
             instance.PlayerActor.SetCallbacks(instance);
             return instance;
         }
@@ -79,7 +79,7 @@ namespace Game.Player.Controls
         public void Destroy()
         {
             Dispose();
-            _swipeEvaluation.Dispose();
+            SwipeEvaluation.Dispose();
         }
 
         private void RegisterDirectionKey(InputAction.CallbackContext context, GridDirection direction)

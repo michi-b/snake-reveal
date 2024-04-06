@@ -9,8 +9,6 @@ namespace Game
         [SerializeField] private Simulation.GameSimulation _simulation;
         [SerializeField] private GuiContainer _gui;
 
-        private IGameState _currentState;
-
         public Simulation.GameSimulation Simulation => _simulation;
 
         public GuiContainer Gui => _gui;
@@ -23,6 +21,8 @@ namespace Game
 
         public LevelCompleteState LevelCompleteState { get; private set; }
 
+        public IGameState State { get; private set; }
+
         protected virtual void Awake()
         {
             GameMenuState = new GameMenuState(this);
@@ -33,29 +33,22 @@ namespace Game
 
         protected void Start()
         {
-            _currentState = WaitingForSimulationInputState.Enter();
-
-#if DEBUG
-            Gui.DebugInfo.GameState = _currentState.Id.GetDisplayName();
-#endif
+            State = WaitingForSimulationInputState.Enter();
         }
 
         protected virtual void FixedUpdate()
         {
-            GameStateId originalState = _currentState.Id;
-            _currentState = _currentState.FixedUpdate();
-            if (_currentState.Id != originalState)
+            GameStateId originalState = State.Id;
+            State = State.FixedUpdate();
+            if (State.Id != originalState)
             {
-#if DEBUG
-                Gui.DebugInfo.GameState = _currentState.Id.GetDisplayName();
-#endif
                 ApplyIsGameMenuAvailable();
             }
         }
 
         private void ApplyIsGameMenuAvailable()
         {
-            Gui.GameMenu.SetCanOpen = _currentState.Id.GetIsGameMenuAvailable();
+            Gui.GameMenu.SetCanOpen = State.Id.GetIsGameMenuAvailable();
         }
     }
 }

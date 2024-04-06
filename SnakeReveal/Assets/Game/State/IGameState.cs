@@ -4,5 +4,6 @@
     {
         IGameState FixedUpdate();
         public GameStateId Id { get; }
+        string Name => Id.GetDisplayName();
     }
 }

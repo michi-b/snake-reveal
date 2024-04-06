@@ -22,12 +22,8 @@ namespace Game.Simulation
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
 
         private int _startingCellCount;
-        private int _coveredCellCount;
-        private int _targetCellCount;
 
-        private PlayerSimulation _playerSimulation;
-
-        private int Ticks { get; set; }
+        public int Ticks { get; private set; }
         public PlayerActor Player => _player;
         public SimulationGrid Grid => _grid;
         public DrawnShape DrawnShape => _drawnShape;
@@ -35,35 +31,32 @@ namespace Game.Simulation
 
         public GuiContainer Gui => _gui;
 
-        public GridDirections GetAvailableDirections() => _playerSimulation.CurrentState.GetAvailableDirections();
+        public PlayerSimulation PlayerSimulation { get; private set; }
 
-        public float GetPercentCompletion() => (_coveredCellCount - _startingCellCount) / (float)_targetCellCount;
+        public int TargetCellCount { get; private set; }
+
+        public int CoveredCellCount { get; private set; }
+
+        public GridDirections GetAvailableDirections() => PlayerSimulation.CurrentState.GetAvailableDirections();
+
+        public float GetPercentCompletion() => (CoveredCellCount - _startingCellCount) / (float)TargetCellCount;
 
         public float GetSimulationTime() => Ticks * Time.fixedDeltaTime;
 
         protected virtual void Awake()
         {
-            _targetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
-#if DEBUG
-            _gui.DebugInfo.TargetCellCount = _targetCellCount;
-            _gui.DebugInfo.TotalCellCount = _grid.GetCellCount();
-#endif
+            TargetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
 
-            _playerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
+            PlayerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
 
-            _startingCellCount = _coveredCellCount = _playerSimulation.CoveredCellCount;
+            _startingCellCount = CoveredCellCount = PlayerSimulation.CoveredCellCount;
 
             UpdatePercentCompletionDisplay();
-
-#if DEBUG
-            _gui.DebugInfo.SimulationTicks = 0;
-            _gui.DebugInfo.SimulationTime = 0f;
-#endif
         }
 
         protected void OnDestroy()
         {
-            _playerSimulation.Dispose();
+            PlayerSimulation.Dispose();
         }
 
         public virtual SimulationUpdateResult SimulationUpdate()
@@ -78,54 +71,40 @@ namespace Game.Simulation
 
             Ticks++;
 
-#if DEBUG
-            _gui.DebugInfo.SimulationTicks = Ticks;
-            _gui.DebugInfo.SimulationTime = GetSimulationTime();
-#endif
-
             var result = new SimulationUpdateResult();
 
             // move player and update drawing
-            IPlayerSimulationState oldState = _playerSimulation.CurrentState;
-            _playerSimulation.Move(ref result);
-            IPlayerSimulationState newState = _playerSimulation.CurrentState;
-#if DEBUG
-            if (newState != oldState)
-            {
-                _gui.DebugInfo.SimulationState = newState.Name;
-            }
-#endif
+            IPlayerSimulationState oldState = PlayerSimulation.CurrentState;
+            PlayerSimulation.Move(ref result);
+            IPlayerSimulationState newState = PlayerSimulation.CurrentState;
 
             // automatic physics simulation is disabled in Physics 2D project settings, and is triggered here instead
             // (ATM Physics 2D is what updates the enemies and resolves collisions mainly)
             Physics2D.Simulate(Time.fixedDeltaTime);
 
-            int newCoveredCellCount = _playerSimulation.CoveredCellCount;
-            if (newCoveredCellCount != _coveredCellCount)
+            int newCoveredCellCount = PlayerSimulation.CoveredCellCount;
+            if (newCoveredCellCount != CoveredCellCount)
             {
-                _coveredCellCount = newCoveredCellCount;
+                CoveredCellCount = newCoveredCellCount;
                 UpdatePercentCompletionDisplay();
             }
 
-            result.LevelComplete = newCoveredCellCount > _targetCellCount;
+            result.LevelComplete = newCoveredCellCount > TargetCellCount;
 
             return result;
         }
 
-        public GridDirection GetInputDirection(GridDirections availableDirections) => _playerSimulation.Controls.GetDirectionChange(availableDirections);
+        public GridDirection GetInputDirection(GridDirections availableDirections) => PlayerSimulation.Controls.GetDirectionChange(availableDirections);
 
 
         private void UpdatePercentCompletionDisplay()
         {
-#if DEBUG
-            _gui.DebugInfo.CoveredCellCount = _coveredCellCount;
-#endif
             _gui.GameInfo.PercentCompletion = GetPercentCompletion();
         }
 
         public void Resume()
         {
-            _playerSimulation.Resume();
+            PlayerSimulation.Resume();
         }
     }
 }

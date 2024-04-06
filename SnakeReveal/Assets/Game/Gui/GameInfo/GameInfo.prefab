@@ -150,7 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc3f653e46d0ae04c824a4b6e33977cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _text: <mspace=0.5em>0<alpha=#88><size=50%></mspace>.<mspace=0.5em>00<space=0.75em><alpha=#FF><size=100%>%
   _renderer: {fileID: 8139048595938211739}
 --- !u!114 &8139048595938211739
 MonoBehaviour:
@@ -274,6 +273,10 @@ PrefabInstance:
     - target: {fileID: 55483224753564397, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 408029378299684903, guid: 13668b32f559df74a903c197186dab9f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1312948313740177117, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchorMax.x
@@ -609,27 +612,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.8
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.65
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.35
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 1200
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 900
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -657,10 +660,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
-      propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9024118210582233808, guid: 13668b32f559df74a903c197186dab9f, type: 3}
