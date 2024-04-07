@@ -13,7 +13,7 @@
 
         public abstract IGameState FixedUpdate();
 
-        protected bool TryEnterCommonState(out IGameState enteredState)
+        protected bool TryEnterGameMenuState(out IGameState enteredState)
         {
             if (Id.GetIsGameMenuAvailable() && Game.GameMenuState.TryEnter(out GameMenuState enteredGameMenuState))
             {

@@ -1,7 +1,6 @@
 using System;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Gui.DebugInfo;
 using Game.Player.Controls.Touch.Extensions;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -12,13 +11,11 @@ namespace Game.Player.Controls.Touch
     {
         private const float SwipeThreshold = 100f;
 
-        private readonly DebugInfoGui _debugInfoGui;
         private readonly Vector2[] _swipeStarts;
         private bool _isTracking;
 
-        public SwipeEvaluation(DebugInfoGui debugInfoGui)
+        public SwipeEvaluation()
         {
-            _debugInfoGui = debugInfoGui;
             EnhancedTouchSupport.Enable();
             _swipeStarts = new Vector2[UnityEngine.InputSystem.EnhancedTouch.Touch.fingers.Count];
             UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;

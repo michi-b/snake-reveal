@@ -42,7 +42,7 @@ namespace Game.Simulation
         public float GetPercentCompletion() => (CoveredCellCount - _startingCellCount) / (float)TargetCellCount;
 
         public float GetSimulationTime() => Ticks * Time.fixedDeltaTime;
-
+        
         protected virtual void Awake()
         {
             TargetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
@@ -52,11 +52,6 @@ namespace Game.Simulation
             _startingCellCount = CoveredCellCount = PlayerSimulation.CoveredCellCount;
 
             UpdatePercentCompletionDisplay();
-        }
-
-        protected void OnDestroy()
-        {
-            PlayerSimulation.Dispose();
         }
 
         public virtual SimulationUpdateResult SimulationUpdate()
@@ -74,9 +69,7 @@ namespace Game.Simulation
             var result = new SimulationUpdateResult();
 
             // move player and update drawing
-            IPlayerSimulationState oldState = PlayerSimulation.CurrentState;
             PlayerSimulation.Move(ref result);
-            IPlayerSimulationState newState = PlayerSimulation.CurrentState;
 
             // automatic physics simulation is disabled in Physics 2D project settings, and is triggered here instead
             // (ATM Physics 2D is what updates the enemies and resolves collisions mainly)
@@ -94,17 +87,29 @@ namespace Game.Simulation
             return result;
         }
 
-        public GridDirection GetInputDirection(GridDirections availableDirections) => PlayerSimulation.Controls.GetDirectionChange(availableDirections);
-
-
         private void UpdatePercentCompletionDisplay()
         {
             _gui.GameInfo.PercentCompletion = GetPercentCompletion();
         }
 
-        public void Resume()
+        
+        private bool _isRunning;
+        public bool IsRunning
         {
-            PlayerSimulation.Resume();
+            get => _isRunning;
+            set
+            {
+                if (_isRunning != value)
+                {
+                    _isRunning = value;
+                    PlayerSimulation.IsRunning = value;
+                }
+            }
+        }
+        
+        protected void OnDestroy()
+        {
+            PlayerSimulation.Dispose();
         }
     }
 }

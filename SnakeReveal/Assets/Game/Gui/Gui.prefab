@@ -806,10 +806,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameMenu
       objectReference: {fileID: 0}
-    - target: {fileID: 1641980982163795965, guid: a62cf82ef34660546a01331eb5a09430, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1960003716416518540, guid: a62cf82ef34660546a01331eb5a09430, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

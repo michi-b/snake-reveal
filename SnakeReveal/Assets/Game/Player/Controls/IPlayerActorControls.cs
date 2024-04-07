@@ -1,11 +1,11 @@
-﻿using System;
-using Game.Enums;
+﻿using Game.Enums;
 
 namespace Game.Player.Controls
 {
-    public interface IPlayerActorControls : IDisposable
+    public interface IPlayerActorControls
     {
-        void Activate();
         public GridDirection GetDirectionChange(GridDirections availableDirections);
+        public bool IsEnabled { get; set; }
+        void Destroy();
     }
 }

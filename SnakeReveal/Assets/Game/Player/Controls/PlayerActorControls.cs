@@ -11,6 +11,8 @@ namespace Game.Player.Controls
     public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions, IPlayerActorControls
     {
         private readonly List<GridDirection> _heldDirectionKeys = new(4);
+        
+        private bool _isEnabled;
 
         public SwipeEvaluation SwipeEvaluation { get; private set; }
 
@@ -34,17 +36,26 @@ namespace Game.Player.Controls
             RegisterDirectionKey(context, GridDirection.Down);
         }
 
-        public void Activate()
+        public bool IsEnabled
         {
-            Enable();
-            SwipeEvaluation.IsTracking = true;
-        }
-
-        public void Deactivate()
-        {
-            SwipeEvaluation.IsTracking = false;
-            Disable();
-            _heldDirectionKeys.Clear();
+            get => _isEnabled;
+            set
+            {
+                if (_isEnabled != value)
+                {
+                    SwipeEvaluation.IsTracking = value;
+                    if (value)
+                    {
+                        Enable();
+                    }
+                    else
+                    {
+                        Disable();
+                        _heldDirectionKeys.Clear();
+                    }
+                    _isEnabled = value;
+                }
+            }
         }
 
         public GridDirection GetDirectionChange(GridDirections availableDirections)
@@ -71,7 +82,7 @@ namespace Game.Player.Controls
         {
             TouchSimulation.Enable();
             var instance = new PlayerActorControls();
-            instance.SwipeEvaluation = new SwipeEvaluation(debugInfoGui);
+            instance.SwipeEvaluation = new SwipeEvaluation();
             instance.PlayerActor.SetCallbacks(instance);
             return instance;
         }

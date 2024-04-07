@@ -8,13 +8,14 @@ namespace Game.State
 
         public SimulationRunningState(Game game) : base(game)
         {
+            game.Simulation.IsRunning = false;
         }
 
         public override IGameState FixedUpdate()
         {
-            if (TryEnterCommonState(out IGameState newState))
+            if (TryEnterGameMenuState(out IGameState newState))
             {
-                return newState;
+                return Exit(newState);
             }
 
             SimulationUpdateResult updateResult = Game.Simulation.SimulationUpdate();
@@ -25,14 +26,20 @@ namespace Game.State
             }
 
             return updateResult.PlayerDidCollideWithEnemy || updateResult.PlayerDidCollideWithDrawing
-                ? Game.WaitingForSimulationInputState.Enter()
+                ? Exit(Game.WaitingForSimulationInputState.Enter())
                 : this;
         }
 
         public IGameState Enter()
         {
-            Game.Simulation.Resume();
+            Game.Simulation.IsRunning = true;
             return this;
+        }
+
+        private IGameState Exit(IGameState newState = null)
+        {
+            Game.Simulation.IsRunning = false;
+            return newState;
         }
     }
 }

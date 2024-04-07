@@ -1,5 +1,4 @@
-﻿using System;
-using Game.Enums;
+﻿using Game.Enums;
 using Game.Enums.Extensions;
 using Random = UnityEngine.Random;
 
@@ -7,21 +6,9 @@ namespace Game.Player.Controls
 {
     public class MonkeyTestRandomInputPlayerActorControls : IPlayerActorControls
     {
-        private bool _enabled;
-
-        public void Activate()
+        GridDirection IPlayerActorControls.GetDirectionChange(GridDirections availableDirections)
         {
-            _enabled = true;
-        }
-
-        public void Deactivate()
-        {
-            _enabled = false;
-        }
-
-        public GridDirection GetDirectionChange(GridDirections availableDirections)
-        {
-            if (!_enabled)
+            if (!IsEnabled)
             {
                 return GridDirection.None;
             }
@@ -30,7 +17,9 @@ namespace Game.Player.Controls
             return availableDirections.Contains(result) ? result : GridDirection.None;
         }
 
-        void IDisposable.Dispose()
+        public bool IsEnabled { get; set; }
+
+        void IPlayerActorControls.Destroy()
         {
         }
     }

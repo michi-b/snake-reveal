@@ -20,14 +20,14 @@ namespace Game.State
 
         public override IGameState FixedUpdate()
         {
-            if (TryEnterCommonState(out IGameState newState))
+            if (TryEnterGameMenuState(out IGameState newState))
             {
                 return newState;
             }
 
             Simulation.GameSimulation simulation = Game.Simulation;
 
-            GridDirection requestedDirection = simulation.GetInputDirection(_availableDirections);
+            GridDirection requestedDirection = simulation.PlayerSimulation.GetInputDirection(_availableDirections);
 
             if (requestedDirection != GridDirection.None)
             {

@@ -1,5 +1,4 @@
-﻿using PlasticPipe.PlasticProtocol;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Game.Simulation.Grid.Editor

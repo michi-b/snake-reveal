@@ -13,6 +13,8 @@ namespace Game.Simulation
     {
         private readonly GameSimulation _game;
 
+        private bool _isRunning;
+
         public IPlayerSimulationState CurrentState { get; private set; }
 
         public int CoveredCellCount => ShapeTravelState.CoveredCellCount;
@@ -36,8 +38,8 @@ namespace Game.Simulation
             for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
             {
                 GridDirections validInputDirections = CurrentState.GetAvailableDirections().WithoutDirection(Actor.Direction);
-                GridDirection inputDirection = _game.GetInputDirection(validInputDirections);
-                
+                GridDirection inputDirection = GetInputDirection(validInputDirections);
+
                 if (inputDirection != GridDirection.None)
                 {
 #if DEBUG
@@ -63,7 +65,7 @@ namespace Game.Simulation
             DrawingChain drawing = simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
             Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create(_game.Gui.DebugInfo);
-            Controls.Activate();
+            Controls.IsEnabled = true;
 
             ShapeTravelState = new ShapeTravelState(this);
             DrawingState = new DrawingState(this);
@@ -71,14 +73,30 @@ namespace Game.Simulation
             CurrentState = ShapeTravelState.Initialize();
         }
 
-        public void Resume()
+        public bool IsRunning
         {
-            CurrentState.Resume();
+            get => _isRunning;
+            set
+            {
+                if (_isRunning != value)
+                {
+                    _isRunning = value;
+
+                    if (_isRunning)
+                    {
+                        CurrentState.Resume();
+                    }
+
+                    Controls.IsEnabled = _isRunning;
+                }
+            }
         }
 
         public void Dispose()
         {
-            Controls.Dispose();
+            Controls.Destroy();
         }
+
+        public GridDirection GetInputDirection(GridDirections availableDirections) => Controls.GetDirectionChange(availableDirections);
     }
 }

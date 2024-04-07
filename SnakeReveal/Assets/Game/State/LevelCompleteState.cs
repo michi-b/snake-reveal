@@ -22,7 +22,7 @@ namespace Game.State
             return this;
         }
 
-        public override IGameState FixedUpdate() => TryEnterCommonState(out IGameState newState) ? newState : this; // cannot exit Level Completed state
+        public override IGameState FixedUpdate() => this; // cannot exit Level Completed state
 
         public override GameStateId Id => GameStateId.LevelComplete;
     }

@@ -2,11 +2,9 @@
 using System.Diagnostics;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Enums.Utility;
 using Game.Lines;
 using Game.Lines.Insertion;
 using Game.Player;
-using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Game.Simulation.States
@@ -92,7 +90,7 @@ namespace Game.Simulation.States
         private GridDirections GetContinuationDirectionsInTurn()
         {
             var result = GridDirections.None;
-            result = result.WithDirection(_currentLine.GetDirection(true));
+            result = result.WithDirection(_currentLine.GetDirection());
             return result;
         }
 

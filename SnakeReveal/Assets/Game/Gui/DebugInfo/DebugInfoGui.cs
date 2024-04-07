@@ -1,4 +1,3 @@
-using System;
 using Game.Player.Controls;
 using Game.Player.Controls.Touch;
 using Game.Player.Controls.Touch.Extensions;
@@ -17,14 +16,16 @@ namespace Game.Gui.DebugInfo
     public class DebugInfoGui : MonoBehaviour
     {
         [SerializeField] private Game _game;
-        
+
         [SerializeField] private TextRenderer _gameState;
         [SerializeField] private TextRenderer _simulationState;
+        [SerializeField] private BoolDisplay _simulationIsRunning;
         [SerializeField] private IntDisplay _simulationTicks;
         [SerializeField] private FloatDisplay _simulationTime;
         [SerializeField] private IntDisplay _totalCellCount;
         [SerializeField] private IntDisplay _coveredCellCount;
         [SerializeField] private IntDisplay _targetCellCount;
+        [SerializeField] private BoolDisplay _swipesAreEnabled;
         [SerializeField] private BoolDisplay _touch0Active;
         [SerializeField] private Vector2Display _touch0Start;
         [SerializeField] private Vector2Display _swipe0Start;
@@ -42,7 +43,9 @@ namespace Game.Gui.DebugInfo
 
         protected virtual void FixedUpdate()
         {
-            if (EnhancedTouchSupport.enabled && Touch.fingers.Count > 0)
+            if (_game.Simulation.PlayerSimulation.Controls.IsEnabled
+                && EnhancedTouchSupport.enabled
+                && Touch.fingers.Count > 0)
             {
                 Finger finger = Touch.fingers[0];
 
@@ -63,32 +66,30 @@ namespace Game.Gui.DebugInfo
         protected virtual void Update()
         {
             _gameState.Text = _game.State.Name;
-            
+
             GameSimulation gameSimulation = _game.Simulation;
-            
+
             _simulationState.Text = gameSimulation.PlayerSimulation.CurrentState.Name;
-            
+            _simulationIsRunning.Value = gameSimulation.IsRunning;
+
             _simulationTicks.Value = gameSimulation.Ticks;
             _simulationTime.Value = gameSimulation.GetSimulationTime();
-            
+
             _targetCellCount.Value = gameSimulation.TargetCellCount;
             _totalCellCount.Value = gameSimulation.Grid.GetCellCount();
             _coveredCellCount.Value = gameSimulation.CoveredCellCount;
-            
+
             PlayerSimulation playerSimulation = gameSimulation.PlayerSimulation;
+
             IPlayerActorControls controls = playerSimulation.Controls;
-            if(controls is PlayerActorControls playerActorControls)
+
+            _swipesAreEnabled.Value = controls.IsEnabled;
+
+            if (controls is PlayerActorControls playerActorControls)
             {
                 SwipeEvaluation swipeEvaluation = playerActorControls.SwipeEvaluation;
                 _swipe0Start.Value = swipeEvaluation.GetSwipeStart(0);
             }
-        }
-
-        private static void AssertIsDebug()
-        {
-#if !DEBUG
-            throw new InvalidOperationException("Debug info gui should bot be used in release code.");
-#endif
         }
     }
 }
