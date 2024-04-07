@@ -11,7 +11,7 @@ namespace Game.Simulation.Grid.Editor
             _sceneSizeProperty = serializedObject.FindProperty(SimulationGrid.SceneSizePropertyName);
             _collidersThicknessProperty = serializedObject.FindProperty(SimulationGrid.CollidersThicknessPropertyName);
             _paddingThicknessProperty = serializedObject.FindProperty(SimulationGrid.PaddingThicknessPropertyName);
-            
+
             _cameraProperty = serializedObject.FindProperty(SimulationGrid.CameraPropertyName);
             _orthographicHeightProperty = serializedObject.FindProperty(SimulationGrid.OrthographicHeightPropertyName);
             _sceneAspectProperty = serializedObject.FindProperty(SimulationGrid.SceneAspectPropertyName);
@@ -32,7 +32,7 @@ namespace Game.Simulation.Grid.Editor
                 DrawPadding(grid);
 
                 DrawColliders(grid);
-                
+
                 bool guiWasEnabled = GUI.enabled;
                 GUI.enabled = false;
                 EditorGUILayout.PropertyField(_sceneAspectProperty);
@@ -58,7 +58,6 @@ namespace Game.Simulation.Grid.Editor
                 grid.ApplyColliderThickness();
                 AdjustCamera(grid);
             }
-
         }
 
         private void AdjustCamera(SimulationGrid grid)
@@ -67,7 +66,7 @@ namespace Game.Simulation.Grid.Editor
             _orthographicHeightProperty.floatValue = sceneSizeWithPadding.y * 0.5f;
             _sceneAspectProperty.floatValue = sceneSizeWithPadding.x / sceneSizeWithPadding.y;
             serializedObject.ApplyModifiedProperties();
-            
+
             if (grid.Camera != null)
             {
                 Undo.RecordObject(grid.Camera, "Apply Scene Size to Camera");
@@ -103,7 +102,7 @@ namespace Game.Simulation.Grid.Editor
         private SerializedProperty _sceneSizeProperty;
         private SerializedProperty _collidersThicknessProperty;
         private SerializedProperty _paddingThicknessProperty;
-        
+
         private SerializedProperty _cameraProperty;
         private SerializedProperty _orthographicHeightProperty;
         private SerializedProperty _sceneAspectProperty;

@@ -42,7 +42,7 @@ namespace Game.Simulation
         public float GetPercentCompletion() => (CoveredCellCount - _startingCellCount) / (float)TargetCellCount;
 
         public float GetSimulationTime() => Ticks * Time.fixedDeltaTime;
-        
+
         protected virtual void Awake()
         {
             TargetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
@@ -92,8 +92,9 @@ namespace Game.Simulation
             _gui.GameInfo.PercentCompletion = GetPercentCompletion();
         }
 
-        
+
         private bool _isRunning;
+
         public bool IsRunning
         {
             get => _isRunning;
@@ -106,7 +107,7 @@ namespace Game.Simulation
                 }
             }
         }
-        
+
         protected void OnDestroy()
         {
             PlayerSimulation.Dispose();

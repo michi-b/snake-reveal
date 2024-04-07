@@ -11,7 +11,7 @@ namespace Game.Player.Controls
     public partial class PlayerActorControls : PlayerActorControls.IPlayerActorActions, IPlayerActorControls
     {
         private readonly List<GridDirection> _heldDirectionKeys = new(4);
-        
+
         private bool _isEnabled;
 
         public SwipeEvaluation SwipeEvaluation { get; private set; }
@@ -53,6 +53,7 @@ namespace Game.Player.Controls
                         Disable();
                         _heldDirectionKeys.Clear();
                     }
+
                     _isEnabled = value;
                 }
             }

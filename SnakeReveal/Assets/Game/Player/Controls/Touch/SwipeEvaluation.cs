@@ -42,7 +42,7 @@ namespace Game.Player.Controls.Touch
             UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
             EnhancedTouchSupport.Disable();
         }
-        
+
         public Vector2 GetSwipeStart(int fingerIndex) => _swipeStarts[fingerIndex];
 
         private void OnFingerDown(Finger finger)
@@ -131,10 +131,7 @@ namespace Game.Player.Controls.Touch
             swipeDirection = GridDirection.None;
             return false;
 
-            bool CanReturn(GridDirection direction)
-            {
-                return availableDirections.Contains(direction);
-            }
+            bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
         }
     }
 }
