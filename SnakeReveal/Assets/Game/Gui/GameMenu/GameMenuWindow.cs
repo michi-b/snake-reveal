@@ -49,7 +49,7 @@ namespace Game.Gui.GameMenu
             _settingsContainer.RevertToSavedPreferences(!isActiveAndEnabled);
             Initialize();
         }
-        
+
         [UnityEventTarget]
         public void OnDisplayDebugInfoToggleChanged(bool value)
         {

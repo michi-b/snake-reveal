@@ -41,7 +41,7 @@ namespace Game.Settings
         public GameSettings(GameSettings defaults)
         {
             _observers = new HashSet<IGameSettingsObserver>();
-            
+
             _container = defaults._container;
 
             OverrideWithDefaults(defaults);

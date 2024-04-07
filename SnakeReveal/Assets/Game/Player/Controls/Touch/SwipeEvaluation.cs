@@ -31,18 +31,9 @@ namespace Game.Player.Controls.Touch
                 if (value != _isTracking)
                 {
                     _isTracking = value;
-                    if (!_isTracking)
-                    {
-                        ResetSwipeStarts();
-                    }
+                    ResetSwipeStarts();
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
-            EnhancedTouchSupport.Disable();
         }
 
         public Vector2 GetSwipeStart(int fingerIndex) => _swipeStarts[fingerIndex];
@@ -136,6 +127,12 @@ namespace Game.Player.Controls.Touch
             return false;
 
             bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
+        }
+
+        public void Dispose()
+        {
+            UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
+            EnhancedTouchSupport.Disable();
         }
     }
 }
