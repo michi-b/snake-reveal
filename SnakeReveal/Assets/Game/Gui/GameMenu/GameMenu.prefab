@@ -539,6 +539,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameMenuWindow
       objectReference: {fileID: 0}
+    - target: {fileID: 7721974041731556832, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8607277029470463250, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

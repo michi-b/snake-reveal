@@ -19,7 +19,7 @@ namespace Game.Gui.GameMenu
         private Animator _animator;
         private GameMenuControls _keyboardControls;
 
-        private Animator Animator => _animator ??= GetComponent<Animator>();
+        private Animator Animator => _animator = _animator == null ? GetComponent<Animator>() : _animator;
 
         public AnimatorControlledState AnimatorState { get; private set; }
 

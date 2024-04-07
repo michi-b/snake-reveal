@@ -6,6 +6,8 @@
 
         public abstract GameStateId Id { get; }
 
+        protected abstract bool ArePlayerActorControlsEnabled { get; }
+
         protected GameState(Game game)
         {
             Game = game;
@@ -23,6 +25,11 @@
 
             enteredState = null;
             return false;
+        }
+
+        protected virtual void OnEnter()
+        {
+            Game.PlayerActorControls.IsEnabled = ArePlayerActorControlsEnabled;
         }
     }
 }

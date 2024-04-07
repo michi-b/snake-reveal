@@ -5,6 +5,7 @@ namespace Game.State
     public class SimulationRunningState : GameState
     {
         public override GameStateId Id => GameStateId.SimulationRunning;
+        protected override bool ArePlayerActorControlsEnabled => true;
 
         public SimulationRunningState(Game game) : base(game)
         {
@@ -33,6 +34,9 @@ namespace Game.State
         public IGameState Enter()
         {
             Game.Simulation.IsRunning = true;
+
+            OnEnter();
+
             return this;
         }
 

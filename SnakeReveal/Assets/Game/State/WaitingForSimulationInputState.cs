@@ -11,6 +11,7 @@ namespace Game.State
         private GridDirections _availableDirections;
 
         public override GameStateId Id => GameStateId.WaitingForSimulationInput;
+        protected override bool ArePlayerActorControlsEnabled => true;
 
         public WaitingForSimulationInputState(Game game, AvailableDirectionsIndication availableDirectionsIndication)
             : base(game)
@@ -27,7 +28,7 @@ namespace Game.State
 
             Simulation.GameSimulation simulation = Game.Simulation;
 
-            GridDirection requestedDirection = simulation.PlayerSimulation.GetInputDirection(_availableDirections);
+            GridDirection requestedDirection = Game.GetInputDirection(_availableDirections);
 
             if (requestedDirection != GridDirection.None)
             {
@@ -45,12 +46,16 @@ namespace Game.State
         public IGameState Enter()
         {
             Simulation.GameSimulation simulation = Game.Simulation;
+
             PlayerActor playerActor = simulation.Player;
             _availableDirectionsIndication.Place(playerActor.transform.localPosition);
             playerActor.Direction = GridDirection.None;
             _availableDirections = simulation.GetAvailableDirections();
             _availableDirectionsIndication.Directions = _availableDirections;
             _availableDirectionsIndication.SetVisible(true);
+
+            OnEnter();
+
             return this;
         }
 

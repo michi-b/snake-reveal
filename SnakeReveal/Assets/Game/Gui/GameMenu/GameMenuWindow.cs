@@ -1,16 +1,22 @@
 using Attributes;
 using Game.Settings;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Game.Gui.GameMenu
 {
     public class GameMenuWindow : MonoBehaviour
     {
-        [SerializeField] private GamePlayerSettingsContainer _settingsContainer;
-        [SerializeField] private Slider _swipeThreshold;
+        [SerializeField] private GameSettingsContainer _settingsContainer;
 
-        private GamePlayerSettings _settings;
+        [FormerlySerializedAs("_swipeThreshold"), SerializeField]
+        private Slider _swipeThresholdSlider;
+
+        [SerializeField] private Toggle _displayDebugInfoToggle;
+
+
+        private GameSettings _settings;
 
         protected void OnEnable()
         {
@@ -26,7 +32,8 @@ namespace Game.Gui.GameMenu
 
         private void Initialize()
         {
-            _swipeThreshold.value = _settings.SwipeThreshold;
+            _swipeThresholdSlider.value = _settings.SwipeThreshold;
+            _displayDebugInfoToggle.isOn = _settings.DisplayDebugInfo;
         }
 
         [UnityEventTarget]
@@ -41,6 +48,15 @@ namespace Game.Gui.GameMenu
         {
             _settingsContainer.RevertToSavedPreferences(!isActiveAndEnabled);
             Initialize();
+        }
+        
+        [UnityEventTarget]
+        public void OnDisplayDebugInfoToggleChanged(bool value)
+        {
+            if (isActiveAndEnabled)
+            {
+                _settings.DisplayDebugInfo = value;
+            }
         }
     }
 }

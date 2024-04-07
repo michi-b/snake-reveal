@@ -9,6 +9,8 @@ namespace Game.State
         {
         }
 
+        protected override bool ArePlayerActorControlsEnabled => false;
+
         public LevelCompleteState Enter()
         {
             GameSimulation simulation = Game.Simulation;
@@ -18,6 +20,8 @@ namespace Game.State
 
             LevelCompleteMessage levelCompleteMessage = Game.Gui.GameInfo.LevelCompleteMessage;
             levelCompleteMessage.Show(simulationTime, percentCompletion);
+
+            OnEnter();
 
             return this;
         }

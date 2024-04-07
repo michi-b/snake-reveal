@@ -68,7 +68,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4990270854527179874}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 0}
@@ -443,10 +443,6 @@ PrefabInstance:
     - target: {fileID: 6874897208054640008, guid: 4636f43ecb299c743bf23dcc5e4b76ca, type: 3}
       propertyPath: m_Name
       value: Arrow_Down
-      objectReference: {fileID: 0}
-    - target: {fileID: 6874897208054640008, guid: 4636f43ecb299c743bf23dcc5e4b76ca, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

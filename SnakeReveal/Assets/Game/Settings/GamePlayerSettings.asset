@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _defaults:
     _container: {fileID: 11400000}
-    _swipeThreshold: 1
+    _swipeThreshold: 0.5

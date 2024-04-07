@@ -1,10 +1,12 @@
 using Game.Player.Controls;
 using Game.Player.Controls.Touch;
 using Game.Player.Controls.Touch.Extensions;
+using Game.Settings;
 using Game.Simulation;
 using TextDisplay.Abstractions;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
+using Utility;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 #if !DEBUG
@@ -13,7 +15,7 @@ using System; // InvalidOperationException
 
 namespace Game.Gui.DebugInfo
 {
-    public class DebugInfoGui : MonoBehaviour
+    public class DebugInfoGui : MonoBehaviour, IGameSettingsObserver
     {
         [SerializeField] private Game _game;
 
@@ -25,25 +27,35 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private IntDisplay _totalCellCount;
         [SerializeField] private IntDisplay _coveredCellCount;
         [SerializeField] private IntDisplay _targetCellCount;
+        [SerializeField] private Vector2Display _dpi;
         [SerializeField] private BoolDisplay _swipesAreEnabled;
         [SerializeField] private BoolDisplay _touch0Active;
         [SerializeField] private Vector2Display _touch0Start;
         [SerializeField] private Vector2Display _swipe0Start;
         [SerializeField] private Vector2Display _touch0Current;
 
+        private GameSettings _gameSettings;
 
-        protected virtual void Awake()
+        protected virtual void Start()
         {
-#if DEBUG
-            gameObject.SetActive(true);
-#else
-            gameObject.SetActive(false);
-#endif
+            _dpi.Value = ScreenUtility.Dpi;
+
+            _game.Settings.Register(this, true);
+        }
+
+        public void OnGameSettingsChanged(GameSettings settings)
+        {
+            gameObject.SetActive(_game.Settings.DisplayDebugInfo);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            _game.Settings.Deregister(this);
         }
 
         protected virtual void FixedUpdate()
         {
-            if (_game.Simulation.PlayerSimulation.Controls.IsEnabled
+            if (_game.PlayerActorControls.IsEnabled
                 && EnhancedTouchSupport.enabled
                 && Touch.fingers.Count > 0)
             {
@@ -79,9 +91,7 @@ namespace Game.Gui.DebugInfo
             _totalCellCount.Value = gameSimulation.Grid.GetCellCount();
             _coveredCellCount.Value = gameSimulation.CoveredCellCount;
 
-            PlayerSimulation playerSimulation = gameSimulation.PlayerSimulation;
-
-            IPlayerActorControls controls = playerSimulation.Controls;
+            IPlayerActorControls controls = _game.PlayerActorControls;
 
             _swipesAreEnabled.Value = controls.IsEnabled;
 

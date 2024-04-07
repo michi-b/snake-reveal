@@ -65,7 +65,7 @@ namespace Game.Gui.AvailableDirectionsIndication
         }
 
         private Animator _animator;
-        private Animator Animator => _animator ??= GetComponent<Animator>();
+        private Animator Animator => _animator = _animator == null ? GetComponent<Animator>() : _animator;
 
         [SerializeField] private Image _upArrow;
         [SerializeField] private Image _rightArrow;

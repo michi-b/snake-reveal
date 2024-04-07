@@ -37,6 +37,6 @@ namespace Game.Enemies
         }
 
         private Rigidbody2D _rigidbody;
-        protected Rigidbody2D Rigidbody => _rigidbody ??= GetComponent<Rigidbody2D>();
+        protected Rigidbody2D Rigidbody => _rigidbody = _rigidbody == null ? GetComponent<Rigidbody2D>() : _rigidbody;
     }
 }

@@ -1,4 +1,8 @@
+using CustomPropertyDrawers;
+using Game.Enums;
 using Game.Gui;
+using Game.Player.Controls;
+using Game.Settings;
 using Game.State;
 using UnityEngine;
 
@@ -8,6 +12,9 @@ namespace Game
     {
         [SerializeField] private Simulation.GameSimulation _simulation;
         [SerializeField] private GuiContainer _gui;
+        [SerializeField] private GameSettingsContainer _gameSettings;
+
+        [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
 
         public Simulation.GameSimulation Simulation => _simulation;
 
@@ -23,8 +30,16 @@ namespace Game
 
         public IGameState State { get; private set; }
 
+        public IPlayerActorControls PlayerActorControls { get; private set; }
+
+        public GameSettings Settings { get; private set; }
+
         protected virtual void Awake()
         {
+            Settings = _gameSettings.Settings;
+            PlayerActorControls = _monkeyTestPlayerSimulationWithRandomInputs
+                ? new MonkeyTestRandomInputPlayerActorControls()
+                : Player.Controls.PlayerActorControls.Create(Settings);
             GameMenuState = new GameMenuState(this);
             WaitingForSimulationInputState = new WaitingForSimulationInputState(this, Gui.AvailableDirectionsIndication);
             RunningState = new SimulationRunningState(this);
@@ -49,6 +64,13 @@ namespace Game
         private void ApplyIsGameMenuAvailable()
         {
             Gui.GameMenu.SetCanOpen = State.Id.GetIsGameMenuAvailable();
+        }
+
+        public GridDirection GetInputDirection(GridDirections availableDirections) => PlayerActorControls.GetDirectionChange(availableDirections);
+
+        protected void OnDestroy()
+        {
+            PlayerActorControls.Destroy();
         }
     }
 }

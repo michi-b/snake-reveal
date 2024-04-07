@@ -1,33 +1,29 @@
-﻿using System;
-using Game.Enums;
+﻿using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Player;
-using Game.Player.Controls;
 using Game.Simulation.Grid;
 using Game.Simulation.States;
 using UnityEngine;
 
 namespace Game.Simulation
 {
-    public class PlayerSimulation : IDisposable
+    public class PlayerSimulation
     {
-        private readonly GameSimulation _game;
-
+        private readonly Game _game;
+        private readonly GameSimulation _simulation;
         private bool _isRunning;
 
         public IPlayerSimulationState CurrentState { get; private set; }
 
         public int CoveredCellCount => ShapeTravelState.CoveredCellCount;
 
-        public IPlayerActorControls Controls { get; }
+        public PlayerActor Actor => _simulation.Player;
 
-        public PlayerActor Actor => _game.Player;
+        public DrawnShape Shape => _simulation.DrawnShape;
 
-        public DrawnShape Shape => _game.DrawnShape;
+        public DrawingChain Drawing => _simulation.Drawing;
 
-        public DrawingChain Drawing => _game.Drawing;
-
-        public SimulationGrid Grid => _game.Grid;
+        public SimulationGrid Grid => _simulation.Grid;
 
         public DrawingState DrawingState { get; }
 
@@ -35,10 +31,10 @@ namespace Game.Simulation
 
         public void Move(ref SimulationUpdateResult result)
         {
-            for (int moveIndex = 0; moveIndex < _game.Player.Speed; moveIndex++)
+            for (int moveIndex = 0; moveIndex < _simulation.Player.Speed; moveIndex++)
             {
                 GridDirections validInputDirections = CurrentState.GetAvailableDirections().WithoutDirection(Actor.Direction);
-                GridDirection inputDirection = GetInputDirection(validInputDirections);
+                GridDirection inputDirection = _game.GetInputDirection(validInputDirections);
 
                 if (inputDirection != GridDirection.None)
                 {
@@ -52,20 +48,19 @@ namespace Game.Simulation
             }
 
             // todo: apply grid position only once per frame instead (and extrapolate)
-            _game.Player.ApplyPosition();
+            _simulation.Player.ApplyPosition();
         }
 
-        public PlayerSimulation(GameSimulation simulation, bool monkeyTestPlayerSimulationWithRandomInputs)
+        public PlayerSimulation(Game game)
         {
-            _game = simulation;
+            _game = game;
+            _simulation = game.Simulation;
 
-            SimulationGrid grid = simulation.Grid;
-            PlayerActor actor = simulation.Player;
-            DrawnShape shape = simulation.DrawnShape;
-            DrawingChain drawing = simulation.Drawing;
+            SimulationGrid grid = _simulation.Grid;
+            PlayerActor actor = _simulation.Player;
+            DrawnShape shape = _simulation.DrawnShape;
+            DrawingChain drawing = _simulation.Drawing;
             Debug.Assert(grid != null && actor.Grid == grid && shape.Grid == grid && drawing.Grid == grid);
-            Controls = monkeyTestPlayerSimulationWithRandomInputs ? new MonkeyTestRandomInputPlayerActorControls() : PlayerActorControls.Create(_game.Gui.DebugInfo);
-            Controls.IsEnabled = true;
 
             ShapeTravelState = new ShapeTravelState(this);
             DrawingState = new DrawingState(this);
@@ -86,17 +81,8 @@ namespace Game.Simulation
                     {
                         CurrentState.Resume();
                     }
-
-                    Controls.IsEnabled = _isRunning;
                 }
             }
         }
-
-        public void Dispose()
-        {
-            Controls.Destroy();
-        }
-
-        public GridDirection GetInputDirection(GridDirections availableDirections) => Controls.GetDirectionChange(availableDirections);
     }
 }

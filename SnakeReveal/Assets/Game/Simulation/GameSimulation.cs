@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using CustomPropertyDrawers;
 using Game.Enums;
-using Game.Gui;
 using Game.Player;
+using Game.Settings;
 using Game.Simulation.Grid;
 using UnityEngine;
 using Utility;
@@ -12,42 +11,35 @@ namespace Game.Simulation
 {
     public class GameSimulation : MonoBehaviour
     {
+        [SerializeField] private Game _game;
         [SerializeField] private SimulationGrid _grid;
         [SerializeField] private PlayerActor _player;
         [SerializeField] private DrawnShape _drawnShape;
         [SerializeField] private DrawingChain _drawing;
-        [SerializeField] private GuiContainer _gui;
 
-        [SerializeField, ToggleLeft] private bool _monkeyTestPlayerSimulationWithRandomInputs;
         [SerializeField, Range(0f, 1f)] private float _targetCoverage = 0.8f;
 
         private int _startingCellCount;
 
+        private Game Game => _game;
+        public GameSettings Settings => Game.Settings;
         public int Ticks { get; private set; }
         public PlayerActor Player => _player;
         public SimulationGrid Grid => _grid;
         public DrawnShape DrawnShape => _drawnShape;
         public DrawingChain Drawing => _drawing;
-
-        public GuiContainer Gui => _gui;
-
         public PlayerSimulation PlayerSimulation { get; private set; }
-
         public int TargetCellCount { get; private set; }
-
         public int CoveredCellCount { get; private set; }
-
         public GridDirections GetAvailableDirections() => PlayerSimulation.CurrentState.GetAvailableDirections();
-
         public float GetPercentCompletion() => (CoveredCellCount - _startingCellCount) / (float)TargetCellCount;
-
         public float GetSimulationTime() => Ticks * Time.fixedDeltaTime;
 
         protected virtual void Awake()
         {
             TargetCellCount = (int)(_targetCoverage * _grid.GetCellCount());
 
-            PlayerSimulation = new PlayerSimulation(this, _monkeyTestPlayerSimulationWithRandomInputs);
+            PlayerSimulation = new PlayerSimulation(Game);
 
             _startingCellCount = CoveredCellCount = PlayerSimulation.CoveredCellCount;
 
@@ -89,7 +81,7 @@ namespace Game.Simulation
 
         private void UpdatePercentCompletionDisplay()
         {
-            _gui.GameInfo.PercentCompletion = GetPercentCompletion();
+            Game.Gui.GameInfo.PercentCompletion = GetPercentCompletion();
         }
 
 
@@ -106,11 +98,6 @@ namespace Game.Simulation
                     PlayerSimulation.IsRunning = value;
                 }
             }
-        }
-
-        protected void OnDestroy()
-        {
-            PlayerSimulation.Dispose();
         }
     }
 }

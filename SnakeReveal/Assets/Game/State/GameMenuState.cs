@@ -3,6 +3,7 @@
     public class GameMenuState : GameState
     {
         public override GameStateId Id => GameStateId.GameMenu;
+        protected override bool ArePlayerActorControlsEnabled => false;
 
         public GameMenuState(Game game) : base(game)
         {
@@ -17,6 +18,7 @@
         {
             if (Game.Gui.GameMenu.AnimatorState.IsSomewhatOpen)
             {
+                OnEnter();
                 enteredState = this;
                 return true;
             }

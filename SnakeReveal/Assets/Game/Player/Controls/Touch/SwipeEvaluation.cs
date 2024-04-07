@@ -2,20 +2,22 @@ using System;
 using Game.Enums;
 using Game.Enums.Extensions;
 using Game.Player.Controls.Touch.Extensions;
+using Game.Settings;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
+using Utility;
 
 namespace Game.Player.Controls.Touch
 {
     public class SwipeEvaluation : IDisposable
     {
-        private const float SwipeThreshold = 100f;
-
         private readonly Vector2[] _swipeStarts;
         private bool _isTracking;
+        private readonly GameSettings _settings;
 
-        public SwipeEvaluation()
+        public SwipeEvaluation(GameSettings settings)
         {
+            _settings = settings;
             EnhancedTouchSupport.Enable();
             _swipeStarts = new Vector2[UnityEngine.InputSystem.EnhancedTouch.Touch.fingers.Count];
             UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;
@@ -92,9 +94,11 @@ namespace Game.Player.Controls.Touch
                 return false;
             }
 
-            Vector2 delta = finger.GetLatestScreenPosition() - _swipeStarts[finger.index];
+            Vector2 pixelDelta = finger.GetLatestScreenPosition() - _swipeStarts[finger.index];
 
-            if (Mathf.Abs(delta.x) > SwipeThreshold)
+            Vector2 delta = pixelDelta / (ScreenUtility.Dpi * _settings.SwipeThreshold);
+
+            if (Mathf.Abs(delta.x) > 1)
             {
                 if (delta.x > 0)
                 {
@@ -111,7 +115,7 @@ namespace Game.Player.Controls.Touch
                 }
             }
 
-            if (Mathf.Abs(delta.y) > SwipeThreshold)
+            if (Mathf.Abs(delta.y) > 1)
             {
                 if (delta.y > 0)
                 {
