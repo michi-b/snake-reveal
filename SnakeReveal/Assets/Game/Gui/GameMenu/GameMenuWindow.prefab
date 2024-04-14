@@ -587,12 +587,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 56
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 56
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -719,18 +719,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1494141492172915306, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: _value
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1826872165422773398, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_text
-      value: Swipe Threshold
-      objectReference: {fileID: 0}
-    - target: {fileID: 1826872165422773398, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_fontSize
-      value: 56.55
-      objectReference: {fileID: 0}
     - target: {fileID: 2202141491327970681, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_Name
       value: SwipeThresholdDisplay
@@ -741,15 +729,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2865710999285724572, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_text
-      value: 0.50
+      value: 0.25 in
+      objectReference: {fileID: 0}
+    - target: {fileID: 2865710999285724572, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
+      propertyPath: m_fontSize
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_Value
-      value: 0.5
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_MaxValue
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_MinValue
@@ -768,36 +760,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 11400000, guid: 8fd0ea978f9597847a119d043d25e1b4, type: 2}
-    - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 2055858702101418934}
-    - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 11400000, guid: 8fd0ea978f9597847a119d043d25e1b4, type: 2}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: set_SwipeThreshold
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: set_Value
-      objectReference: {fileID: 0}
-    - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Game.Settings.GamePlayerSettingsContainer, Assembly-CSharp
+      value: TextDisplay.Abstractions.ValueDisplay`1[[System.Single, mscorlib
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: TextDisplay.Abstractions.ValueDisplay`1[[System.Single, mscorlib
+      value: Game.Settings.GamePlayerSettingsContainer, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_FloatArgument
@@ -810,6 +790,14 @@ PrefabInstance:
     - target: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 3566572554671911440, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
+      propertyPath: _value
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3566572554671911440, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
+      propertyPath: _textFormat
+      value: '{0} in'
       objectReference: {fileID: 0}
     - target: {fileID: 7030194530609498815, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
       propertyPath: m_AnchorMax.x
@@ -865,17 +853,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 90153664436556677, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
   m_PrefabInstance: {fileID: 593245199048970716}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2055858702101418934 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1494141492172915306, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
-  m_PrefabInstance: {fileID: 593245199048970716}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 797aea8373e68164ea5a3fedccee9dc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2736444877758353403 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3297320213900189223, guid: d99ea321a4354ad43b72e8c9d088d765, type: 3}
@@ -1053,6 +1030,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Last Saved
       objectReference: {fileID: 0}
+    - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 56
+      objectReference: {fileID: 0}
     - target: {fileID: 6263601967574729038, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_Name
       value: RevertToSavedButton
@@ -1182,6 +1163,10 @@ PrefabInstance:
     - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_text
       value: Game Defaults
+      objectReference: {fileID: 0}
+    - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 6263601967574729038, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_Name
@@ -1384,6 +1369,14 @@ PrefabInstance:
     - target: {fileID: 4184477778313917654, guid: e26c899cf1f81d2429f8e7558e6c6256, type: 3}
       propertyPath: m_text
       value: Display Debug Info
+      objectReference: {fileID: 0}
+    - target: {fileID: 4184477778313917654, guid: e26c899cf1f81d2429f8e7558e6c6256, type: 3}
+      propertyPath: m_fontSize
+      value: 56
+      objectReference: {fileID: 0}
+    - target: {fileID: 4184477778313917654, guid: e26c899cf1f81d2429f8e7558e6c6256, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 6454922032166632407, guid: e26c899cf1f81d2429f8e7558e6c6256, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size

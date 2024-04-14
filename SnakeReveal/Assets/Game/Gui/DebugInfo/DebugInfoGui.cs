@@ -1,13 +1,10 @@
 using Game.Player.Controls;
 using Game.Player.Controls.Touch;
-using Game.Player.Controls.Touch.Extensions;
 using Game.Settings;
 using Game.Simulation;
 using TextDisplay.Abstractions;
 using UnityEngine;
-using UnityEngine.InputSystem.EnhancedTouch;
 using Utility;
-using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 #if !DEBUG
 using System; // InvalidOperationException
@@ -53,28 +50,6 @@ namespace Game.Gui.DebugInfo
             _game.Settings.Deregister(this);
         }
 
-        protected virtual void FixedUpdate()
-        {
-            if (_game.PlayerActorControls.IsEnabled
-                && EnhancedTouchSupport.enabled
-                && Touch.fingers.Count > 0)
-            {
-                Finger finger = Touch.fingers[0];
-
-                FingerTouchInteraction touchInteraction = finger.GetTouchInteraction();
-
-                _touch0Active.Value = (touchInteraction & FingerTouchInteraction.IsTouching) != 0;
-                _touch0Start.Value = finger.GetLatestScreenPosition();
-                _touch0Current.Value = finger.GetLatestStartScreenPosition();
-            }
-            else
-            {
-                _touch0Start.Value = default;
-                _touch0Current.Value = default;
-                _touch0Active.Value = default;
-            }
-        }
-
         protected virtual void Update()
         {
             _gameState.Text = _game.State.Name;
@@ -97,8 +72,13 @@ namespace Game.Gui.DebugInfo
 
             if (controls is PlayerActorControls playerActorControls)
             {
-                SwipeEvaluation swipeEvaluation = playerActorControls.SwipeEvaluation;
-                _swipe0Start.Value = swipeEvaluation.GetSwipeStart(0);
+                if (playerActorControls.SwipeEvaluation.TryGetTouch(0, out FingerTouch touch))
+                {
+                    _touch0Start.Value = touch.GetLatestStartScreenPosition();
+                    _touch0Active.Value = touch.IsTouching;
+                    _touch0Current.Value = touch.GetLatestScreenPosition();
+                    _swipe0Start.Value = touch.CurrentSwipeStart;
+                }
             }
         }
     }

@@ -44,23 +44,23 @@ namespace Game.Settings
 
             _container = defaults._container;
 
-            OverrideWithDefaults(defaults);
-            OverrideWithPlayerPrefs();
+            ApplyDefaults(defaults);
+            ApplyPlayerPrefs();
         }
 
-        public void OverrideWithDefaults(GameSettings defaults)
+        public void ApplyDefaults(GameSettings defaults)
         {
             SwipeThreshold = defaults.SwipeThreshold;
             DisplayDebugInfo = defaults.DisplayDebugInfo;
         }
 
-        public void OverrideWithPlayerPrefs()
+        public void ApplyPlayerPrefs()
         {
             _swipeThreshold = PlayerPrefs.GetFloat(SwipeThresholdKey, _swipeThreshold);
             _displayDebugInfo = PlayerPrefs.GetInt(DisplayDebugInfoKey, _displayDebugInfo ? 1 : 0) == 1;
         }
 
-        public void SaveToPlayerPrefs()
+        public void Save()
         {
             PlayerPrefs.SetFloat(SwipeThresholdKey, _swipeThreshold);
             PlayerPrefs.SetInt(DisplayDebugInfoKey, _displayDebugInfo ? 1 : 0);

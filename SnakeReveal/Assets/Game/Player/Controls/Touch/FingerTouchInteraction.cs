@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Game.Player.Controls
+namespace Game.Player.Controls.Touch
 {
     [Flags]
     public enum FingerTouchInteraction

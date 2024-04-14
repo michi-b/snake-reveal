@@ -11,10 +11,10 @@ namespace Game.Enemies.Bouncer
         [SerializeField] private LayerMask _inDrawnShapeExcludedCollidersMask;
 
         private Rigidbody2D _rigidbody2D;
-        private Rigidbody2D Rigidbody2D => _rigidbody2D ??= GetComponent<Rigidbody2D>();
+        private Rigidbody2D Rigidbody2D => _rigidbody2D = _rigidbody2D == null ? GetComponent<Rigidbody2D>() : _rigidbody2D;
 
         private Renderer _renderer;
-        private Renderer Renderer => _renderer ??= GetComponent<Renderer>();
+        private Renderer Renderer => _renderer == null ? GetComponent<Renderer>() : _renderer;
 
         [UnityEventTarget]
         public void OnIsCapturedInDrawnShapeChanged(bool isCaptured)

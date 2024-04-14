@@ -5,22 +5,21 @@ using Game.Player.Controls.Touch.Extensions;
 using Game.Settings;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.Utilities;
 using Utility;
 
 namespace Game.Player.Controls.Touch
 {
     public class SwipeEvaluation : IDisposable
     {
-        private readonly Vector2[] _swipeStarts;
+        private FingerTouch[] _touches;
         private bool _isTracking;
         private readonly GameSettings _settings;
+        private bool _disposed;
 
         public SwipeEvaluation(GameSettings settings)
         {
             _settings = settings;
-            EnhancedTouchSupport.Enable();
-            _swipeStarts = new Vector2[UnityEngine.InputSystem.EnhancedTouch.Touch.fingers.Count];
-            UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;
         }
 
         public bool IsTracking
@@ -30,31 +29,64 @@ namespace Game.Player.Controls.Touch
             {
                 if (value != _isTracking)
                 {
+                    if (value)
+                    {
+                        AssertIsNotDisposed();
+
+                        EnhancedTouchSupport.Enable();
+
+                        ReadOnlyArray<Finger> fingers = UnityEngine.InputSystem.EnhancedTouch.Touch.fingers;
+                        Array.Resize(ref _touches, fingers.Count);
+                        for (int i = 0; i < fingers.Count; i++)
+                        {
+                            _touches[i] = new FingerTouch(fingers[i]);
+                        }
+
+                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;
+                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp += OnFingerUp;
+                    }
+                    else
+                    {
+                        EnhancedTouchSupport.Disable();
+                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
+                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp -= OnFingerUp;
+                    }
+
                     _isTracking = value;
-                    ResetSwipeStarts();
+                    foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
+                    {
+                        _touches[finger.index].Reset();
+                    }
                 }
             }
         }
 
-        public Vector2 GetSwipeStart(int fingerIndex) => _swipeStarts[fingerIndex];
-
-        private void OnFingerDown(Finger finger)
+        public bool TryGetTouch(int fingerIndex, out FingerTouch touch)
         {
-            if (IsTracking)
+            AssertIsNotDisposed();
+
+            if (_touches == null || fingerIndex < 0 || fingerIndex >= _touches.Length)
             {
-                Vector2 touchStartPosition = finger.currentTouch.startScreenPosition;
-                _swipeStarts[finger.index] = touchStartPosition;
+                touch = default;
+                return false;
             }
+
+            touch = _touches[fingerIndex];
+            return true;
         }
 
         public bool TryConsumeSwipe(GridDirections availableDirections, out GridDirection swipeDirection)
         {
-            foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
+            AssertIsNotDisposed();
+
+            if (_isTracking && EnhancedTouchSupport.enabled)
             {
-                if (TryGetSwipe(finger, availableDirections, out swipeDirection))
+                foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
                 {
-                    ResetSwipeStarts();
-                    return true;
+                    if (TryConsumeSwipe(finger, availableDirections, out swipeDirection))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -62,33 +94,61 @@ namespace Game.Player.Controls.Touch
             return false;
         }
 
-        private void ResetSwipeStarts()
+        public void Dispose()
         {
-            foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
+            if (_disposed)
             {
-                FingerTouchInteraction touchInteraction = finger.GetTouchInteraction();
+                return;
+            }
 
-                if (touchInteraction != FingerTouchInteraction.None)
-                {
-                    _swipeStarts[finger.index] = finger.GetLatestScreenPosition();
-                }
+            IsTracking = false;
+            _disposed = true;
+        }
+
+        private void AssertIsNotDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(SwipeEvaluation));
             }
         }
 
-        private bool TryGetSwipe(Finger finger, GridDirections availableDirections, out GridDirection swipeDirection)
+        private void OnFingerDown(Finger finger)
         {
-            FingerTouchInteraction touchInteraction = finger.GetTouchInteraction();
+            _touches[finger.index].OnFingerDown();
+        }
 
-            if (touchInteraction == FingerTouchInteraction.None)
+        private void OnFingerUp(Finger finger)
+        {
+            _touches[finger.index].OnFingerUp();
+        }
+
+        private bool TryConsumeSwipe(Finger finger, GridDirections availableDirections, out GridDirection swipeDirection)
+        {
+            FingerTouch fingerTouch = _touches[finger.index];
+
+            if (!fingerTouch.IsTouching || fingerTouch.HasSwiped)
             {
                 swipeDirection = GridDirection.None;
                 return false;
             }
 
-            Vector2 pixelDelta = finger.GetLatestScreenPosition() - _swipeStarts[finger.index];
+            Vector2 pixelDelta = finger.GetLatestScreenPosition() - fingerTouch.CurrentSwipeStart;
 
             Vector2 delta = pixelDelta / (ScreenUtility.Dpi * _settings.SwipeThreshold);
 
+            if (TryGetSwipe(availableDirections, delta, out swipeDirection))
+            {
+                fingerTouch.ConsumeSwipe();
+                return true;
+            }
+
+            swipeDirection = GridDirection.None;
+            return false;
+        }
+
+        private static bool TryGetSwipe(GridDirections availableDirections, Vector2 delta, out GridDirection swipeDirection)
+        {
             if (Mathf.Abs(delta.x) > 1)
             {
                 if (delta.x > 0)
@@ -127,12 +187,6 @@ namespace Game.Player.Controls.Touch
             return false;
 
             bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
-        }
-
-        public void Dispose()
-        {
-            UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
-            EnhancedTouchSupport.Disable();
         }
     }
 }

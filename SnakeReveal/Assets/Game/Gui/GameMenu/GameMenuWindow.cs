@@ -26,7 +26,7 @@ namespace Game.Gui.GameMenu
 
         protected void OnDisable()
         {
-            _settings.SaveToPlayerPrefs();
+            _settings.Save();
             _settings = null;
         }
 

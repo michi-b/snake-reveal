@@ -24,11 +24,11 @@ namespace Game.Settings
         {
             EnsureIsLoaded();
 
-            _settings.OverrideWithDefaults(_defaults);
+            _settings.ApplyDefaults(_defaults);
 
             if (saveToPreferences)
             {
-                _settings.SaveToPlayerPrefs();
+                _settings.Save();
             }
         }
 
@@ -36,12 +36,12 @@ namespace Game.Settings
         {
             EnsureIsLoaded();
 
-            _settings.OverrideWithDefaults(_defaults);
-            _settings.OverrideWithPlayerPrefs();
+            _settings.ApplyDefaults(_defaults);
+            _settings.ApplyPlayerPrefs();
 
             if (saveToPreferences)
             {
-                _settings.SaveToPlayerPrefs();
+                _settings.Save();
             }
         }
 
