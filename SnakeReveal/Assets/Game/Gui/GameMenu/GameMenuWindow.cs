@@ -3,6 +3,7 @@ using Game.Settings;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Utility;
 
 namespace Game.Gui.GameMenu
 {
@@ -57,6 +58,12 @@ namespace Game.Gui.GameMenu
             {
                 _settings.DisplayDebugInfo = value;
             }
+        }
+        
+        [UnityEventTarget]
+        public void AbortLevel()
+        {
+            ApplicationUtility.Quit(ExitCodes.Success);
         }
     }
 }

@@ -873,8 +873,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 5904975086134002527}
     m_Modifications:
     - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 7721974041731556832}
+    - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Toggle
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -882,7 +886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_text
-      value: Save and Close
+      value: Save and Resume
       objectReference: {fileID: 0}
     - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_fontColor.b
@@ -1438,10 +1442,14 @@ PrefabInstance:
     - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 7721974041731556832}
+      objectReference: {fileID: 2463084547258346247}
     - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: 
+      value: AbortLevel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6139431646690259366, guid: bada251a7c5af3342930e567d84b5070, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Game.Gui.GameMenu.GameMenuWindow, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6183361246241161860, guid: bada251a7c5af3342930e567d84b5070, type: 3}
       propertyPath: m_text

@@ -539,8 +539,24 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameMenuWindow
       objectReference: {fileID: 0}
-    - target: {fileID: 7721974041731556832, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
-      propertyPath: m_IsActive
+    - target: {fileID: 7790487720153454803, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7790487720153454803, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7790487720153454803, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7790487720153454803, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7790487720153454803, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8607277029470463250, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
@@ -563,10 +579,38 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8716687256658428178, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716687256658428178, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716687256658428178, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716687256658428178, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716687256658428178, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8980920671646554552, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1847412627603084757}
+    - target: {fileID: 8980920671646554552, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Toggle
+      objectReference: {fileID: 0}
+    - target: {fileID: 8980920671646554552, guid: 1e5b507901e4ce749aae2292e1bc9e4d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Game.Gui.GameMenu.GameMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

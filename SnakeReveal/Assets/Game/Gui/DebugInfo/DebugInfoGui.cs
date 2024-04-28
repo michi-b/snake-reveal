@@ -30,7 +30,8 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private Vector2Display _touch0Start;
         [SerializeField] private Vector2Display _swipe0Start;
         [SerializeField] private Vector2Display _touch0Current;
-
+        [SerializeField] private BoolDisplay _touch0Swiped;
+        
         private GameSettings _gameSettings;
 
         protected virtual void Start()
@@ -78,6 +79,7 @@ namespace Game.Gui.DebugInfo
                     _touch0Active.Value = touch.IsTouching;
                     _touch0Current.Value = touch.GetLatestScreenPosition();
                     _swipe0Start.Value = touch.CurrentSwipeStart;
+                    _touch0Swiped.Value = touch.HasSwiped;
                 }
             }
         }

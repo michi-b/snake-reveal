@@ -27,36 +27,38 @@ namespace Game.Player.Controls.Touch
             get => _isTracking;
             set
             {
-                if (value != _isTracking)
+                if (_disposed || value == _isTracking)
                 {
-                    if (value)
+                    return;
+                }
+
+                if (value)
+                {
+                    AssertIsNotDisposed();
+
+                    EnhancedTouchSupport.Enable();
+
+                    ReadOnlyArray<Finger> fingers = UnityEngine.InputSystem.EnhancedTouch.Touch.fingers;
+                    Array.Resize(ref _touches, fingers.Count);
+                    for (int i = 0; i < fingers.Count; i++)
                     {
-                        AssertIsNotDisposed();
-
-                        EnhancedTouchSupport.Enable();
-
-                        ReadOnlyArray<Finger> fingers = UnityEngine.InputSystem.EnhancedTouch.Touch.fingers;
-                        Array.Resize(ref _touches, fingers.Count);
-                        for (int i = 0; i < fingers.Count; i++)
-                        {
-                            _touches[i] = new FingerTouch(fingers[i]);
-                        }
-
-                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;
-                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp += OnFingerUp;
-                    }
-                    else
-                    {
-                        EnhancedTouchSupport.Disable();
-                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
-                        UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp -= OnFingerUp;
+                        _touches[i] = new FingerTouch(fingers[i]);
                     }
 
-                    _isTracking = value;
-                    foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
-                    {
-                        _touches[finger.index].Reset();
-                    }
+                    UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown += OnFingerDown;
+                    UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp += OnFingerUp;
+                }
+                else
+                {
+                    EnhancedTouchSupport.Disable();
+                    UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
+                    UnityEngine.InputSystem.EnhancedTouch.Touch.onFingerUp -= OnFingerUp;
+                }
+
+                _isTracking = value;
+                foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
+                {
+                    _touches[finger.index].Reset();
                 }
             }
         }
@@ -100,7 +102,7 @@ namespace Game.Player.Controls.Touch
             {
                 return;
             }
-
+            
             IsTracking = false;
             _disposed = true;
         }

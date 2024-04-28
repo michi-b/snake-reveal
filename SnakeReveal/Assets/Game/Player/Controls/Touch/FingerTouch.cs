@@ -4,13 +4,12 @@ using UnityEngine.InputSystem.EnhancedTouch;
 
 namespace Game.Player.Controls.Touch
 {
-    public struct FingerTouch
+    public class FingerTouch
     {
-        public bool IsTouching;
-        public bool HasSwiped;
-        public Vector2 CurrentSwipeStart;
-
-        public Finger Finger { get; private set; }
+        private Finger Finger { get; }
+        public bool IsTouching { get; private set; }
+        public Vector2 CurrentSwipeStart { get; private set; }
+        public bool HasSwiped { get; private set; }
 
         public FingerTouch(Finger finger)
         {
@@ -22,6 +21,11 @@ namespace Game.Player.Controls.Touch
 
         public void OnFingerDown()
         {
+            if (!Finger.currentTouch.valid)
+            {
+                return;
+            }
+
             Vector2 touchStartPosition = Finger.currentTouch.startScreenPosition;
             CurrentSwipeStart = touchStartPosition;
             IsTouching = true;
