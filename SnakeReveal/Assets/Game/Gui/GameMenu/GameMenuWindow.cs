@@ -59,7 +59,7 @@ namespace Game.Gui.GameMenu
                 _settings.DisplayDebugInfo = value;
             }
         }
-        
+
         [UnityEventTarget]
         public void AbortLevel()
         {

@@ -102,7 +102,7 @@ namespace Game.Player.Controls.Touch
             {
                 return;
             }
-            
+
             IsTracking = false;
             _disposed = true;
         }

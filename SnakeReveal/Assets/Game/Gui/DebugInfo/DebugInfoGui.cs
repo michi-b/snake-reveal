@@ -31,7 +31,7 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private Vector2Display _swipe0Start;
         [SerializeField] private Vector2Display _touch0Current;
         [SerializeField] private BoolDisplay _touch0Swiped;
-        
+
         private GameSettings _gameSettings;
 
         protected virtual void Start()
