@@ -151,6 +151,8 @@ namespace Game.Player.Controls.Touch
 
         private static bool TryGetSwipe(GridDirections availableDirections, Vector2 delta, out GridDirection swipeDirection)
         {
+            swipeDirection = GridDirection.None;
+
             if (Mathf.Abs(delta.x) > 1)
             {
                 if (delta.x > 0)
@@ -158,35 +160,35 @@ namespace Game.Player.Controls.Touch
                     if (CanReturn(GridDirection.Right))
                     {
                         swipeDirection = GridDirection.Right;
-                        return true;
                     }
                 }
                 else if (CanReturn(GridDirection.Left))
                 {
                     swipeDirection = GridDirection.Left;
-                    return true;
                 }
             }
-
-            if (Mathf.Abs(delta.y) > 1)
+            else if (Mathf.Abs(delta.y) > 1)
             {
                 if (delta.y > 0)
                 {
                     if (CanReturn(GridDirection.Up))
                     {
                         swipeDirection = GridDirection.Up;
-                        return true;
                     }
                 }
                 else if (CanReturn(GridDirection.Down))
                 {
                     swipeDirection = GridDirection.Down;
-                    return true;
                 }
             }
 
-            swipeDirection = GridDirection.None;
-            return false;
+            if (swipeDirection == GridDirection.None)
+            {
+                return false;
+            }
+
+            Debug.Log($"Accepted direction: {swipeDirection} with delta: {delta}");
+            return true;
 
             bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
         }
