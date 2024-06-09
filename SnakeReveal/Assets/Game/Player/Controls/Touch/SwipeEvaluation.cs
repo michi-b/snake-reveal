@@ -1,12 +1,12 @@
 using System;
 using Game.Enums;
 using Game.Enums.Extensions;
-using Game.Player.Controls.Touch.Extensions;
 using Game.Settings;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.InputSystem.Utilities;
 using Utility;
+using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 namespace Game.Player.Controls.Touch
 {
@@ -83,9 +83,9 @@ namespace Game.Player.Controls.Touch
 
             if (_isTracking && EnhancedTouchSupport.enabled)
             {
-                foreach (Finger finger in UnityEngine.InputSystem.EnhancedTouch.Touch.fingers)
+                foreach (UnityEngine.InputSystem.EnhancedTouch.Touch touch in UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches)
                 {
-                    if (TryConsumeSwipe(finger, availableDirections, out swipeDirection))
+                    if (TryConsumeSwipe(touch, availableDirections, out swipeDirection))
                     {
                         return true;
                     }
@@ -125,27 +125,55 @@ namespace Game.Player.Controls.Touch
             _touches[finger.index].OnFingerUp();
         }
 
-        private bool TryConsumeSwipe(Finger finger, GridDirections availableDirections, out GridDirection swipeDirection)
+        private bool TryConsumeSwipe(UnityEngine.InputSystem.EnhancedTouch.Touch touch, GridDirections availableDirections, out GridDirection swipeDirection)
         {
+            swipeDirection = GridDirection.None;
+
+            if (!touch.valid || touch.phase != TouchPhase.Moved)
+            {
+                return false;
+            }
+
+            Finger finger = touch.finger;
             FingerTouch fingerTouch = _touches[finger.index];
 
             if (!fingerTouch.IsTouching || fingerTouch.HasSwiped)
             {
-                swipeDirection = GridDirection.None;
                 return false;
             }
 
-            Vector2 pixelDelta = finger.GetLatestScreenPosition() - fingerTouch.CurrentSwipeStart;
+            Vector2 currentPosition;
+            try
+            {
+                currentPosition = touch.screenPosition;
+            }
+            catch (Exception)
+            {
+                Debug.LogError("Can't get current touch screen position.");
+                return false;
+            }
 
+            Vector2 startPosition;
+            try
+            {
+                startPosition = touch.startScreenPosition;
+            }
+            catch (Exception)
+            {
+                Debug.LogError("Can't get current touch start screen position.");
+                return false;
+            }
+
+            Vector2 pixelDelta = currentPosition - startPosition;
             Vector2 delta = pixelDelta / (ScreenUtility.Dpi * _settings.SwipeThreshold);
 
             if (TryGetSwipe(availableDirections, delta, out swipeDirection))
             {
+                Debug.Log($"Accepted direction {{{swipeDirection}}} with delta {{{delta}}} from finger index {{{finger.index}}}");
                 fingerTouch.ConsumeSwipe();
                 return true;
             }
 
-            swipeDirection = GridDirection.None;
             return false;
         }
 
@@ -182,13 +210,7 @@ namespace Game.Player.Controls.Touch
                 }
             }
 
-            if (swipeDirection == GridDirection.None)
-            {
-                return false;
-            }
-
-            Debug.Log($"Accepted direction: {swipeDirection} with delta: {delta}");
-            return true;
+            return swipeDirection != GridDirection.None;
 
             bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
         }

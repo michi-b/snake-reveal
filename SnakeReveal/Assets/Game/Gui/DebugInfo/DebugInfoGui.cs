@@ -1,5 +1,3 @@
-using Game.Player.Controls;
-using Game.Player.Controls.Touch;
 using Game.Settings;
 using Game.Simulation;
 using TextDisplay.Abstractions;
@@ -26,11 +24,6 @@ namespace Game.Gui.DebugInfo
         [SerializeField] private IntDisplay _targetCellCount;
         [SerializeField] private Vector2Display _dpi;
         [SerializeField] private BoolDisplay _swipesAreEnabled;
-        [SerializeField] private BoolDisplay _touch0Active;
-        [SerializeField] private Vector2Display _touch0Start;
-        [SerializeField] private Vector2Display _swipe0Start;
-        [SerializeField] private Vector2Display _touch0Current;
-        [SerializeField] private BoolDisplay _touch0Swiped;
 
         private GameSettings _gameSettings;
 
@@ -67,21 +60,7 @@ namespace Game.Gui.DebugInfo
             _totalCellCount.Value = gameSimulation.Grid.GetCellCount();
             _coveredCellCount.Value = gameSimulation.CoveredCellCount;
 
-            IPlayerActorControls controls = _game.PlayerActorControls;
-
-            _swipesAreEnabled.Value = controls.IsEnabled;
-
-            if (controls is PlayerActorControls playerActorControls)
-            {
-                if (playerActorControls.SwipeEvaluation.TryGetTouch(0, out FingerTouch touch))
-                {
-                    _touch0Start.Value = touch.GetLatestStartScreenPosition();
-                    _touch0Active.Value = touch.IsTouching;
-                    _touch0Current.Value = touch.GetLatestScreenPosition();
-                    _swipe0Start.Value = touch.CurrentSwipeStart;
-                    _touch0Swiped.Value = touch.HasSwiped;
-                }
-            }
+            _swipesAreEnabled.Value = _game.PlayerActorControls.IsEnabled;
         }
     }
 }

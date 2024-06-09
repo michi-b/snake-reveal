@@ -6,15 +6,17 @@ namespace Game.Player.Controls.Touch
 {
     public class FingerTouch
     {
-        private Finger Finger { get; }
-        public bool IsTouching { get; private set; }
-        public Vector2 CurrentSwipeStart { get; private set; }
+        public Finger Finger { get; }
+        public bool IsTouching => Finger.currentTouch is { valid: true, isInProgress: true };
+
+        public Vector2 ContactStart => IsTouching ? Finger.currentTouch.startScreenPosition : new Vector2(float.NaN, float.NaN);
+
         public bool HasSwiped { get; private set; }
 
         public FingerTouch(Finger finger)
         {
             Finger = finger;
-            SetState(false, false, default);
+            HasSwiped = false;
         }
 
         public void OnFingerDown()
@@ -24,9 +26,7 @@ namespace Game.Player.Controls.Touch
                 return;
             }
 
-            Vector2 touchStartPosition = Finger.currentTouch.startScreenPosition;
-            
-            SetState(true, false, touchStartPosition);
+            HasSwiped = false;
         }
 
         public void OnFingerUp()
@@ -36,21 +36,13 @@ namespace Game.Player.Controls.Touch
 
         public void ConsumeSwipe()
         {
-            
             Debug.Assert(IsTouching);
-            SetState(IsTouching, true, default);
+            HasSwiped = true;
         }
 
         public void Reset()
         {
-            SetState(false, false, default);
-        }
-        
-        private void SetState(bool isTouching, bool hasSwiped, Vector2 currentSwipeStart)
-        {
-            IsTouching = isTouching;
-            HasSwiped = hasSwiped;
-            CurrentSwipeStart = currentSwipeStart;
+            HasSwiped = false;
         }
 
         public Vector2 GetLatestScreenPosition() => Finger.GetLatestScreenPosition();
