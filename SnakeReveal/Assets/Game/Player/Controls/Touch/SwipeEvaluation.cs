@@ -146,40 +146,62 @@ namespace Game.Player.Controls.Touch
 
         private static bool TryGetSwipe(GridDirections availableDirections, Vector2 delta, out GridDirection swipeDirection)
         {
+            float xDelta = delta.x;
+            float yDelta = delta.y;
+            float xDeltaAbs = Mathf.Abs(xDelta);
+            float yDeltaAbs = Mathf.Abs(yDelta);
+
+            if (xDeltaAbs > yDeltaAbs)
+            {
+                if (TryGetHorizontalSwipe(out swipeDirection))
+                {
+                    return true;
+                }
+
+                if (TryGetVerticalSwipe(out swipeDirection))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (TryGetVerticalSwipe(out swipeDirection))
+                {
+                    return true;
+                }
+
+                if (TryGetHorizontalSwipe(out swipeDirection))
+                {
+                    return true;
+                }
+            }
+
             swipeDirection = GridDirection.None;
+            return false;
 
-            if (Mathf.Abs(delta.x) > 1)
+            bool TryGetHorizontalSwipe(out GridDirection direction)
             {
-                if (delta.x > 0)
+                if (xDeltaAbs > 1)
                 {
-                    if (CanReturn(GridDirection.Right))
-                    {
-                        swipeDirection = GridDirection.Right;
-                    }
+                    direction = xDelta > 0 ? GridDirection.Right : GridDirection.Left;
+                    return availableDirections.Contains(direction);
                 }
-                else if (CanReturn(GridDirection.Left))
-                {
-                    swipeDirection = GridDirection.Left;
-                }
-            }
-            else if (Mathf.Abs(delta.y) > 1)
-            {
-                if (delta.y > 0)
-                {
-                    if (CanReturn(GridDirection.Up))
-                    {
-                        swipeDirection = GridDirection.Up;
-                    }
-                }
-                else if (CanReturn(GridDirection.Down))
-                {
-                    swipeDirection = GridDirection.Down;
-                }
+
+                direction = GridDirection.None;
+                return false;
             }
 
-            return swipeDirection != GridDirection.None;
+            bool TryGetVerticalSwipe(out GridDirection direction)
+            {
+                if (yDeltaAbs > 1)
+                {
+                    direction = yDelta > 0 ? GridDirection.Up : GridDirection.Down;
+                    return availableDirections.Contains(direction);
+                }
 
-            bool CanReturn(GridDirection direction) => availableDirections.Contains(direction);
+                direction = GridDirection.None;
+                return false;
+            }
         }
     }
 }
