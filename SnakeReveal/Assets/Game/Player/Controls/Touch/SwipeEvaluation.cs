@@ -104,7 +104,7 @@ namespace Game.Player.Controls.Touch
         {
             swipeDirection = GridDirection.None;
 
-            if (!touch.valid || touch.phase != TouchPhase.Moved || _hasFingerSwiped[touch.finger.index])
+            if (!touch.valid || !GetCanTriggerSwipe(touch.phase) || _hasFingerSwiped[touch.finger.index])
             {
                 return false;
             }
@@ -142,6 +142,20 @@ namespace Game.Player.Controls.Touch
             }
 
             return false;
+            
+            static bool GetCanTriggerSwipe(TouchPhase touchPhase)
+            {
+                return touchPhase switch
+                {
+                    TouchPhase.None => false,
+                    TouchPhase.Began => false,
+                    TouchPhase.Moved => true,
+                    TouchPhase.Ended => false,
+                    TouchPhase.Canceled => false,
+                    TouchPhase.Stationary => true,
+                    _ => throw new ArgumentOutOfRangeException(nameof(touchPhase), touchPhase, null)
+                };
+            }
         }
 
         private static bool TryGetSwipe(GridDirections availableDirections, Vector2 delta, out GridDirection swipeDirection)

@@ -38,7 +38,6 @@ namespace Game.Simulation.States
         {
             AssertActorIsOnShape();
 
-
             if (Shape.TryGetBreakoutLine(Actor.Position, Actor.Direction, _currentLine, out Line breakoutLine))
             {
                 // note: drawing state instantly moves and might return to this state again on collision or instant reconnection
